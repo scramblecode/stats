@@ -11,7 +11,7 @@
       padding: 0;
       background-color: #4e4949;
       color: #f9f9f9;
-      background: url('img/mb1.png') no-repeat center center fixed;
+      background: url('/mb1.png') no-repeat center center fixed;
       background-size: cover;
     }
     h1, p {
