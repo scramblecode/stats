@@ -727,15 +727,15 @@ contentDiv.appendChild(totalScoreDiv);
   contentDiv.appendChild(tableWrapper);
 }
 const bracket = [
-      ["Cheezeninja", "Marquis", "?", "?", -1],
+      ["Cheezeninja", "Marquis", "X", "X", -1],
       ["Ebdanian", "Hemp", 9, 6, 0],
-      ["Marquis", "Ebdanian", "?", "?", -1],
+      ["Marquis", "Ebdanian", "X", "X", -1],
       ["Roberta", "Cheezeninja", 9, 6, 1],
       ["Ebdanian", "Roberta", 4, 12, 2],
       ["Hemp", "Marquis", 12, 6, 3],
-      ["Roberta", "Hemp", "?", "?", -1],
-      ["Cheezeninja", "Ebdanian", "?", "?", -1],
-      ["Hemp", "Cheezeninja", "?", "?", -1],
+      ["Roberta", "Hemp", 2, 12, 5],
+      ["Cheezeninja", "Ebdanian", 9, 8, 6],
+      ["Hemp", "Cheezeninja", 9, 1, 7],
       ["Marquis", "Roberta", 4, 9, 4],
       ["?", "?", "?", "?", -1],
       ["?", "?", "?", "?", -1],
@@ -745,8 +745,13 @@ const bracket = [
 
 
 
-const halfs = [[0,1],[2,3],[4,5],[6,7],[8,9],[10,11],[12,13],[14,15],[16,17],[18,19]];
-const scrims = [[0,1,0],[2,3,0],[4,5,1],[6,7,0],[8,9,0]];
+const halfs = [[0,1],[2,3],[4,5],[6,7],[8,9],[10,11],[12,13],[14,15],[16,17],[18,19],[20,21],[22,23],[24,25],[26,27],[28,29],[30,31]];
+const scrims = [[0,1,0],[2,3,0],[4,5,1],[6,7,0],[8,9,0],[10,11,0],[12,13,0],[14,15,0]];
+
+//DAY 2:
+//Eb vs Cheez 0,1,2,3
+//hemp vs bob 5??  ff last set? 
+//cheez vs hemp 16, 17, 18
 
   // --- The rest of your functions handling URL updates, landing page, etc.
   // (They remain largely the same as your existing code.)
@@ -764,8 +769,8 @@ const scrims = [[0,1,0],[2,3,0],[4,5,1],[6,7,0],[8,9,0]];
       const tabs = [
         { label: "BRACKET", id: "bracket" },
         { label: "TEAMS", id: "teams" },
-        { label: "PLAYERS", id: "players" },
-        // { label: "MAPS", id: "matches" },
+        // { label: "PLAYERS", id: "players" },
+        // { label: "MATCHES", id: "matches" },
         // { label: "FACTIONS", id: "matches" },
         // { label: "Matches", id: "matches" },
         // { label: "Matches", id: "matches" },
@@ -845,7 +850,7 @@ const scrims = [[0,1,0],[2,3,0],[4,5,1],[6,7,0],[8,9,0]];
         }
 
       box.addEventListener("click", () => {
-        updateURLToScrim(scrimID); // Update the URL and render the Scrim view
+        if (scrimID >= 0) updateURLToScrim(scrimID); // Update the URL and render the Scrim view
       });
 
         // Top row: Team1 name and its score.
@@ -977,46 +982,121 @@ function renderPlayersList() {
     const container = document.getElementById("tab-content");
     container.innerHTML = "";  // Clear previous content
 
-    fetch("players.json")
-        .then(function(response) {
-            if (!response.ok) {
-                throw new Error("Failed to load players.json");
-            }
-            return response.json();
-        })
-        .then(function(data) {
-            var playerIds = data.player_ids;       // e.g. [123, 456, ...]
-            var playerNames = data.player_names;     // e.g. [ ["Alice", "Alicia"], ["Bob"], ... ]
+    Promise.all([
+        fetch("players.json").then(res => res.json()),
+        fetch("tournament.json").then(res => res.json())
+    ])
+    .then(([playersData, matches]) => {
+        const playerIds = playersData.player_ids;
+        const playerNames = playersData.player_names;
 
-            if (!playerIds || !playerNames) {
-                container.innerHTML = "No player data available.";
-                return;
-            }
+        if (!playerIds || !playerNames) {
+            container.innerHTML = "No player data available.";
+            return;
+        }
 
-            // Create a scrollable container for the players list
-            var playersContainer = document.createElement("div");
-            playersContainer.id = "players-container";
+        // Step 1: Map all player names to their unique IDs
+        const nameToIdMap = new Map();
+        playerIds.forEach((id, index) => {
+          if (id === 0 ) return;
+            playerNames[index].forEach(name => {
+                nameToIdMap.set(name.toLowerCase(), id); // Use lowercase for case-insensitive mapping
+            });
+        });
 
-            // Create a list (ul) of players.
-            var ul = document.createElement("ul");
-            ul.style.listStyle = "none";  // Remove default bullets
+        // Step 2: Initialize aggregation object
+        const playerStats = {};
+        playerIds.forEach(id => {
+          if (id === 0 ) return;
+            playerStats[id] = { kills: 0, deaths: 0, assists: 0, dmg: 0, tks: 0, tDmg: 0 };
+        });
+        matches.matches.forEach(match => {
+            match.rounds.forEach(round => {
+                // Count string matches for kills, deaths, etc.
+                const { kills, deaths, teamkills, teamkilled, assists, dmg, players } = round;
 
-            // Loop over each player by index
-            playerIds.forEach(function(id, index) {
-              if (index === 0) return;
-                var li = document.createElement("li");
-                // Use the first name in the corresponding playerNames array.
-                var name = (playerNames[index] && playerNames[index].length > 0) ? playerNames[index][0] : "Unknown";
-                li.textContent = name;
-                ul.appendChild(li);
+                kills.forEach(name => {
+                    const playerId = nameToIdMap.get(name.toLowerCase());
+                    if (playerId) playerStats[playerId].kills += 1;
+                });
+
+                deaths.forEach(name => {
+                    const playerId = nameToIdMap.get(name.toLowerCase());
+                    if (playerId) playerStats[playerId].deaths += 1;
+                });
+
+                teamkills.forEach(name => {
+                    const playerId = nameToIdMap.get(name.toLowerCase());
+                    if (playerId) playerStats[playerId].tks += 1;
+                });
+
+                teamkilled.forEach(name => {
+                    const playerId = nameToIdMap.get(name.toLowerCase());
+                    if (playerId) playerStats[playerId].tked += 1;
+                });
+
+                // Aggregate assists and damage using the player index
+                assists.forEach((value, index) => {
+                    const playerId = nameToIdMap.get(players[index].toLowerCase());
+                    if (playerId) playerStats[playerId].assists += value;
+                });
+
+                dmg.forEach((value, index) => {
+                    const playerId = nameToIdMap.get(players[index].toLowerCase());
+                    if (playerId) playerStats[playerId].dmg += value;
+                });
+            });
+        });
+
+        // Step 4: Display aggregated stats in a table
+        const table = document.createElement("table");
+        table.style.width = "100%";
+        table.style.borderCollapse = "collapse";
+
+        // Create table header
+        const headerRow = document.createElement("tr");
+        ["Player Name", "Kills", "Deaths", "Assists", "Damage", "Teamkills", "Team Damage"].forEach(text => {
+            const th = document.createElement("th");
+            th.textContent = text;
+            th.style.border = "1px solid #ccc";
+            th.style.padding = "8px";
+            th.style.textAlign = "left";
+            headerRow.appendChild(th);
+        });
+        table.appendChild(headerRow);
+
+        // Populate table with stats
+        playerIds.forEach(id => {
+            const row = document.createElement("tr");
+
+            // Get the first name of the player for display
+            const firstName = playerNames[playerIds.indexOf(id)][0];
+
+            // Create table cells
+            [
+                firstName,
+                playerStats[id].kills,
+                playerStats[id].deaths,
+                playerStats[id].assists,
+                playerStats[id].dmg,
+                playerStats[id].tks,
+                playerStats[id].tDmg
+            ].forEach(value => {
+                const td = document.createElement("td");
+                td.textContent = value;
+                td.style.border = "1px solid #ccc";
+                td.style.padding = "8px";
+                row.appendChild(td);
             });
 
-            playersContainer.appendChild(ul);  
-            container.appendChild(playersContainer);
-        })
-        .catch(function(error) {
-            container.innerHTML = "<p style='color:red;'>Error loading player data: " + error + "</p>";
+            table.appendChild(row);
         });
+
+        container.appendChild(table);
+    })
+    .catch(error => {
+        container.innerHTML = "<p style='color:red;'>Error loading data: " + error.message + "</p>";
+    });
 }
 
     // Example: Render a list of scrims.
