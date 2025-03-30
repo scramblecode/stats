@@ -1,0 +1,1464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Match Stats Viewer</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1 class="outside-text">Roberta Baratheon's Scramble League 2025</h1>
+    <p class="subtext">Click on score for match/set/round details</p>
+    
+    <div id="content">
+        <p>Loading match data...</p>
+    </div>
+
+    <script>
+
+  // Helper: Compute player stats from a data source.
+  // 'data' can be an array of rounds (for an entire match) or a single round.
+  // When given multiple rounds, stats will be aggregated.
+  function getPlayerStats(rounds) {
+    const stats = {}; // player name -> stats object
+
+    // 'rounds' can be an array; if it is not, treat it as a single round.
+    if (!Array.isArray(rounds)) {
+      rounds = [rounds];
+    }
+
+    rounds.forEach(round => {
+      round.players.forEach((player, index) => {
+        if (!stats[player]) {
+          stats[player] = {
+            team: round.teams[index],
+            kills: 0,
+            deaths: 0,
+            assists: 0,
+            dmg: 0,
+            teamkills: 0,
+            tdmg: 0,
+          };
+        }
+        // For kills and teamkills, count the number of appearances in the round’s arrays.
+        stats[player].kills += round.kills.filter(k => k === player).length;
+        stats[player].deaths += round.deaths.filter(d => d === player).length;
+        stats[player].assists += round.assists[index] || 0;
+        stats[player].dmg += round.dmg[index] || 0;
+        stats[player].teamkills += round.teamkills.filter(tk => tk === player).length;
+        stats[player].tdmg += round.tdmg[index] || 0;
+      });
+    });
+    return stats;
+  }
+
+  // Helper: Given an object mapping player names to stats,
+  // split them into entries for players on team 0 and team 1,
+  // then sort each by kills descending.
+  function splitAndSortByTeam(playerStats) {
+    const team0 = [];
+    const team1 = [];
+    Object.entries(playerStats).forEach(([player, stats]) => {
+      if (stats.team === 0) {
+        team0.push([player, stats]);
+      } else if (stats.team === 1) {
+        team1.push([player, stats]);
+      }
+    });
+    team0.sort((a, b) => b[1].kills - a[1].kills);
+    team1.sort((a, b) => b[1].kills - a[1].kills);
+    return { team0, team1 };
+  }
+
+  // Helper: Generate a team's stats table given sorted data and a heading (faction name).
+  function generateTeamTableCommon(teamData, heading, sh) {
+    const teamDiv = document.createElement("div");
+    teamDiv.style.flex = "1";
+    teamDiv.style.minWidth = "0";
+
+    const headerDiv = document.createElement("div");
+    headerDiv.className = "team-header";
+    headerDiv.style.display = "flex";
+    headerDiv.style.justifyContent = "space-between";
+    headerDiv.style.alignItems = "center";
+    headerDiv.style.marginBottom = "10px";
+
+    if (sh==1) {
+      const headingElem = document.createElement("h1");
+      headingElem.textContent = heading;
+      headingElem.style.margin = "0";
+      headerDiv.appendChild(headingElem);
+    }
+    // (Optionally, you could add a score display here if available.)
+    teamDiv.appendChild(headerDiv);
+
+    const table = document.createElement("table");
+    table.style.width = "100%";
+    table.style.borderCollapse = "collapse";
+
+    const headerRow = document.createElement("tr");
+    // Column headers: "Player", "Kills", "Deaths", "Assists", "Damage", "Team Kills", "Team Damage"
+    ["Player", "Kills", "Deaths", "Assists", "DMG", "TKs", "TDMG"].forEach((colHeader, idx) => {
+      const th = document.createElement("th");
+      th.textContent = colHeader;
+      // For the first column, left-align; others we center except we override in inline style later.
+      th.style.textAlign = idx === 0 ? "left" : "center";
+      th.style.borderBottom = "2px solid #ddd";
+      th.style.padding = "5px";
+      headerRow.appendChild(th);
+    });
+    table.appendChild(headerRow);
+
+    // Add rows for each player in this team
+    teamData.forEach(([player, stats]) => {
+      const row = document.createElement("tr");
+      [player, stats.kills, stats.deaths, stats.assists, stats.dmg, stats.teamkills, stats.tdmg].forEach((value, idx) => {
+        const td = document.createElement("td");
+        td.textContent = value;
+        // First column (names) left-aligned; index 4 (Damage) and 6 (Team Damage) right-aligned;
+        // all others center-aligned.
+        if (idx === 0) {
+          td.style.textAlign = "left";
+          td.style.whiteSpace = "nowrap";
+          td.style.overflow = "visible";
+        // } else if (idx === 4 || idx === 6) {
+        //   td.style.textAlign = "right";
+        } else {
+          td.style.textAlign = "center";
+        }
+        td.style.padding = "5px";
+        row.appendChild(td);
+      });
+      table.appendChild(row);
+    });
+
+    teamDiv.appendChild(table);
+    return teamDiv;
+  }
+
+  // The original function to render full match details (aggregated over rounds).
+  function renderMatchDetails(matchID) {
+    const match = matches[matchID];
+    const contentDiv = document.getElementById("content");
+    contentDiv.classList.remove("landing");
+    contentDiv.classList.add("match-detail");
+    contentDiv.innerHTML = ""; // Clear previous content
+
+    // "Back" button
+    const backButton = document.createElement("button");
+    backButton.textContent = "Back to Matches";
+    backButton.style.marginBottom = "20px";
+    backButton.onclick = updateURLToLanding;
+    contentDiv.appendChild(backButton);
+
+    // Match info header
+    const mapHeading = document.createElement("h1");
+    mapHeading.textContent = `${match.map}`;
+    contentDiv.appendChild(mapHeading);
+
+    // const factionsHeader = document.createElement("div");
+    // factionsHeader.className = "team-header";
+    // factionsHeader.style.display = "flex";
+    //factionsHeader.style.justifyContent = "space-between";
+    // factionsHeader.style.alignItems = "center";
+
+    // const factionsLeft = document.createElement("span"); 
+    // factionsLeft.textContent = `Factions: ${match.faction_1} vs ${match.faction_2}`;
+    // factionsLeft.style.textAlign = "left";
+
+    // Compute overall score from round results:
+    let team0Score = 0;
+    let team1Score = 0;
+    match.rounds.forEach(round => {
+        if (round.result.includes("Team 2 win")) {
+          if (round.result.includes("flag"))
+            {team1Score++} else {team0Score++};
+        } else if (round.result.includes("Team 1 win")) {
+          if (round.result.includes("flag"))
+            {team0Score++} else {team1Score++};
+        }
+    });
+    const scoreElement = document.createElement("h1");
+    scoreElement.textContent = `${team0Score} - ${team1Score}`;
+    scoreElement.style.textAlign = "center";
+    scoreElement.style.cursor = "pointer";
+    scoreElement.onclick = () => {
+      updateURLToMatch(matchID, 0); // Start with Round 0
+    };
+
+    // factionsHeader.appendChild(factionsLeft);
+    // factionsHeader.appendChild(scoreElement);
+    contentDiv.appendChild(scoreElement);
+
+    // Instead of listing rounds, render aggregated statistics for the match.
+    calculateTotalStats(match);
+  }
+
+  // New function: renderSingleRound displays match info and stats for one round only.
+  function renderSingleRound(matchID, roundIndex) {
+    const match = matches[matchID];
+    const round = match.rounds[roundIndex];
+    const contentDiv = document.getElementById("content");
+    contentDiv.classList.remove("landing");
+    contentDiv.classList.add("match-detail");
+    contentDiv.innerHTML = "";  // Clear existing content
+
+    // "Back" button
+    const backButton = document.createElement("button");
+    backButton.textContent = "Back to Matches";
+    backButton.style.marginBottom = "20px";
+    backButton.onclick = updateURLToLanding;
+    contentDiv.appendChild(backButton);
+
+    // Header with basic match info; you might want to include the round's start time.
+    const mapHeading = document.createElement("h1");
+    mapHeading.textContent = `${match.map} (Round ${roundIndex + 1})`;
+    contentDiv.appendChild(mapHeading);
+
+    // const factionsHeader = document.createElement("div");
+    // factionsHeader.className = "team-header";
+
+    // const factionsLeft = document.createElement("span");
+    // factionsLeft.textContent = `Factions: ${match.faction_1} vs ${match.faction_2}`;
+    // factionsLeft.style.textAlign = "left";
+
+    // For a single round, you might decide to show no score or compute a score based on round.result.
+    const scoreElement = document.createElement("h1");
+    // For example, if round.result is "Team 2 win" we could assign a score of "1 - 0" for that round.
+    // let roundScore = "";
+    // if (round.result.includes("Team 2 win")) {
+    //       if (round.result.includes("flag"))
+    //         {roundScore = "+0 - +1"} else {roundScore = "+1 - +0"}
+    //   roundScore = "+1 - +0";
+    // } else if (round.result.includes("Team 1 win")) {
+    //       if (round.result.includes("flag"))
+    //         {roundScore = "+1 - +0"} else {roundScore = "+0 - +1"};
+    // } else {
+    //   roundScore = "+0 - +0";
+    // }
+    let team0Score, team1Score;
+
+if (roundIndex === 0) {
+    // For round 0, there are no previous rounds. Use the current round only.
+    const round = match.rounds[0];
+    if (round.result.includes("Draw")) {
+        team0Score = "0";
+        team1Score = "0";
+    } else if (round.result.includes("Team 2 win")) {
+        if (round.result.includes("flag")) {
+            team1Score = "+1";
+            team0Score = "0";
+        } else {
+            team0Score = "+1";
+            team1Score = "0";
+        }
+    } else if (round.result.includes("Team 1 win")) {
+        if (round.result.includes("flag")) {
+            team0Score = "+1";
+            team1Score = "0";
+        } else {
+            team1Score = "+1";
+            team0Score = "0";
+        }
+    } else {
+        team0Score = "0";
+        team1Score = "0";
+    }
+} else {
+    // Compute aggregate score from rounds 0 to roundIndex-1
+    let cumulativeTeam0 = 0, cumulativeTeam1 = 0;
+    for (var i = 0; i < roundIndex; i++) {
+        let r = match.rounds[i];
+        if (r.result.includes("Team 2 win")) {
+            if (r.result.includes("flag")) {
+                cumulativeTeam1++;
+            } else {
+                cumulativeTeam0++;
+            }
+        } else if (r.result.includes("Team 1 win")) {
+            if (r.result.includes("flag")) {
+                cumulativeTeam0++;
+            } else {
+                cumulativeTeam1++;
+            }
+        }
+    }
+
+    // Determine current round change from roundIndex only.
+    const currentRound = match.rounds[roundIndex];
+    let currentChangeTeam0 = 0, currentChangeTeam1 = 0;
+    if (currentRound.result.includes("Draw")) {
+        // For draw, we show "Draw - cumulativeTeam0 - cumulativeTeam1"
+        team0Score = "Draw - " + cumulativeTeam0;
+        team1Score = "Draw - " + cumulativeTeam1;
+    } else if (currentRound.result.includes("Team 2 win")) {
+        if (currentRound.result.includes("flag")) {
+            currentChangeTeam1 = 1;
+        } else {
+            currentChangeTeam0 = 1;
+        }
+        team0Score = cumulativeTeam0.toString() + (currentChangeTeam0 > 0 ? " (+" + currentChangeTeam0 + ")" : "");
+        team1Score = cumulativeTeam1.toString() + (currentChangeTeam1 > 0 ? " (+" + currentChangeTeam1 + ")" : "");
+    } else if (currentRound.result.includes("Team 1 win")) {
+        if (currentRound.result.includes("flag")) {
+            currentChangeTeam0 = 1;
+        } else {
+            currentChangeTeam1 = 1;
+        }
+        team0Score = cumulativeTeam0.toString() + (currentChangeTeam0 > 0 ? " (+" + currentChangeTeam0 + ")" : "");
+        team1Score = cumulativeTeam1.toString() + (currentChangeTeam1 > 0 ? " (+" + currentChangeTeam1 + ")" : "");
+    } else {
+        team0Score = cumulativeTeam0.toString();
+        team1Score = cumulativeTeam1.toString();
+    }
+}
+    scoreElement.textContent = `${team0Score} - ${team1Score}`;
+    scoreElement.style.textAlign = "center";
+    scoreElement.style.pointer = "cursor";
+    scoreElement.onclick = () => {
+      if (roundIndex + 1 < match.rounds.length) {
+        updateURLToMatch(matchID, roundIndex + 1); // Render the next round
+      } else {
+        updateURLToMatch(matchID); // Return to match details if it's the last round
+      }
+    }
+
+    // factionsHeader.appendChild(factionsLeft);
+    contentDiv.appendChild(scoreElement);
+    //contentDiv.appendChild(factionsHeader);
+
+  // Handle stats differently for Round 0
+  if (roundIndex === 0) {
+    // Stats for the current round only
+    const currentStats = getPlayerStats([match.rounds[roundIndex]]);
+
+    // Split and sort players by teams
+    const { team0, team1 } = splitAndSortByTeam(currentStats);
+
+    // Format stats to only show current values as "+value" or "0"
+    const formattedTeam0 = team0.map(([player, stats]) => {
+      const formattedStats = {};
+      Object.keys(stats).forEach(key => {
+        if (key !== "team") {
+          const value = stats[key] || 0;
+          formattedStats[key] = value > 0 ? `+${value}` : "0";
+        }
+      });
+      return [player, { ...stats, ...formattedStats }];
+    });
+
+    const formattedTeam1 = team1.map(([player, stats]) => {
+      const formattedStats = {};
+      Object.keys(stats).forEach(key => {
+        if (key !== "team") {
+          const value = stats[key] || 0;
+          formattedStats[key] = value > 0 ? `+${value}` : "0";
+        }
+      });
+      return [player, { ...stats, ...formattedStats }];
+    });
+
+    // Display formatted stats for Round 0
+    const tableWrapper = document.createElement("div");
+    tableWrapper.className = "table-wrapper";
+    tableWrapper.style.display = "flex";
+    //tableWrapper.style.gap = "30px";
+
+    tableWrapper.appendChild(generateTeamTableCommon(formattedTeam0, match.faction_1, 1));
+    tableWrapper.appendChild(generateTeamTableCommon(formattedTeam1, match.faction_2, 1));
+
+    contentDiv.appendChild(tableWrapper);
+  } else {
+    // Handle rounds beyond Round 0
+    const aggregateRounds = match.rounds.slice(0, roundIndex + 1);
+    const aggregatePlayerStats = getPlayerStats(aggregateRounds);
+    const currentRoundStats = getPlayerStats([match.rounds[roundIndex]]);
+
+    const { team0, team1 } = computeRoundChanges(aggregatePlayerStats, currentRoundStats);
+
+    const tableWrapper = document.createElement("div");
+    tableWrapper.className = "table-wrapper";
+    tableWrapper.style.display = "flex";
+    //tableWrapper.style.gap = "30px";
+
+    tableWrapper.appendChild(generateTeamTableCommon(team0, match.faction_1, 1));
+    tableWrapper.appendChild(generateTeamTableCommon(team1, match.faction_2, 1));
+
+    contentDiv.appendChild(tableWrapper);
+  }
+  }
+
+  function computeRoundChanges(aggregatePlayerStats, currentPlayerStats) {
+  const team0 = [];
+  const team1 = [];
+
+  // Step 1: Sort players by team using splitAndSortByTeam
+  const { team0: sortedTeam0, team1: sortedTeam1 } = splitAndSortByTeam(aggregatePlayerStats);
+
+  // Step 2: Process Team 0 players
+  sortedTeam0.forEach(([player, aggregateStats]) => {
+    const currStats = currentPlayerStats[player] || {}; // Current stats for the player (default empty if not present)
+    const prevStats = {}; // Initialize previous stats to calculate
+
+    // Compute stats before current round by subtracting current stats from aggregate
+    Object.keys(aggregateStats).forEach(key => {
+      if (key !== "team") {
+        const aggregateValue = aggregateStats[key] || 0;
+        const currentValue = currStats[key] || 0;
+        prevStats[key] = aggregateValue - currentValue;
+      }
+    });
+
+    // Generate display values by combining prevStats and currStats
+    const statsWithChanges = {};
+    Object.keys(prevStats).forEach(key => {
+      const prevValue = prevStats[key] || 0;
+      const currValue = currStats[key] || 0;
+      const change = currValue; // Change is the current round's value
+      statsWithChanges[key] = change > 0 ? `${prevValue} (+${change})` : `${prevValue}`;
+    });
+
+    // Push updated stats with changes into the team array
+    team0.push([player, { ...aggregateStats, ...statsWithChanges }]);
+  });
+
+  // Step 3: Process Team 1 players
+  sortedTeam1.forEach(([player, aggregateStats]) => {
+    const currStats = currentPlayerStats[player] || {};
+    const prevStats = {};
+
+    // Compute stats before current round by subtracting current stats from aggregate
+    Object.keys(aggregateStats).forEach(key => {
+      if (key !== "team") {
+        const aggregateValue = aggregateStats[key] || 0;
+        const currentValue = currStats[key] || 0;
+        prevStats[key] = aggregateValue - currentValue;
+      }
+    });
+
+    // Generate display values by combining prevStats and currStats
+    const statsWithChanges = {};
+    Object.keys(prevStats).forEach(key => {
+      const prevValue = prevStats[key] || 0;
+      const currValue = currStats[key] || 0;
+      const change = currValue; // Change is the current round's value
+      statsWithChanges[key] = change > 0 ? `${prevValue} (+${change})` : `${prevValue}`;
+    });
+
+    // Push updated stats with changes into the team array
+    team1.push([player, { ...aggregateStats, ...statsWithChanges }]);
+  });
+
+  return { team0, team1 };
+}
+
+  function getHalfAggregate(halfIndices) {
+  let combinedRounds = [];
+  let team0Score = 0;
+  let team1Score = 0;
+  let faction1 = "";
+  let faction2 = "";
+  
+  halfIndices.forEach((mIndex, i) => {
+    const matchObj = matches[mIndex];
+    if (matchObj && matchObj.rounds) {
+      // For the first match in the half, store the faction names.
+      if (i === 0) {
+        faction1 = matchObj.faction_1;
+        faction2 = matchObj.faction_2;
+      }
+      // For each match, we assume your renderHalf logic was to flip the rounds in the
+      // second match. Here, we use that same idea:
+      matchObj.rounds.forEach(round => {
+        // For the second match in a half, we flip the round.
+        const processedRound = (i === 1) ? flipRound(round) : round;
+        combinedRounds.push(processedRound);
+        // Score logic: for match index 0 (first match), if round.result includes "Team 2 win" then team0Score++,
+        // and if it includes "Team 1 win" then team1Score++.
+        // For match index 1, since we flipped rounds, we use the normal logic.
+          if (i === 0) {
+            if (round.result.includes("Team 2 win")) {
+              if (round.result.includes("flag"))
+                {team1Score++} else {team0Score++};
+            } else if (round.result.includes("Team 1 win")) {
+              if (round.result.includes("flag"))
+                {team0Score++} else {team1Score++};
+            }
+          } else {
+            if (round.result.includes("Team 2 win")) {
+              if (round.result.includes("flag"))
+                {team0Score++} else {team1Score++};
+            } else if (round.result.includes("Team 1 win")) {
+              if (round.result.includes("flag"))
+                {team1Score++} else {team0Score++};
+            }
+          }
+      });
+    }
+  });
+  
+  // Now, aggregate player stats from all combined rounds.
+  const aggregatedStats = getPlayerStats(combinedRounds);
+  return { aggregatedStats, team0Score, team1Score, faction1, faction2 };
+}
+
+/**
+ * Flips a round's team assignments: every team assignment of 0 becomes 1, and 1 becomes 0.
+ * (Other round data is shallow-copied.)
+ */
+function flipRound(round) {
+  return {
+    players: round.players.slice(),
+    teams: round.teams.map(t => t === 0 ? 1 : 0),
+    kills: round.kills.slice(),
+    deaths: round.deaths.slice(),
+    assists: round.assists.slice(),
+    dmg: round.dmg.slice(),
+    teamkills: round.teamkills.slice(),
+    tdmg: round.tdmg.slice(),
+    result: round.result
+  };
+}
+
+/**
+ * Given an aggregate object produced by getHalfAggregate(),
+ * returns a new aggregate where team assignments and scores are swapped.
+ */
+function swapHalfAggregate(agg) {
+  const swappedStats = {};
+  Object.entries(agg.aggregatedStats).forEach(([player, stats]) => {
+    // Swap stats.team.
+    let newTeam = stats.team === 0 ? 1 : 0;
+    swappedStats[player] = Object.assign({}, stats, { team: newTeam });
+  });
+  return {
+    aggregatedStats: swappedStats,
+    team0Score: agg.team1Score,
+    team1Score: agg.team0Score,
+    faction1: agg.faction1, // optionally, you might swap these too if needed, but here we keep them.
+    faction2: agg.faction2
+  };
+}
+
+/**
+ * Merges two aggregated stats objects. For any player appearing in both,
+ * the stats are summed. Otherwise, the entry is simply added.
+ */
+function mergeAggregates(agg1, agg2) {
+  const merged = Object.assign({}, agg1);
+  Object.entries(agg2).forEach(([player, stats]) => {
+    if (merged[player]) {
+      // Sum the stats.
+      merged[player].kills += stats.kills;
+      merged[player].deaths += stats.deaths;
+      merged[player].assists += stats.assists;
+      merged[player].dmg += stats.dmg;
+      merged[player].teamkills += stats.teamkills;
+      merged[player].tdmg += stats.tdmg;
+    } else {
+      merged[player] = stats;
+    }
+  });
+  return merged;
+}
+
+/**
+ * Renders a scrim display. scrimSpec should be an array [halfId1, halfId2, s].
+ * It aggregates two halves and then, if s === 0, flips the second half’s results.
+ */
+function renderScrim(scrimSpec) {
+  const [halfId1, halfId2, s] = scrimSpec;
+  // Obtain aggregated statistics for each half.
+  let halfAgg1 = getHalfAggregate(halfs[halfId1]);
+  let halfAgg2 = getHalfAggregate(halfs[halfId2]);
+  
+  // If s is 0, then we want to flip the second half's teams before merging.
+  if (s === 0) {
+    halfAgg2 = swapHalfAggregate(halfAgg2);
+  }
+  
+  // Compute final scores.
+  const finalTeam0Score = halfAgg1.team0Score + halfAgg2.team0Score;
+  const finalTeam1Score = halfAgg1.team1Score + halfAgg2.team1Score;
+  
+  // Merge the aggregated stats.
+  const finalAggregatedStats = mergeAggregates(halfAgg1.aggregatedStats, halfAgg2.aggregatedStats);
+  const { team0, team1 } = splitAndSortByTeam(finalAggregatedStats);
+  
+  // Render the scrim view.
+  const contentDiv = document.getElementById("content");
+  contentDiv.classList.remove("landing");
+  contentDiv.classList.add("match-detail");
+  contentDiv.innerHTML = ""; // Clear previous content
+  
+  // "Back" button.
+  const backButton = document.createElement("button");
+  backButton.textContent = "Back to Matches";
+  backButton.style.marginBottom = "20px";
+  backButton.onclick = updateURLToLanding;
+  contentDiv.appendChild(backButton);
+
+
+  // Get header info for each half from the first match of each half.
+  const half1Info = matches[halfs[halfId1][0]];
+  const half2Info = matches[halfs[halfId2][0]];
+// Create a container for the half header details (stacked rows, centered)
+const halfHeaderContainer = document.createElement("div");
+halfHeaderContainer.style.display = "flex";
+halfHeaderContainer.style.flexDirection = "column";
+halfHeaderContainer.style.alignItems = "center";
+halfHeaderContainer.style.marginBottom = "20px";
+
+// Row for Half 1:
+const half1Row = document.createElement("div");
+half1Row.style.display = "flex";
+half1Row.style.width = "100%";
+half1Row.style.justifyContent = "space-between";
+half1Row.style.alignItems = "center";
+// Create five flex cells (each 20% width)
+const half1Team0ScoreDiv = document.createElement("h2");
+half1Team0ScoreDiv.style.flex = "1";
+half1Team0ScoreDiv.style.textAlign = "right";
+half1Team0ScoreDiv.textContent = halfAgg1.team0Score;
+
+const half1Faction1Div = document.createElement("h2");
+half1Faction1Div.style.flex = "1";
+half1Faction1Div.style.textAlign = "center";
+half1Faction1Div.textContent = half1Info.faction_1;
+
+const half1MapDiv = document.createElement("h1");
+half1MapDiv.style.flex = "1";
+half1MapDiv.style.textAlign = "center";
+half1MapDiv.textContent = half1Info.map;
+
+const half1Faction2Div = document.createElement("h2");
+half1Faction2Div.style.flex = "1";
+half1Faction2Div.style.textAlign = "center";
+half1Faction2Div.textContent = half1Info.faction_2;
+
+const half1Team1ScoreDiv = document.createElement("h2");
+half1Team1ScoreDiv.style.flex = "1";
+half1Team1ScoreDiv.style.textAlign = "left";
+half1Team1ScoreDiv.textContent = halfAgg1.team1Score;
+
+// Make the entire row clickable:
+half1Row.style.cursor = "pointer";
+half1Row.onclick = () => {
+  updateURLToHalf(halfId1);
+};
+
+half1Row.appendChild(half1Team0ScoreDiv);
+half1Row.appendChild(half1Faction1Div);
+half1Row.appendChild(half1MapDiv);
+half1Row.appendChild(half1Faction2Div);
+half1Row.appendChild(half1Team1ScoreDiv);
+
+// Row for Half 2:
+const half2Row = document.createElement("div");
+half2Row.style.display = "flex";
+half2Row.style.width = "100%";
+half2Row.style.justifyContent = "space-between";
+half2Row.style.alignItems = "center";
+half2Row.style.marginTop = "10px"; // Gap between rows
+
+const half2Team0ScoreDiv = document.createElement("h2");
+half2Team0ScoreDiv.style.flex = "1";
+half2Team0ScoreDiv.style.textAlign = "right";
+half2Team0ScoreDiv.textContent = halfAgg2.team0Score;
+
+const half2Faction1Div = document.createElement("h2");
+half2Faction1Div.style.flex = "1";
+half2Faction1Div.style.textAlign = "center";
+half2Faction1Div.textContent = half2Info.faction_1;
+
+const half2MapDiv = document.createElement("h1");
+half2MapDiv.style.flex = "1";
+half2MapDiv.style.textAlign = "center";
+half2MapDiv.textContent = half2Info.map;
+
+const half2Faction2Div = document.createElement("h2");
+half2Faction2Div.style.flex = "1";
+half2Faction2Div.style.textAlign = "center";
+half2Faction2Div.textContent = half2Info.faction_2;
+
+const half2Team1ScoreDiv = document.createElement("h2");
+half2Team1ScoreDiv.style.flex = "1";
+half2Team1ScoreDiv.style.textAlign = "left";
+half2Team1ScoreDiv.textContent = halfAgg2.team1Score;
+
+half2Row.style.cursor = "pointer";
+half2Row.onclick = () => {
+  updateURLToHalf(halfId2);
+};
+
+half2Row.appendChild(half2Team0ScoreDiv);
+half2Row.appendChild(half2Faction1Div);
+half2Row.appendChild(half2MapDiv);
+half2Row.appendChild(half2Faction2Div);
+half2Row.appendChild(half2Team1ScoreDiv);
+
+// Append both rows to the container:
+halfHeaderContainer.appendChild(half1Row);
+halfHeaderContainer.appendChild(half2Row);
+
+// Overall total score (centered below)
+const totalScoreDiv = document.createElement("h1");
+totalScoreDiv.style.marginTop = "10px";
+totalScoreDiv.style.fontWeight = "bold";
+totalScoreDiv.style.textAlign = "center";
+totalScoreDiv.textContent = `${finalTeam0Score} - ${finalTeam1Score}`;
+
+// Append the header container and total score to the contentDiv
+contentDiv.appendChild(halfHeaderContainer);
+contentDiv.appendChild(totalScoreDiv);
+  // Create side-by-side tables.
+  const tableWrapper = document.createElement("div");
+  tableWrapper.className = "table-wrapper";
+  tableWrapper.style.display = "flex";
+  //tableWrapper.style.gap = "30px";
+  
+  // For scrims, we assume faction names are taken from the first half’s first match.
+  const faction0 = matches[halfs[halfId1][0]].faction_1;
+  const faction1 = matches[halfs[halfId1][0]].faction_2;
+  
+  tableWrapper.appendChild(generateTeamTableCommon(team0, faction0));
+  tableWrapper.appendChild(generateTeamTableCommon(team1, faction1));
+  
+  contentDiv.appendChild(tableWrapper);
+}
+const bracket = [
+      ["Cheezeninja", "Marquis", "?", "?", -1],
+      ["Ebdanian", "Hemp", 9, 6, 0],
+      ["Marquis", "Ebdanian", "?", "?", -1],
+      ["Roberta", "Cheezeninja", 9, 6, 1],
+      ["Ebdanian", "Roberta", 4, 12, 2],
+      ["Hemp", "Marquis", 12, 6, 3],
+      ["Roberta", "Hemp", "?", "?", -1],
+      ["Cheezeninja", "Ebdanian", "?", "?", -1],
+      ["Hemp", "Cheezeninja", "?", "?", -1],
+      ["Marquis", "Roberta", 4, 9, 4],
+      ["?", "?", "?", "?", -1],
+      ["?", "?", "?", "?", -1],
+      ["?", "?", "?", "?", -1],
+      ["?", "?", "?", "?", -1],
+    ];
+
+
+
+const halfs = [[0,1],[2,3],[4,5],[6,7],[8,9],[10,11],[12,13],[14,15],[16,17],[18,19]];
+const scrims = [[0,1,0],[2,3,0],[4,5,1],[6,7,0],[8,9,0]];
+
+  // --- The rest of your functions handling URL updates, landing page, etc.
+  // (They remain largely the same as your existing code.)
+  function renderLandingPage() {
+      const contentDiv = document.getElementById("content");
+      contentDiv.classList.remove("match-detail");
+      contentDiv.classList.add("landing");
+      contentDiv.innerHTML = ""; // Clear previous content.
+
+      // Create the tab bar.
+      const tabBar = document.createElement("div");
+      tabBar.className = "tabs";
+
+      // Define the tabs. By default "scrims" is active.
+      const tabs = [
+        { label: "BRACKET", id: "bracket" },
+        { label: "TEAMS", id: "teams" },
+        { label: "PLAYERS", id: "players" },
+        // { label: "MAPS", id: "matches" },
+        // { label: "FACTIONS", id: "matches" },
+        // { label: "Matches", id: "matches" },
+        // { label: "Matches", id: "matches" },
+        // { label: "Matches", id: "matches" },
+        // { label: "Halfs", id: "halfs" }
+      ];
+
+      tabs.forEach((tabInfo) => {
+        const tab = document.createElement("div");
+        tab.className = "tab";
+        tab.textContent = tabInfo.label;
+        tab.dataset.tab = tabInfo.id;
+        if (tabInfo.id === "bracket") {
+          tab.classList.add("active");
+        }
+        tab.addEventListener("click", () => {
+          // Remove active class from all tabs.
+          document.querySelectorAll(".tabs .tab").forEach((t) => t.classList.remove("active"));
+          tab.classList.add("active");
+          // Render content for the selected tab.
+          renderTabContent(tabInfo.id);
+        });
+        tabBar.appendChild(tab);
+      });
+
+      contentDiv.appendChild(tabBar);
+
+      // Create a container for the tab-specific content.
+      const tabContentContainer = document.createElement("div");
+      tabContentContainer.id = "tab-content";
+      contentDiv.appendChild(tabContentContainer);
+
+      // Render default tab content ("scrims").
+      renderTabContent("bracket");
+    }
+
+    // Renders content for the given tab ID.
+    function renderTabContent(tabId) {
+      const container = document.getElementById("tab-content");
+      container.innerHTML = "";
+      if (tabId === "scrims") {
+        renderScrimList();
+      } else if (tabId === "matches") {
+        renderMatchList();
+      } else if (tabId === "halfs") {
+        renderMatchList();
+      } else if (tabId === "bracket") {
+        renderBracketList();
+      } else if (tabId === "teams") {
+        renderTeamList();
+      } else if (tabId === "players") {
+        renderPlayersList();
+      } else {
+        container.textContent = "Unknown tab.";
+      }
+    }
+ // Render the Bracket list.
+ function renderBracketList() {
+      const container = document.getElementById("tab-content");
+      container.classList.add("bracket");
+      container.innerHTML = "";
+      if (!bracket || bracket.length === 0) {
+        container.textContent = "No bracket available.";
+        return;
+      }
+      // For each bracket entry, create a small box.
+      bracket.forEach((match, index) => {
+        // bracket: [Team1, Team2, Team1Score, Team2Score, ScrimID]
+        const [team1, team2, team1Score, team2Score, scrimID] = match;
+        const box = document.createElement("div");
+        box.className = "bracket-box";
+        
+        const isPlayed = !isNaN(parseInt(team1Score, 10)) || !isNaN(parseInt(team2Score, 10));
+        if (isPlayed) {
+          box.style.border = "3px solid #aaa"; 
+          box.style.color = "#efefef";
+        }
+
+      box.addEventListener("click", () => {
+        updateURLToScrim(scrimID); // Update the URL and render the Scrim view
+      });
+
+        // Top row: Team1 name and its score.
+        const topRow = document.createElement("div");
+        topRow.className = "bracket-row";
+        const team1Name = document.createElement("span");
+        team1Name.className = "team-name";
+        team1Name.textContent = team1;
+        const team1ScoreElem = document.createElement("span");
+        team1ScoreElem.className = "team-score";
+        team1ScoreElem.textContent = team1Score;
+        topRow.appendChild(team1Name);
+        topRow.appendChild(team1ScoreElem);
+
+        // Divider.
+        const divider = document.createElement("hr");
+        divider.className = "bracket-divider";
+
+        // Bottom row: Team2 name and its score.
+        const bottomRow = document.createElement("div");
+        bottomRow.className = "bracket-row";
+        const team2Name = document.createElement("span");
+        team2Name.className = "team-name";
+        team2Name.textContent = team2;
+        const team2ScoreElem = document.createElement("span");
+        team2ScoreElem.className = "team-score";
+        team2ScoreElem.textContent = team2Score;
+        bottomRow.appendChild(team2Name);
+        bottomRow.appendChild(team2ScoreElem);
+
+        // // Scrim ID display.
+        // const scrimDiv = document.createElement("div");
+        // scrimDiv.className = "scrim-id";
+        // scrimDiv.textContent = `Scrim ID: ${scrimID}`;
+
+        // Append rows and scrim ID into the box.
+        box.appendChild(topRow);
+        box.appendChild(divider);
+        box.appendChild(bottomRow);
+        // box.appendChild(scrimDiv);
+
+        container.appendChild(box);
+      });
+    }
+
+    function renderTeamList() {
+    const container = document.getElementById("tab-content");
+    container.innerHTML = "";
+    
+    fetch('teams.json')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error("Failed to load teams.json");
+        }
+        return response.json();
+      })
+      .then(data => {
+        teams = data.teams;
+      // Check if there is team data
+      if (!teams || teams.length === 0) {
+          container.textContent = "No team data available.";
+          return;
+      }
+      
+      // Create a flex container for the teams.
+      const teamsFlex = document.createElement("div");
+      teamsFlex.style.display = "flex";
+      teamsFlex.style.justifyContent = "space-between";
+      teamsFlex.style.alignItems = "flex-start"; // Align items at the top so the boxes are even
+      teamsFlex.style.flexWrap = "wrap"; // In case screen width is limited
+      teamsFlex.style.gap = "10px"; // Optional gap between boxes
+      
+      // For each team create a flex box.
+      teams.forEach(team => {
+          const teamBox = document.createElement("div");
+          teamBox.style.flex = "1";
+          teamBox.style.minWidth = "150px"; // Ensure boxes don't get too narrow.
+          teamBox.style.margin = "5px";
+          teamBox.style.padding = "10px";
+          teamBox.style.border = "1px solid #ccc";
+          teamBox.style.borderRadius = "5px";
+          teamBox.style.boxSizing = "border-box";
+          teamBox.style.display = "flex";
+          teamBox.style.flexDirection = "column";
+          teamBox.style.alignItems = "stretch";
+          
+          // Captain name (displayed at the top - left aligned)
+          const captain = document.createElement("div");
+          captain.textContent = "Captain: " + team.captain;
+          captain.style.fontWeight = "bold";
+          captain.style.textAlign = "left";
+          teamBox.appendChild(captain);
+          
+          // Win/Lose/Draw record (displayed with a little vertical spacing)
+          const record = document.createElement("div");
+          record.textContent = "Record: " + team.record;
+          record.style.marginTop = "5px";
+          record.style.textAlign = "left";
+          teamBox.appendChild(record);
+          
+          // Team members list (vertical list)
+          const membersList = document.createElement("ul");
+          membersList.style.listStyleType = "disc";
+          membersList.style.paddingLeft = "20px";
+          membersList.style.marginTop = "10px";
+          team.players.forEach(member => {
+              const li = document.createElement("div");
+              li.textContent = member;
+              membersList.appendChild(li);
+          });
+          teamBox.appendChild(membersList);
+          
+          teamsFlex.appendChild(teamBox);
+      });
+      
+      container.appendChild(teamsFlex);
+        //renderLandingPage();
+        //handleURLChange();
+        //window.addEventListener('popstate', handleURLChange);
+      })
+      .catch(error => {
+        console.error("Error loading match data:", error);
+        document.getElementById('content').innerHTML = `<p style="color: red;">Failed to load match data. Please try again later.</p>`;
+      });
+
+}
+
+function renderPlayersList() {
+    const container = document.getElementById("tab-content");
+    container.innerHTML = "";  // Clear previous content
+
+    fetch("players.json")
+        .then(function(response) {
+            if (!response.ok) {
+                throw new Error("Failed to load players.json");
+            }
+            return response.json();
+        })
+        .then(function(data) {
+            var playerIds = data.player_ids;       // e.g. [123, 456, ...]
+            var playerNames = data.player_names;     // e.g. [ ["Alice", "Alicia"], ["Bob"], ... ]
+
+            if (!playerIds || !playerNames) {
+                container.innerHTML = "No player data available.";
+                return;
+            }
+
+            // Create a scrollable container for the players list
+            var playersContainer = document.createElement("div");
+            playersContainer.id = "players-container";
+
+            // Create a list (ul) of players.
+            var ul = document.createElement("ul");
+            ul.style.listStyle = "none";  // Remove default bullets
+
+            // Loop over each player by index
+            playerIds.forEach(function(id, index) {
+              if (index === 0) return;
+                var li = document.createElement("li");
+                // Use the first name in the corresponding playerNames array.
+                var name = (playerNames[index] && playerNames[index].length > 0) ? playerNames[index][0] : "Unknown";
+                li.textContent = name;
+                ul.appendChild(li);
+            });
+
+            playersContainer.appendChild(ul);  
+            container.appendChild(playersContainer);
+        })
+        .catch(function(error) {
+            container.innerHTML = "<p style='color:red;'>Error loading player data: " + error + "</p>";
+        });
+}
+
+    // Example: Render a list of scrims.
+    function renderScrimList() {
+      const container = document.getElementById("tab-content");
+      if (scrims && scrims.length > 0) {
+        scrims.forEach((scrim, index) => {
+          const p = document.createElement("p");
+          p.textContent = `Scrim ${index}: [${scrim.join(", ")}]`;
+          p.style.cursor = "pointer";
+          // Optionally, clicking the scrim updates the URL and renders the scrim view.
+          p.addEventListener("click", () => {
+            updateURLToScrim(index);
+          });
+          container.appendChild(p);
+        });
+      } else {
+        container.textContent = "No scrims available.";
+      }
+    }
+
+    // Dummy placeholders for the other tabs.
+    function renderMatchList() {
+      const container = document.getElementById("tab-content");
+      if (matches && matches.length > 0) {
+        matches.forEach((scrim, index) => {
+          const p = document.createElement("p");
+          p.textContent = `Match ${index}`;
+          p.style.cursor = "pointer";
+          // Optionally, clicking the scrim updates the URL and renders the scrim view.
+          p.addEventListener("click", () => {
+            updateURLToMatch(index);
+          });
+          container.appendChild(p);
+        });
+      } else {
+        container.textContent = "No matches available.";
+      }
+    }
+    function renderHalfList() {
+      const container = document.getElementById("tab-content");
+      if (halfs && halfs.length > 0) {
+        halfs.forEach((scrim, index) => {
+          const p = document.createElement("p");
+          p.textContent = `Half ${index}: [${scrim.join(", ")}]`;
+          p.style.cursor = "pointer";
+          // Optionally, clicking the scrim updates the URL and renders the scrim view.
+          p.addEventListener("click", () => {
+            updateURLToHalf(index);
+          });
+          container.appendChild(p);
+        });
+      } else {
+        container.textContent = "No halfs available.";
+      }
+    }
+    
+    function updateURLToHalf(halfId) {
+      const url = new URL(window.location.href);
+      url.searchParams.delete("scrim");
+      url.searchParams.delete("match");
+      url.searchParams.delete("round");
+      url.searchParams.set("half", halfId);
+      window.history.pushState(null, '', url.toString());
+      renderHalf(halfs[halfId]);
+    }
+    function updateURLToScrim(scrimId) {
+      const url = new URL(window.location.href);
+      url.searchParams.delete("half");
+      url.searchParams.delete("match");
+      url.searchParams.delete("round");
+      url.searchParams.set("scrim", scrimId);
+      window.history.pushState(null, '', url.toString());
+      renderScrim(scrims[scrimId]);
+    }
+    function updateURLToLanding() {
+      const url = new URL(window.location.href);
+      url.searchParams.delete("scrim");
+      url.searchParams.delete("half");
+      url.searchParams.delete("match");
+      url.searchParams.delete("round");
+      window.history.pushState(null, '', url.toString());
+      renderLandingPage();
+    }
+
+    //window.addEventListener('popstate', handleURLChange);
+    function handleURLChange() {
+      const params = new URLSearchParams(window.location.search);
+      const scrimStr = params.get("scrim");
+      if (scrimStr !== null) {
+        const scrimId = parseInt(scrimStr, 10);
+        if (!isNaN(scrimId) && scrims[scrimId]) {
+          renderScrim(scrims[scrimId]);
+          return;
+        }
+      }
+      const halfStr = params.get("half");
+      if (halfStr !== null) {
+        const halfId = parseInt(halfStr, 10);
+        if (!isNaN(halfId) && halfs[halfId]) {
+          renderHalf(halfs[halfId]);
+          return;
+        }
+      }
+      const matchStr = params.get("match");
+      const roundStr = params.get("round");
+      if (!matchStr) {
+        renderLandingPage();
+      } else {
+        const matchId = parseInt(matchStr, 10);
+        if (!isNaN(matchId) && matches[matchId]) {
+          if (roundStr !== null) {
+            const roundId = parseInt(roundStr, 10);
+            if (!isNaN(roundId) && matches[matchId].rounds[roundId] !== undefined) {
+              renderSingleRound(matchId, roundId);
+              return;
+            }
+          }
+          renderMatchDetails(matchId);
+        } else {
+          renderLandingPage();
+        }
+      }
+    }
+    //handleURLChange();
+  
+
+
+  // Update the URL to show a match view (with optional round view).
+  function updateURLToMatch(matchId, roundId) {
+    const url = new URL(window.location.href);
+    // Remove scrim and half parameters if present.
+    url.searchParams.delete("scrim");
+    url.searchParams.delete("half");
+    url.searchParams.set("match", matchId);
+    if (roundId !== undefined) {
+      url.searchParams.set("round", roundId);
+    } else {
+      url.searchParams.delete("round");
+    }
+    window.history.pushState(null, '', url.toString());
+
+    if (roundId !== undefined) {
+      renderSingleRound(matchId, roundId);
+    } else {
+      renderMatchDetails(matchId);
+    }
+  }
+
+  // Update the URL to show a half view.
+  function updateURLToHalf(halfId) {
+    const url = new URL(window.location.href);
+    // Remove scrim, match and round parameters.
+    url.searchParams.delete("scrim");
+    url.searchParams.delete("match");
+    url.searchParams.delete("round");
+    url.searchParams.set("half", halfId);
+    window.history.pushState(null, '', url.toString());
+    renderHalf(halfs[halfId]);
+  }
+
+  // Update the URL to show a scrim view.
+  function updateURLToScrim(scrimId) {
+    const url = new URL(window.location.href);
+    // Remove half, match, and round parameters.
+    url.searchParams.delete("half");
+    url.searchParams.delete("match");
+    url.searchParams.delete("round");
+    url.searchParams.set("scrim", scrimId);
+    window.history.pushState(null, '', url.toString());
+    renderScrim(scrims[scrimId]);
+  }
+
+  // Update the URL to clear all view state and display the landing page.
+  function updateURLToLanding() {
+    const url = new URL(window.location.href);
+    url.searchParams.delete("scrim");
+    url.searchParams.delete("half");
+    url.searchParams.delete("match");
+    url.searchParams.delete("round");
+    window.history.pushState(null, '', url.toString());
+    renderLandingPage();
+  }
+// Hook into browser navigation (Back/Forward)
+//window.addEventListener('popstate', handleURLChange);
+
+  // And call handleURLChange() on initial load.
+  //handleURLChange();
+
+  // Fetch matches data and initialize
+  let matches = []; // Global storage for matches data
+  let teams = [];
+  fetch('tournament.json')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error("Failed to load matches.json");
+        }
+        return response.json();
+      })
+      .then(data => {
+        matches = data.matches;
+        renderLandingPage();
+        handleURLChange();
+        window.addEventListener('popstate', handleURLChange);
+      })
+      .catch(error => {
+        console.error("Error loading match data:", error);
+        document.getElementById('content').innerHTML = `<p style="color: red;">Failed to load match data. Please try again later.</p>`;
+      });
+
+function calculateTotalStats(match) {
+    // 1. Aggregate cumulative stats over all rounds.
+    //    getPlayerStats() should work whether match.rounds is an array or single round.
+    const aggregatedStats = getPlayerStats(match.rounds); 
+
+    // 2. Split the aggregated stats into team 0 and team 1 and sort each by kills.
+    const { team0, team1 } = splitAndSortByTeam(aggregatedStats);
+
+    // 3. Compute overall match score based on round results.
+    //    (For example, per your earlier logic: a round with "Team 2 win" adds to team0’s score,
+    //     and "Team 1 win" adds to team1’s score.)
+
+    //ruthven - SO turns out, Flag wins use Team 0 == 1 and Team 1 == 0
+    //NON flag wins use Team 0 == 2 and Team 1 == 1 
+    //WHYHYWHWYHWYYYYY
+    let team0Score = 0;
+    let team1Score = 0;
+    match.rounds.forEach(round => {
+        if (round.result.includes("Team 2 win")) {
+          if (round.result.includes("flag"))
+            {team1Score++} else {team0Score++};
+        } else if (round.result.includes("Team 1 win")) {
+          if (round.result.includes("flag"))
+            {team0Score++} else {team1Score++};
+        }
+    });
+
+    // 4. Build a container for the stats, and create a flex wrapper to display two tables side by side.
+    const statsContainer = document.createElement("div");
+    statsContainer.className = "stats-container";  // Use your pre-defined CSS
+
+    const tableWrapper = document.createElement("div");
+    tableWrapper.className = "table-wrapper";  // This should style the tables side by side with padding/gap
+
+    // 5. Generate each team’s table using our helper (which applies common styling).
+    //    For team 0, display the faction name from match.faction_1 and team0’s overall score.
+    const team0Table = generateTeamTableCommon(team0, match.faction_1, 1);
+    //    Similarly for team 1 using match.faction_2.
+    const team1Table = generateTeamTableCommon(team1, match.faction_2, 1);
+
+    // 6. Append the generated tables to the wrapper and then to the stats container.
+    tableWrapper.appendChild(team0Table);
+    tableWrapper.appendChild(team1Table);
+    statsContainer.appendChild(tableWrapper);
+
+    // 7. Finally, append the stats container to the content area.
+    const contentDiv = document.getElementById("content");
+    contentDiv.appendChild(statsContainer);
+}
+  // Helper: Flip the team assignments for a round.
+  function flipRound(round) {
+    // Create a shallow copy of arrays; note that primitive arrays like team assignments can be mapped.
+    return {
+      players: round.players.slice(),
+      // Flip team: 0 becomes 1, 1 becomes 0.
+      teams: round.teams.map(team => (team === 0 ? 1 : 0)),
+      kills: round.kills.slice(),
+      deaths: round.deaths.slice(),
+      assists: round.assists.slice(),
+      dmg: round.dmg.slice(),
+      teamkills: round.teamkills.slice(),
+      tdmg: round.tdmg.slice(),
+      result: round.result // leave as-is
+    };
+  }
+
+  /**
+   * Render half view.
+   *
+   * @param {Array} halfIndices - Array of two match indices, e.g. [0,1].
+   *
+   * For the first match (index 0 in halfIndices) we use rounds as-is,
+   * for the second match (index 1) we flip each round's teams.
+   * Also, we flip the scoring logic for rounds coming from the second match.
+   */
+  function renderHalf(halfIndices) {
+    let combinedRounds = [];
+    // Compute overall scores for the half.
+    let team0Score = 0;
+    let team1Score = 0;
+    let m1team0Score = 0;
+    let m1team1Score = 0;
+    let m2team0Score = 0;
+    let m2team1Score = 0;
+    
+    halfIndices.forEach((mIndex, i) => {
+      const matchObj = matches[mIndex];
+      if (matchObj && matchObj.rounds) {
+        matchObj.rounds.forEach(round => {
+          // For the second match, flip the round.
+          const processedRound = (i === 1) ? flipRound(round) : round;
+          combinedRounds.push(processedRound);
+          
+          // Score logic: For match index 0 (first match), use normal logic:
+          // if round.result includes "Team 2 win" then team0 wins,
+          // if includes "Team 1 win" then team1 wins.
+          // For match index 1 (second match), the roles are swapped.
+          if (i === 0) {
+            if (round.result.includes("Team 2 win")) {
+              if (round.result.includes("flag"))
+                {
+                  team1Score++
+                  m1team1Score++
+                } else {
+                  team0Score++
+                  m1team0Score++
+                };
+            } else if (round.result.includes("Team 1 win")) {
+              if (round.result.includes("flag"))
+                {
+                  team0Score++
+                  m1team0Score++
+                } else {
+                  team1Score++
+                  m1team1Score++
+
+                };
+            }
+          } else {
+            if (round.result.includes("Team 2 win")) {
+              if (round.result.includes("flag"))
+                {
+                  team0Score++
+                  m2team0Score++
+                } else {
+                  team1Score++
+                  m2team1Score++
+                };
+            } else if (round.result.includes("Team 1 win")) {
+              if (round.result.includes("flag"))
+                {
+                  team1Score++
+                  m2team1Score++
+                } else {
+                  team0Score++
+                  m2team0Score++
+                };
+            }
+          }
+        });
+      }
+    });
+
+    // Now aggregate stats from all combined rounds.
+    const aggregatedStats = getPlayerStats(combinedRounds);
+    const { team0, team1 } = splitAndSortByTeam(aggregatedStats);
+
+    // Render the half view.
+    const contentDiv = document.getElementById("content");
+    contentDiv.classList.remove("landing");
+    contentDiv.classList.add("match-detail");
+    contentDiv.innerHTML = ""; // Clear previous content
+
+    // Add a "Back to Matches" button.
+    const backButton = document.createElement("button");
+    backButton.textContent = "Back to Matches";
+    backButton.style.marginBottom = "20px";
+    backButton.onclick = updateURLToLanding;
+    contentDiv.appendChild(backButton);
+
+    // Center container for displaying the half details
+    const halfContainer = document.createElement("div");
+    halfContainer.style.textAlign = "center";
+    halfContainer.style.marginBottom = "20px";
+
+    // Fetch map and match details
+    const match1Info = matches[halfIndices[0]];
+    const match2Info = matches[halfIndices[1]];
+
+    // Map name (same for both matches)
+    const mapName = document.createElement("h1");
+    mapName.textContent = `${match1Info.map}`;
+    mapName.style.marginBottom = "15px"; // Add spacing below
+    halfContainer.appendChild(mapName);
+
+    // Match 1 details
+    const match1Details = document.createElement("h2");
+    match1Details.style.marginBottom = "10px";
+    match1Details.style.cursor = "pointer";
+    match1Details.innerHTML = `
+      <strong>${m1team0Score}</strong> - ${match1Info.faction_1} &nbsp;&nbsp;&nbsp; ${match1Info.faction_2} - <strong>${m1team1Score}</strong>
+    `;
+    match1Details.onclick = () => {
+      updateURLToMatch(halfIndices[0]); // Navigate to Half 1
+    };
+    halfContainer.appendChild(match1Details);
+
+    // Match 2 details
+    const match2Details = document.createElement("h2");
+    match2Details.style.marginBottom = "10px";
+    match2Details.style.cursor = "pointer";
+    match2Details.innerHTML = `
+      <strong>${m2team0Score}</strong> - ${match2Info.faction_2} &nbsp;&nbsp;&nbsp; ${match2Info.faction_1} - <strong>${m2team1Score}</strong>
+    `;
+    match2Details.onclick = () => {
+      updateURLToMatch(halfIndices[1]); // Navigate to Half 2
+    };
+    halfContainer.appendChild(match2Details);
+
+    // Total score
+    const totalTeam0Score = match1Info.team0Score + match2Info.team0Score;
+    const totalTeam1Score = match1Info.team1Score + match2Info.team1Score;
+
+    const totalScore = document.createElement("h1");
+    // totalScore.style.fontSize = "1.2em";
+    totalScore.style.fontWeight = "bold";
+    totalScore.textContent = `${team0Score} - ${team1Score}`;
+    halfContainer.appendChild(totalScore);
+
+    // Add everything to the main content div
+    contentDiv.appendChild(halfContainer);
+    // Create a table wrapper for side–by–side tables.
+    const tableWrapper = document.createElement("div");
+    tableWrapper.className = "table-wrapper";
+    tableWrapper.style.display = "flex";
+    //tableWrapper.style.gap = "150px";
+
+    // Since in a half, the two matches swap teams, the aggregated teams now are:
+    // - team0 in the aggregated stats consists of match0's team0 and match1's flipped team1.
+    // - team1 from aggregated stats is match0's team1 and match1's flipped team0.
+    // We assume the faction names remain constant (from the first match).
+    const faction0 = matches[halfIndices[0]].faction_1;
+    const faction1 = matches[halfIndices[0]].faction_2;
+
+    tableWrapper.appendChild(generateTeamTableCommon(team0, faction0));
+    tableWrapper.appendChild(generateTeamTableCommon(team1, faction1));
+
+    // Append the tables to the content.
+    contentDiv.appendChild(tableWrapper);
+  }
+
+
+    </script>
+    </body>
+</html>

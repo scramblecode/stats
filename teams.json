@@ -1,0 +1,84 @@
+{
+    "teams": [
+        {
+            "captain": "Hemp",
+            "record": "0 Wins/0 Losses/0 Draws",
+            "players": [
+                "Alyss",
+                "Jibby",
+                "Thiago",
+                "Hemp",
+                "Danate",
+                "Mog",
+                "Falcon",
+                "Exmarius",
+                "Potesty",
+                "AE"
+            ]
+        },
+        {
+            "captain": "Cheezeninja",
+            "record": "0 Wins/0 Losses/0 Draws",
+            "players": [
+                "Easter Cow",
+                "Sauron",
+                "Daemon",
+                "Chicken",
+                "Kairos",
+                "Van",
+                "Sparhawk",
+                "Pichurin",
+                "Cheezeninja",
+                "Wrisq"
+            ]
+        },
+        {
+            "captain": "Ebdanian",
+            "record": "0 Wins/0 Losses/0 Draws",
+            "players": [
+                "Mav",
+                "Ebdanian",
+                "Rip",
+                "Fiery",
+                "Mar",
+                "Byunos",
+                "Nasa",
+                "Zealots",
+                "Cream",
+                "Matt the Lord"
+            ]
+        },
+        {
+            "captain": "Marquis",
+            "record": "0 Wins/0 Losses/0 Draws",
+            "players": [
+                "Aporta",
+                "Ruthven",
+                "Marquis",
+                "Valarr",
+                "Serthas",
+                "Glitterball",
+                "Jay",
+                "Landalore",
+                "John",
+                "Madara"
+            ]
+        },
+        {
+            "captain": "Roberta",
+            "record": "0 Wins/0 Losses/0 Draws",
+            "players": [
+                "Lagstro",
+                "PPK157",
+                "Xearian",
+                "Kman",
+                "Zacty",
+                "Crusader",
+                "Hey",
+                "Beansacks",
+                "Roberta",
+                "Artorias"
+            ]
+        }
+    ]
+}
