@@ -737,16 +737,15 @@ const bracket = [
       ["Cheezeninja", "Ebdanian", 9, 8, 6],
       ["Hemp", "Cheezeninja", 9, 1, 7],
       ["Marquis", "Roberta", 4, 9, 4],
-      ["?", "?", "?", "?", -1],
-      ["?", "?", "?", "?", -1],
-      ["?", "?", "?", "?", -1],
-      ["?", "?", "?", "?", -1],
+      ["Roberta", "Cheezeninja", 8, 11, 10],
+      ["Ebdanian", "Hemp", 9, 3, 8],
+      ["Ebdanian", "Cheezeninja", 9, 7, 9],
     ];
 
 
 
-const halfs = [[0,1],[2,3],[4,5],[6,7],[8,9],[10,11],[12,13],[14,15],[16,17],[18,19],[20,21],[22,23],[24,25],[26,27],[28,29],[30,31]];
-const scrims = [[0,1,0],[2,3,0],[4,5,1],[6,7,0],[8,9,0],[10,11,0],[12,13,1],[14,15,0]];
+const halfs = [[0,1],[2,3],[4,5],[6,7],[8,9],[10,11],[12,13],[14,15],[16,17],[18,19],[20,21],[22,23],[24,25],[26,27],[28,29],[30,31],[32,33],[34,44],[35,36],[37,38],[39,40],[41,42]];
+const scrims = [[0,1,0],[2,3,0],[4,5,1],[6,7,0],[8,9,0],[10,11,0],[12,13,1],[14,15,0],[16,17,0],[18,19,0],[20,21,1]];
 
 //DAY 2:
 //Eb vs Cheez 0,1,2,3
@@ -769,7 +768,7 @@ const scrims = [[0,1,0],[2,3,0],[4,5,1],[6,7,0],[8,9,0],[10,11,0],[12,13,1],[14,
       const tabs = [
         { label: "BRACKET", id: "bracket" },
         { label: "TEAMS", id: "teams" },
-        // { label: "PLAYERS", id: "players" },
+        { label: "PLAYERS", id: "players" },
         // { label: "MATCHES", id: "matches" },
         // { label: "FACTIONS", id: "matches" },
         // { label: "Matches", id: "matches" },
@@ -847,6 +846,7 @@ const scrims = [[0,1,0],[2,3,0],[4,5,1],[6,7,0],[8,9,0],[10,11,0],[12,13,1],[14,
         if (isPlayed) {
           box.style.border = "3px solid #aaa"; 
           box.style.color = "#efefef";
+          box.style.cursor = "pointer";
         }
 
       box.addEventListener("click", () => {
@@ -1008,12 +1008,12 @@ function renderPlayersList() {
         const playerStats = {};
         playerIds.forEach(id => {
           if (id === 0 ) return;
-            playerStats[id] = { kills: 0, deaths: 0, assists: 0, dmg: 0, tks: 0, tDmg: 0 };
+            playerStats[id] = { kills: 0, deaths: 0, assists: 0, dmg: 0, tks: 0, tdmg: 0, tkd: 0, rounds: 0 };
         });
         matches.matches.forEach(match => {
             match.rounds.forEach(round => {
                 // Count string matches for kills, deaths, etc.
-                const { kills, deaths, teamkills, teamkilled, assists, dmg, players } = round;
+                const { kills, deaths, teamkills, teamkilled, assists, dmg, tdmg, players } = round;
 
                 kills.forEach(name => {
                     const playerId = nameToIdMap.get(name.toLowerCase());
@@ -1032,7 +1032,12 @@ function renderPlayersList() {
 
                 teamkilled.forEach(name => {
                     const playerId = nameToIdMap.get(name.toLowerCase());
-                    if (playerId) playerStats[playerId].tked += 1;
+                    if (playerId) playerStats[playerId].tkd += 1;
+                });
+
+                players.forEach(name => {
+                    const playerId = nameToIdMap.get(name.toLowerCase());
+                    if (playerId) playerStats[playerId].rounds += 1;
                 });
 
                 // Aggregate assists and damage using the player index
@@ -1045,54 +1050,117 @@ function renderPlayersList() {
                     const playerId = nameToIdMap.get(players[index].toLowerCase());
                     if (playerId) playerStats[playerId].dmg += value;
                 });
+
+                tdmg.forEach((value, index) => {
+                    const playerId = nameToIdMap.get(players[index].toLowerCase());
+                    if (playerId) playerStats[playerId].tdmg += value;
+                });
             });
         });
 
-        // Step 4: Display aggregated stats in a table
-        const table = document.createElement("table");
-        table.style.width = "100%";
-        table.style.borderCollapse = "collapse";
+        var playersContainer = document.createElement("div");
+        playersContainer.id = "players-container";
 
-        // Create table header
-        const headerRow = document.createElement("tr");
-        ["Player Name", "Kills", "Deaths", "Assists", "Damage", "Teamkills", "Team Damage"].forEach(text => {
-            const th = document.createElement("th");
-            th.textContent = text;
-            th.style.border = "1px solid #ccc";
-            th.style.padding = "8px";
-            th.style.textAlign = "left";
-            headerRow.appendChild(th);
-        });
-        table.appendChild(headerRow);
+        // Convert stats into an array for sorting
+        let statsArray = playerIds.map(id => ({
+            id,
+            name: playerNames[playerIds.indexOf(id)][0],
+            ...playerStats[id]
+        }));
 
-        // Populate table with stats
-        playerIds.forEach(id => {
-            const row = document.createElement("tr");
+        // Filter out players with all stats as 0
+        statsArray = statsArray.filter(player =>
+            player.kills > 0 ||
+            player.deaths > 0 ||
+            player.assists > 0 ||
+            player.dmg > 0 ||
+            player.tks > 0 ||
+            player.tked > 0
+        );
 
-            // Get the first name of the player for display
-            const firstName = playerNames[playerIds.indexOf(id)][0];
+        // Default sort by kills (high to low)
+        let currentSortColumn = "kills";
+        let currentSortDirection = "desc"; // "desc" or "asc"
 
-            // Create table cells
-            [
-                firstName,
-                playerStats[id].kills,
-                playerStats[id].deaths,
-                playerStats[id].assists,
-                playerStats[id].dmg,
-                playerStats[id].tks,
-                playerStats[id].tDmg
-            ].forEach(value => {
-                const td = document.createElement("td");
-                td.textContent = value;
-                td.style.border = "1px solid #ccc";
-                td.style.padding = "8px";
-                row.appendChild(td);
+        // Function to render the table
+        const renderTable = () => {
+          playersContainer.innerHTML = ""; // Clear previous content
+
+            const table = document.createElement("table");
+            table.style.width = "100%";
+            table.style.borderCollapse = "collapse";
+
+            // Create table header
+            const headerRow = document.createElement("tr");
+            ["Player Name", "Kills", "Deaths", "Assists", "Dmg", "TKs", "TDmg", "TKd", "Rounds"].forEach(column => {
+                const th = document.createElement("th");
+                th.textContent = column;
+                th.style.borderBottom = "1px solid #ccc";
+                th.style.padding = "8px";
+                th.style.textAlign = "left";
+                // Add click event for sorting
+              if (column !== "Player Name"){
+                th.style.cursor = "pointer";
+                th.onclick = () => {
+                    if (currentSortColumn === column.toLowerCase()) {
+                        // Toggle sort direction
+                        currentSortDirection = currentSortDirection === "desc" ? "asc" : "desc";
+                    } else {
+                        // Change sort column
+                        currentSortColumn = column.toLowerCase();
+                        currentSortDirection = "desc"; // Default to high-to-low
+                    }
+
+                    // Sort the stats array
+                    statsArray.sort((a, b) => {
+                        const valueA = a[currentSortColumn];
+                        const valueB = b[currentSortColumn];
+
+                        if (currentSortDirection === "desc") {
+                            return valueB - valueA;
+                        } else {
+                            return valueA - valueB;
+                        }
+                    });
+                    console.log(column, currentSortColumn, currentSortDirection)
+                    // Re-render the table
+                    renderTable();
+                };
+              }
+                headerRow.appendChild(th);
+            });
+            table.appendChild(headerRow);
+
+            // Populate table rows
+            statsArray.forEach(player => {
+                const row = document.createElement("tr");
+                [
+                    player.name,
+                    player.kills,
+                    player.deaths,
+                    player.assists,
+                    player.dmg,
+                    player.tks,
+                    player.tdmg,
+                    player.tkd,
+                    player.rounds
+                ].forEach(value => {
+                    const td = document.createElement("td");
+                    td.textContent = value;
+                    td.style.borderBottom = "1px solid #ccc";
+                    td.style.padding = "8px";
+                    row.appendChild(td);
+                });
+                table.appendChild(row);
             });
 
-            table.appendChild(row);
-        });
+            playersContainer.appendChild(table);
+            container.appendChild(playersContainer);
+        };
 
-        container.appendChild(table);
+        // Initial render
+        statsArray.sort((a, b) => b.kills - a.kills); // Default to kills high-to-low
+        renderTable();
     })
     .catch(error => {
         container.innerHTML = "<p style='color:red;'>Error loading data: " + error.message + "</p>";
