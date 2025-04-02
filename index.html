@@ -45,7 +45,7 @@ const cavClasses = [
 
 //sets headers as constants and change on small screen width
 const fullStats = ["Player", "Kills", "Deaths", "Assists", "DMG", "TKs", "TDMG"];
-const smolStats = ["Plyr", "K", "D", "A", "Dg", "TK", "TDg"];
+const smolStats = ["Plyr", "K", "D", "A", "Dm", "TK", "TDm"];
 const colNames = [...fullStats];
 if (window.innerWidth < window.innerHeight) {
         for (let i = 0; i < colNames.length; i++) {
@@ -1412,6 +1412,32 @@ function renderPlayersList() {
             table.style.borderCollapse = "collapse";
 
             const columns = ["Player Name", "Kills", "Deaths", "Assists", "Dmg", "TKs", "TDmg", "TKd", "Rounds", "Wins"];
+              if (currentSortDivisor !== "none") {
+              const columnIndex = columns.indexOf(currentSortDivisor.toLowerCase())
+                statsArray = statsArray.map(player => {
+                  const divider = player[currentSortDivisor.toLowerCase()]; // Value to divide by
+                  // Create a new object with divided values for other stats
+                  const dividedPlayer = { ...player };
+                  columns.forEach(stat => {
+                      if (stat !== "Player Name" && stat !== currentSortColumn) {
+                          dividedPlayer[stat.toLowerCase()] = 
+                              (player[stat.toLowerCase()] / divider).toFixed(2); // Perform division
+                      }
+                  });
+                  return dividedPlayer;
+                });
+                // Filter out players with all stats as 0
+                statsArray = statsArray.filter(player =>
+                player[currentSortDivisor.toLowerCase()] !== 0
+                && player[currentSortDivisor.toLowerCase()] !== undefined
+                && (player.kills > 0 ||
+                    player.deaths > 0 ||
+                    player.assists > 0 ||
+                    player.dmg > 0 ||
+                    player.tks > 0 ||
+                    player.tked > 0)
+                );
+              }
             // Create table header
             const headerRow = document.createElement("tr");
             columns.forEach(column => {
@@ -1465,18 +1491,18 @@ function renderPlayersList() {
                     );
                     if(currentSortDivisor !== column) {
                       currentSortDivisor = column;
-                      statsArray = statsArray.map(player => {
-                          const divider = player[columns[columnIndex].toLowerCase()]; // Value to divide by
-                          // Create a new object with divided values for other stats
-                          const dividedPlayer = { ...player };
-                          columns.forEach(stat => {
-                              if (stat !== "Player Name" && stat !== column) {
-                                  dividedPlayer[stat.toLowerCase()] = 
-                                      (player[stat.toLowerCase()] / divider).toFixed(2); // Perform division
-                              }
-                          });
-                          return dividedPlayer;
-                        });
+                      // statsArray = statsArray.map(player => {
+                      //     const divider = player[columns[columnIndex].toLowerCase()]; // Value to divide by
+                      //     // Create a new object with divided values for other stats
+                      //     const dividedPlayer = { ...player };
+                      //     columns.forEach(stat => {
+                      //         if (stat !== "Player Name" && stat !== column) {
+                      //             dividedPlayer[stat.toLowerCase()] = 
+                      //                 (player[stat.toLowerCase()] / divider).toFixed(2); // Perform division
+                      //         }
+                      //     });
+                      //     return dividedPlayer;
+                      //   });
 
                         console.log(`Divided values by ${column}`);
                       } else {
