@@ -6,11 +6,16 @@
 }    
  
     body {
-      font-family: Arial, sans-serif;
+      font-family: "Open Sans", sans-serif;
       margin: 0;
       padding: 0;
       background-color: #4e4949;
-      color: #f9f9f9;
+      color: #C7C7C6;
+      text-shadow: 
+        -0.5px -0.5px 0 #20201e,  
+         0.5px -0.5px 0 #20201e,
+        -0.5px  0.5px 0 #20201e,
+         0.5px  0.5px 0 #20201e;
       background: url('https://scramblecode.github.io/stats/img/mb1.png') no-repeat center center fixed;
       background-size: cover;
     }
