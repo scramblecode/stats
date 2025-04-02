@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scramble Stats</title>
     <link rel="stylesheet" href="styles.css">
-    <link rel="icon" type="image/x-icon" href="/img/ico.ico">
+    <link rel="icon" type="image/x-icon" href="img/ico.ico">
 </head>
 <body>
     <h1 class="outside-text">Roberta Baratheon's Scramble League 2025</h1>
@@ -294,7 +294,7 @@ function getWinner(result){
     for(let i = 0; i < team0Score; i++){
       const fac11Img = document.createElement("img");
       const flag11 = facIcons[factions.indexOf(match.faction_1)];
-      fac11Img.src = `/img/${flag11}.png`;
+      fac11Img.src = `img/${flag11}.png`;
       fac11Img.style.padding = "10px";
       half1Faction1Div.appendChild(fac11Img);
     }
@@ -307,7 +307,7 @@ function getWinner(result){
       const fac12Img = document.createElement("img");
       const flag12 = facIcons[factions.indexOf(match.faction_2)];
       fac12Img.style.padding = "10px";
-      fac12Img.src = `/img/${flag12}.png`;
+      fac12Img.src = `img/${flag12}.png`;
       half1Faction2Div.appendChild(fac12Img);
     }
     half1Faction2Div.style.flex = "1";
@@ -491,7 +491,7 @@ if (roundIndex === 0) {
     for(let i = 0; i < cumulativeTeam0 + currentChangeTeam0; i++){
       const fac11Img = document.createElement("img");
       const flag11 = facIcons[factions.indexOf(match.faction_1)];
-      fac11Img.src = `/img/${flag11}.png`;
+      fac11Img.src = `img/${flag11}.png`;
       fac11Img.style.padding = "10px";
       half1Faction1Div.appendChild(fac11Img);
     }
@@ -504,7 +504,7 @@ if (roundIndex === 0) {
       const fac12Img = document.createElement("img");
       const flag12 = facIcons[factions.indexOf(match.faction_2)];
       fac12Img.style.padding = "10px";
-      fac12Img.src = `/img/${flag12}.png`;
+      fac12Img.src = `img/${flag12}.png`;
       half1Faction2Div.appendChild(fac12Img);
     }
     half1Faction2Div.style.flex = "1";
@@ -815,7 +815,7 @@ half1Team0ScoreDiv.textContent = halfAgg1.team0Score;
 const half1Faction1Div = document.createElement("h2");
 const fac11Img = document.createElement("img");
 const flag11 = facIcons[factions.indexOf(half1Info.faction_1)];
-fac11Img.src = `/img/${flag11}.png`;
+fac11Img.src = `img/${flag11}.png`;
 half1Faction1Div.appendChild(fac11Img);
 half1Faction1Div.style.flex = "1";
 half1Faction1Div.style.textAlign = "center";
@@ -829,7 +829,7 @@ half1MapDiv.textContent = half1Info.map;
 const half1Faction2Div = document.createElement("h2");
 const fac12Img = document.createElement("img");
 const flag12 = facIcons[factions.indexOf(half1Info.faction_2)];
-fac12Img.src = `/img/${flag12}.png`;
+fac12Img.src = `img/${flag12}.png`;
 half1Faction2Div.appendChild(fac12Img);
 half1Faction2Div.style.flex = "1";
 half1Faction2Div.style.textAlign = "center";
@@ -867,7 +867,7 @@ half2Team0ScoreDiv.textContent = halfAgg2.team0Score;
 const half2Faction1Div = document.createElement("h2");
 const fac21Img = document.createElement("img");
 const flag21 = facIcons[factions.indexOf(half2Info.faction_1)];
-fac21Img.src = `/img/${flag21}.png`;
+fac21Img.src = `img/${flag21}.png`;
 half2Faction1Div.appendChild(fac21Img);
 half2Faction1Div.style.flex = "1";
 half2Faction1Div.style.textAlign = "center";
@@ -881,7 +881,7 @@ half2MapDiv.textContent = half2Info.map;
 const half2Faction2Div = document.createElement("h2");
 const fac22Img = document.createElement("img");
 const flag22 = facIcons[factions.indexOf(half2Info.faction_2)];
-fac22Img.src = `/img/${flag22}.png`;
+fac22Img.src = `img/${flag22}.png`;
 half2Faction2Div.appendChild(fac22Img);
 half2Faction2Div.style.flex = "1";
 half2Faction2Div.style.textAlign = "center";
@@ -1628,7 +1628,7 @@ function renderPlayersList() {
                       if(player.classes.some(className => infClasses.includes(className))){
                         type = "inf";
                         const infclass = document.createElement("img");
-                        infclass.src = `/img/class_` + `${type}` +`.png`;
+                        infclass.src = `img/class_` + `${type}` +`.png`;
                         infclass.height *= 0.5;
                         infclass.width *= 0.5;
                         infclass.style.alignItems = "left;"
@@ -1638,7 +1638,7 @@ function renderPlayersList() {
                       if(player.classes.some(className => cavClasses.includes(className))){
                         type = "cav";
                         const infclass = document.createElement("img");
-                        infclass.src = `/img/class_` + `${type}` +`.png`;
+                        infclass.src = `img/class_` + `${type}` +`.png`;
                         infclass.height *= 0.5;
                         infclass.width *= 0.5;
                         infclass.style.alignItems = "left;"
@@ -1648,7 +1648,7 @@ function renderPlayersList() {
                       if(player.classes.some(className => arcClasses.includes(className))){
                         type = "arc";
                         const infclass = document.createElement("img");
-                        infclass.src = `/img/class_` + `${type}` +`.png`;
+                        infclass.src = `img/class_` + `${type}` +`.png`;
                         infclass.height *= 0.5;
                         infclass.width *= 0.5;
                         infclass.style.alignItems = "left;"
@@ -2074,7 +2074,7 @@ function calculateTotalStats(match) {
     const half1Faction1Div = document.createElement("h2");
     const fac11Img = document.createElement("img");
     const flag11 = facIcons[factions.indexOf(match1Info.faction_1)];
-    fac11Img.src = `/img/${flag11}.png`;
+    fac11Img.src = `img/${flag11}.png`;
     half1Faction1Div.appendChild(fac11Img);
     half1Faction1Div.style.flex = "1";
     half1Faction1Div.style.textAlign = "center";
@@ -2088,7 +2088,7 @@ function calculateTotalStats(match) {
     const half1Faction2Div = document.createElement("h2");
     const fac12Img = document.createElement("img");
     const flag12 = facIcons[factions.indexOf(match1Info.faction_2)];
-    fac12Img.src = `/img/${flag12}.png`;
+    fac12Img.src = `img/${flag12}.png`;
     half1Faction2Div.appendChild(fac12Img);
     half1Faction2Div.style.flex = "1";
     half1Faction2Div.style.textAlign = "center";
@@ -2126,7 +2126,7 @@ half2Team0ScoreDiv.textContent = m2team0Score;
 const half2Faction1Div = document.createElement("h2");
 const fac21Img = document.createElement("img");
 const flag21 = facIcons[factions.indexOf(match2Info.faction_2)];
-fac21Img.src = `/img/${flag21}.png`;
+fac21Img.src = `img/${flag21}.png`;
 half2Faction1Div.appendChild(fac21Img);
 half2Faction1Div.style.flex = "1";
 half2Faction1Div.style.textAlign = "center";
@@ -2140,7 +2140,7 @@ half2MapDiv.style.textAlign = "center";
 const half2Faction2Div = document.createElement("h2");
 const fac22Img = document.createElement("img");
 const flag22 = facIcons[factions.indexOf(match2Info.faction_1)];
-fac22Img.src = `/img/${flag22}.png`;
+fac22Img.src = `img/${flag22}.png`;
 half2Faction2Div.appendChild(fac22Img);
 half2Faction2Div.style.flex = "1";
 half2Faction2Div.style.textAlign = "center";
@@ -2183,7 +2183,7 @@ halfHeaderContainer.appendChild(half2Row);
     // match1Details.style.marginBottom = "10px";
     // match1Details.style.cursor = "pointer";
     // const image = document.createElement("img");
-    // image.src = '/img/flag_nord.png';
+    // image.src = 'img/flag_nord.png';
     // //image.alt = "Placeholder";
     // match1Details.appendChild(image);
     // // match1Details.innerHTML = `
