@@ -3,18 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Match Stats Viewer</title>
+    <title>Scramble Stats</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="icon" type="image/x-icon" href="/img/ico.ico">
 </head>
 <body>
     <h1 class="outside-text">Roberta Baratheon's Scramble League 2025</h1>
-    <p class="subtext">Click on score for match/set/round details</p>
     
     <div id="content">
         <p>Loading match data...</p>
     </div>
 
     <script>
+
+const facIcons = ["flag_swadia","flag_vaegir","flag_khergit","flag_nord","flag_rhodok","flag_sarranid"]
+const factions = ["Kingdom of Swadia", "Kingdom of Vaegirs", "Khergit Khanate", "Kingdom of Nords", "Kingdom of Rhodoks", "Sarranid Sultanate"]
+const infClasses = [
+  "Swadian Infantry",
+  "Vaegir Spearman",
+  "Khergit Infantry",
+  "Nord Huscarl",
+  "Rhodok Sergeant",
+  "Sarranid Footman",
+]
+const arcClasses = [
+  "Swadian Crossbowman",
+  "Vaegir Archer",
+  "Khergit Horse Archer",
+  "Nord Archer",
+  "Rhodok Crossbowman",
+  "Sarranid Archer",
+]
+const cavClasses = [
+  "Swadian Man at Arms",
+  "Vaegir Horseman",
+  "Khergit Lancer",
+  "Nord Scout",
+  "Rhodok Horseman",
+  "Sarranid Mamluke",
+]
+
+//sets headers as constants and change on small screen width
+const fullStats = ["Player", "Kills", "Deaths", "Assists", "DMG", "TKs", "TDMG"];
+const smolStats = ["Plyr", "K", "D", "A", "Dg", "TK", "TDg"];
+const colNames = [...fullStats];
+if (window.innerWidth < window.innerHeight) {
+        for (let i = 0; i < colNames.length; i++) {
+            colNames[i] = smolStats[i]; // Replace values
+        }
+      }
+
+function adjustTableLayout() {
+    const tablesContainer = document.getElementById("tables-container");
+    if(tablesContainer === null) return;
+    //console.log("Adjust", colNames, tablesContainer)
+    const team1Table = tablesContainer.children[0]; // First table
+    const team2Table = tablesContainer.children[1]; // Second table
+
+    // Calculate combined table widths
+    const totalWidth = team1Table.offsetWidth + team2Table.offsetWidth;
+
+    // Get screen dimensions
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+
+    // Stack vertically if tables are too wide for the screen or screen is portrait
+    if (totalWidth > windowWidth || windowWidth < windowHeight) {
+        tablesContainer.style.flexDirection = "column"; // Stack vertically
+        tablesContainer.style.alignItems = "center"; // Center the tables
+        for (let i = 0; i < colNames.length; i++) {
+            colNames[i] = smolStats[i]; // Replace values
+        }
+    } else {
+        tablesContainer.style.flexDirection = "row"; // Side-by-side layout
+        tablesContainer.style.alignItems = "flex-start"; // Default alignment
+        for (let i = 0; i < colNames.length; i++) {
+            colNames[i] = fullStats[i]; // Replace values
+        }
+    }
+}
+
+// Add event listener to handle screen resize
+window.addEventListener("resize", adjustTableLayout);
+
+
+//externally calculate winning team based on Result string
+//input: result, output: 0, 1, -1(draw)
+function getWinner(result){
+  
+  let winner = -1;
+    if (result.includes("Team 2 win")) {
+      if (result.includes("flag"))
+        {winner = 1} else {winner = 0};
+    } else if (result.includes("Team 1 win")) {
+      if (result.includes("flag"))
+        {winner = 0} else {winner = 1};
+    }
+    return winner;
+}
 
   // Helper: Compute player stats from a data source.
   // 'data' can be an array of rounds (for an entire match) or a single round.
@@ -38,6 +124,7 @@
             dmg: 0,
             teamkills: 0,
             tdmg: 0,
+            wins: 0,
           };
         }
         // For kills and teamkills, count the number of appearances in the round’s arrays.
@@ -47,6 +134,7 @@
         stats[player].dmg += round.dmg[index] || 0;
         stats[player].teamkills += round.teamkills.filter(tk => tk === player).length;
         stats[player].tdmg += round.tdmg[index] || 0;
+        stats[player].wins += getWinner(round.result) == stats[player].team ? 1 : 0;
       });
     });
     return stats;
@@ -98,11 +186,11 @@
 
     const headerRow = document.createElement("tr");
     // Column headers: "Player", "Kills", "Deaths", "Assists", "Damage", "Team Kills", "Team Damage"
-    ["Player", "Kills", "Deaths", "Assists", "DMG", "TKs", "TDMG"].forEach((colHeader, idx) => {
+    colNames.forEach((colHeader, idx) => {
       const th = document.createElement("th");
       th.textContent = colHeader;
       // For the first column, left-align; others we center except we override in inline style later.
-      th.style.textAlign = idx === 0 ? "left" : "center";
+      th.style.textAlign = idx === 0 ? "left" : "right";
       th.style.borderBottom = "2px solid #ddd";
       th.style.padding = "5px";
       headerRow.appendChild(th);
@@ -115,6 +203,8 @@
       [player, stats.kills, stats.deaths, stats.assists, stats.dmg, stats.teamkills, stats.tdmg].forEach((value, idx) => {
         const td = document.createElement("td");
         td.textContent = value;
+        if (!Number.isInteger(stats.deaths) && stats.deaths.includes("+1")) {td.style.color = "red"}
+        else if (!Number.isInteger(value) && value.includes("+")) td.style.color = "green"
         // First column (names) left-aligned; index 4 (Damage) and 6 (Team Damage) right-aligned;
         // all others center-aligned.
         if (idx === 0) {
@@ -124,7 +214,7 @@
         // } else if (idx === 4 || idx === 6) {
         //   td.style.textAlign = "right";
         } else {
-          td.style.textAlign = "center";
+          td.style.textAlign = "right";
         }
         td.style.padding = "5px";
         row.appendChild(td);
@@ -182,13 +272,66 @@
     scoreElement.textContent = `${team0Score} - ${team1Score}`;
     scoreElement.style.textAlign = "center";
     scoreElement.style.cursor = "pointer";
-    scoreElement.onclick = () => {
-      updateURLToMatch(matchID, 0); // Start with Round 0
+
+    const halfHeaderContainer = document.createElement("div");
+    halfHeaderContainer.style.display = "flex";
+    halfHeaderContainer.style.flexDirection = "column";
+    halfHeaderContainer.style.alignItems = "center";
+
+    // Row for Half 1:
+    const half1Row = document.createElement("div");
+    half1Row.style.display = "flex";
+    half1Row.style.width = "100%";
+    half1Row.style.justifyContent = "space-between";
+    half1Row.style.alignItems = "center";
+    // Create five flex cells (each 20% width)
+    // const half1Team0ScoreDiv = document.createElement("h1");
+    // half1Team0ScoreDiv.style.flex = "1";
+    // half1Team0ScoreDiv.style.textAlign = "right";
+    // half1Team0ScoreDiv.textContent = m1team0Score;
+
+    const half1Faction1Div = document.createElement("h2");
+    for(let i = 0; i < team0Score; i++){
+      const fac11Img = document.createElement("img");
+      const flag11 = facIcons[factions.indexOf(match.faction_1)];
+      fac11Img.src = `/img/${flag11}.png`;
+      fac11Img.style.padding = "10px";
+      half1Faction1Div.appendChild(fac11Img);
+    }
+    half1Faction1Div.style.flex = "1";
+    half1Faction1Div.style.textAlign = "center";
+    //half1Faction1Div.textContent = half1Info.faction_1;
+
+    const half1Faction2Div = document.createElement("h2");
+    for(let i = 0; i < team1Score; i++){
+      const fac12Img = document.createElement("img");
+      const flag12 = facIcons[factions.indexOf(match.faction_2)];
+      fac12Img.style.padding = "10px";
+      fac12Img.src = `/img/${flag12}.png`;
+      half1Faction2Div.appendChild(fac12Img);
+    }
+    half1Faction2Div.style.flex = "1";
+    half1Faction2Div.style.textAlign = "center";
+    //half1Faction2Div.textContent = half1Info.faction_2;
+
+    // const half1Team1ScoreDiv = document.createElement("h1");
+    // half1Team1ScoreDiv.style.flex = "1";
+    // half1Team1ScoreDiv.style.textAlign = "left";
+    // half1Team1ScoreDiv.textContent = m1team1Score;
+
+    // Make the entire row clickable:
+    half1Row.style.cursor = "pointer";
+    half1Row.onclick = () => {
+      updateURLToMatch(matchID, 0);
     };
+
+    half1Row.appendChild(half1Faction1Div);
+    half1Row.appendChild(scoreElement);
+    half1Row.appendChild(half1Faction2Div);
 
     // factionsHeader.appendChild(factionsLeft);
     // factionsHeader.appendChild(scoreElement);
-    contentDiv.appendChild(scoreElement);
+    contentDiv.appendChild(half1Row);
 
     // Instead of listing rounds, render aggregated statistics for the match.
     calculateTotalStats(match);
@@ -237,6 +380,8 @@
     //   roundScore = "+0 - +0";
     // }
     let team0Score, team1Score;
+    let cumulativeTeam0 = 0, cumulativeTeam1 = 0;
+    let currentChangeTeam0 = 0, currentChangeTeam1 = 0;
 
 if (roundIndex === 0) {
     // For round 0, there are no previous rounds. Use the current round only.
@@ -247,17 +392,21 @@ if (roundIndex === 0) {
     } else if (round.result.includes("Team 2 win")) {
         if (round.result.includes("flag")) {
             team1Score = "+1";
+            currentChangeTeam1 = 1;
             team0Score = "0";
         } else {
             team0Score = "+1";
+            currentChangeTeam0 = 1;
             team1Score = "0";
         }
     } else if (round.result.includes("Team 1 win")) {
         if (round.result.includes("flag")) {
             team0Score = "+1";
+            currentChangeTeam0 = 1;
             team1Score = "0";
         } else {
             team1Score = "+1";
+            currentChangeTeam1 = 1;
             team0Score = "0";
         }
     } else {
@@ -266,7 +415,6 @@ if (roundIndex === 0) {
     }
 } else {
     // Compute aggregate score from rounds 0 to roundIndex-1
-    let cumulativeTeam0 = 0, cumulativeTeam1 = 0;
     for (var i = 0; i < roundIndex; i++) {
         let r = match.rounds[i];
         if (r.result.includes("Team 2 win")) {
@@ -286,7 +434,6 @@ if (roundIndex === 0) {
 
     // Determine current round change from roundIndex only.
     const currentRound = match.rounds[roundIndex];
-    let currentChangeTeam0 = 0, currentChangeTeam1 = 0;
     if (currentRound.result.includes("Draw")) {
         // For draw, we show "Draw - cumulativeTeam0 - cumulativeTeam1"
         team0Score = "Draw - " + cumulativeTeam0;
@@ -297,16 +444,16 @@ if (roundIndex === 0) {
         } else {
             currentChangeTeam0 = 1;
         }
-        team0Score = cumulativeTeam0.toString() + (currentChangeTeam0 > 0 ? " (+" + currentChangeTeam0 + ")" : "");
-        team1Score = cumulativeTeam1.toString() + (currentChangeTeam1 > 0 ? " (+" + currentChangeTeam1 + ")" : "");
+        team0Score = currentChangeTeam0 > 0 ? "+" + currentChangeTeam0 : cumulativeTeam0.toString();
+        team1Score = currentChangeTeam1 > 0 ? "+" + currentChangeTeam1 : cumulativeTeam1.toString();
     } else if (currentRound.result.includes("Team 1 win")) {
         if (currentRound.result.includes("flag")) {
             currentChangeTeam0 = 1;
         } else {
             currentChangeTeam1 = 1;
         }
-        team0Score = cumulativeTeam0.toString() + (currentChangeTeam0 > 0 ? " (+" + currentChangeTeam0 + ")" : "");
-        team1Score = cumulativeTeam1.toString() + (currentChangeTeam1 > 0 ? " (+" + currentChangeTeam1 + ")" : "");
+        team0Score = currentChangeTeam0 > 0 ? " (+" + currentChangeTeam0 + ")" : cumulativeTeam0.toString();
+        team1Score = currentChangeTeam1 > 0 ? " (+" + currentChangeTeam1 + ")" : cumulativeTeam1.toString();
     } else {
         team0Score = cumulativeTeam0.toString();
         team1Score = cumulativeTeam1.toString();
@@ -314,18 +461,61 @@ if (roundIndex === 0) {
 }
     scoreElement.textContent = `${team0Score} - ${team1Score}`;
     scoreElement.style.textAlign = "center";
-    scoreElement.style.pointer = "cursor";
-    scoreElement.onclick = () => {
+
+    const halfHeaderContainer = document.createElement("div");
+    halfHeaderContainer.style.display = "flex";
+    halfHeaderContainer.style.flexDirection = "column";
+    halfHeaderContainer.style.alignItems = "center";
+
+    // Row for Half 1:
+    const half1Row = document.createElement("div");
+    half1Row.style.display = "flex";
+    half1Row.style.width = "100%";
+    half1Row.style.justifyContent = "space-between";
+    half1Row.style.alignItems = "center";
+    // Create five flex cells (each 20% width)
+    // const half1Team0ScoreDiv = document.createElement("h1");
+    // half1Team0ScoreDiv.style.flex = "1";
+    // half1Team0ScoreDiv.style.textAlign = "right";
+    // half1Team0ScoreDiv.textContent = m1team0Score;
+
+    half1Row.style.cursor = "pointer";
+    half1Row.onclick = () => {
       if (roundIndex + 1 < match.rounds.length) {
         updateURLToMatch(matchID, roundIndex + 1); // Render the next round
       } else {
         updateURLToMatch(matchID); // Return to match details if it's the last round
       }
     }
+    const half1Faction1Div = document.createElement("h2");
+    for(let i = 0; i < cumulativeTeam0 + currentChangeTeam0; i++){
+      const fac11Img = document.createElement("img");
+      const flag11 = facIcons[factions.indexOf(match.faction_1)];
+      fac11Img.src = `/img/${flag11}.png`;
+      fac11Img.style.padding = "10px";
+      half1Faction1Div.appendChild(fac11Img);
+    }
+    half1Faction1Div.style.flex = "1";
+    half1Faction1Div.style.textAlign = "center";
+    //half1Faction1Div.textContent = half1Info.faction_1;
+
+    const half1Faction2Div = document.createElement("h2");
+    for(let i = 0; i <  cumulativeTeam1 + currentChangeTeam1; i++){
+      const fac12Img = document.createElement("img");
+      const flag12 = facIcons[factions.indexOf(match.faction_2)];
+      fac12Img.style.padding = "10px";
+      fac12Img.src = `/img/${flag12}.png`;
+      half1Faction2Div.appendChild(fac12Img);
+    }
+    half1Faction2Div.style.flex = "1";
+    half1Faction2Div.style.textAlign = "center";
+    half1Row.appendChild(half1Faction1Div);
+    half1Row.appendChild(scoreElement);
+    half1Row.appendChild(half1Faction2Div);
 
     // factionsHeader.appendChild(factionsLeft);
-    contentDiv.appendChild(scoreElement);
-    //contentDiv.appendChild(factionsHeader);
+    // factionsHeader.appendChild(scoreElement);
+    contentDiv.appendChild(half1Row);
 
   // Handle stats differently for Round 0
   if (roundIndex === 0) {
@@ -377,6 +567,7 @@ if (roundIndex === 0) {
     const { team0, team1 } = computeRoundChanges(aggregatePlayerStats, currentRoundStats);
 
     const tableWrapper = document.createElement("div");
+    tableWrapper.id = "tables-container";
     tableWrapper.className = "table-wrapper";
     tableWrapper.style.display = "flex";
     //tableWrapper.style.gap = "30px";
@@ -385,6 +576,7 @@ if (roundIndex === 0) {
     tableWrapper.appendChild(generateTeamTableCommon(team1, match.faction_2, 1));
 
     contentDiv.appendChild(tableWrapper);
+    adjustTableLayout();
   }
   }
 
@@ -415,7 +607,7 @@ if (roundIndex === 0) {
       const prevValue = prevStats[key] || 0;
       const currValue = currStats[key] || 0;
       const change = currValue; // Change is the current round's value
-      statsWithChanges[key] = change > 0 ? `${prevValue} (+${change})` : `${prevValue}`;
+      statsWithChanges[key] = change > 0 ? `+${change}` : `${prevValue}`;
     });
 
     // Push updated stats with changes into the team array
@@ -442,7 +634,7 @@ if (roundIndex === 0) {
       const prevValue = prevStats[key] || 0;
       const currValue = currStats[key] || 0;
       const change = currValue; // Change is the current round's value
-      statsWithChanges[key] = change > 0 ? `${prevValue} (+${change})` : `${prevValue}`;
+      statsWithChanges[key] = change > 0 ? `+${change}` : `${prevValue}`;
     });
 
     // Push updated stats with changes into the team array
@@ -607,7 +799,6 @@ const halfHeaderContainer = document.createElement("div");
 halfHeaderContainer.style.display = "flex";
 halfHeaderContainer.style.flexDirection = "column";
 halfHeaderContainer.style.alignItems = "center";
-halfHeaderContainer.style.marginBottom = "20px";
 
 // Row for Half 1:
 const half1Row = document.createElement("div");
@@ -616,15 +807,19 @@ half1Row.style.width = "100%";
 half1Row.style.justifyContent = "space-between";
 half1Row.style.alignItems = "center";
 // Create five flex cells (each 20% width)
-const half1Team0ScoreDiv = document.createElement("h2");
+const half1Team0ScoreDiv = document.createElement("h1");
 half1Team0ScoreDiv.style.flex = "1";
 half1Team0ScoreDiv.style.textAlign = "right";
 half1Team0ScoreDiv.textContent = halfAgg1.team0Score;
 
 const half1Faction1Div = document.createElement("h2");
+const fac11Img = document.createElement("img");
+const flag11 = facIcons[factions.indexOf(half1Info.faction_1)];
+fac11Img.src = `/img/${flag11}.png`;
+half1Faction1Div.appendChild(fac11Img);
 half1Faction1Div.style.flex = "1";
 half1Faction1Div.style.textAlign = "center";
-half1Faction1Div.textContent = half1Info.faction_1;
+//half1Faction1Div.textContent = half1Info.faction_1;
 
 const half1MapDiv = document.createElement("h1");
 half1MapDiv.style.flex = "1";
@@ -632,11 +827,15 @@ half1MapDiv.style.textAlign = "center";
 half1MapDiv.textContent = half1Info.map;
 
 const half1Faction2Div = document.createElement("h2");
+const fac12Img = document.createElement("img");
+const flag12 = facIcons[factions.indexOf(half1Info.faction_2)];
+fac12Img.src = `/img/${flag12}.png`;
+half1Faction2Div.appendChild(fac12Img);
 half1Faction2Div.style.flex = "1";
 half1Faction2Div.style.textAlign = "center";
-half1Faction2Div.textContent = half1Info.faction_2;
+//half1Faction2Div.textContent = half1Info.faction_2;
 
-const half1Team1ScoreDiv = document.createElement("h2");
+const half1Team1ScoreDiv = document.createElement("h1");
 half1Team1ScoreDiv.style.flex = "1";
 half1Team1ScoreDiv.style.textAlign = "left";
 half1Team1ScoreDiv.textContent = halfAgg1.team1Score;
@@ -659,17 +858,20 @@ half2Row.style.display = "flex";
 half2Row.style.width = "100%";
 half2Row.style.justifyContent = "space-between";
 half2Row.style.alignItems = "center";
-half2Row.style.marginTop = "10px"; // Gap between rows
 
-const half2Team0ScoreDiv = document.createElement("h2");
+const half2Team0ScoreDiv = document.createElement("h1");
 half2Team0ScoreDiv.style.flex = "1";
 half2Team0ScoreDiv.style.textAlign = "right";
 half2Team0ScoreDiv.textContent = halfAgg2.team0Score;
 
 const half2Faction1Div = document.createElement("h2");
+const fac21Img = document.createElement("img");
+const flag21 = facIcons[factions.indexOf(half2Info.faction_1)];
+fac21Img.src = `/img/${flag21}.png`;
+half2Faction1Div.appendChild(fac21Img);
 half2Faction1Div.style.flex = "1";
 half2Faction1Div.style.textAlign = "center";
-half2Faction1Div.textContent = half2Info.faction_1;
+// half2Faction1Div.textContent = 
 
 const half2MapDiv = document.createElement("h1");
 half2MapDiv.style.flex = "1";
@@ -677,11 +879,16 @@ half2MapDiv.style.textAlign = "center";
 half2MapDiv.textContent = half2Info.map;
 
 const half2Faction2Div = document.createElement("h2");
+const fac22Img = document.createElement("img");
+const flag22 = facIcons[factions.indexOf(half2Info.faction_2)];
+fac22Img.src = `/img/${flag22}.png`;
+half2Faction2Div.appendChild(fac22Img);
 half2Faction2Div.style.flex = "1";
 half2Faction2Div.style.textAlign = "center";
-half2Faction2Div.textContent = half2Info.faction_2;
 
-const half2Team1ScoreDiv = document.createElement("h2");
+// half2Faction2Div.textContent = half2Info.faction_2;
+
+const half2Team1ScoreDiv = document.createElement("h1");
 half2Team1ScoreDiv.style.flex = "1";
 half2Team1ScoreDiv.style.textAlign = "left";
 half2Team1ScoreDiv.textContent = halfAgg2.team1Score;
@@ -703,8 +910,7 @@ halfHeaderContainer.appendChild(half2Row);
 
 // Overall total score (centered below)
 const totalScoreDiv = document.createElement("h1");
-totalScoreDiv.style.marginTop = "10px";
-totalScoreDiv.style.fontWeight = "bold";
+totalScoreDiv.style.fontSize = "2.5em"; 
 totalScoreDiv.style.textAlign = "center";
 totalScoreDiv.textContent = `${finalTeam0Score} - ${finalTeam1Score}`;
 
@@ -714,6 +920,7 @@ contentDiv.appendChild(totalScoreDiv);
   // Create side-by-side tables.
   const tableWrapper = document.createElement("div");
   tableWrapper.className = "table-wrapper";
+  tableWrapper.id = "tables-container";
   tableWrapper.style.display = "flex";
   //tableWrapper.style.gap = "30px";
   
@@ -725,6 +932,7 @@ contentDiv.appendChild(totalScoreDiv);
   tableWrapper.appendChild(generateTeamTableCommon(team1, faction1));
   
   contentDiv.appendChild(tableWrapper);
+  adjustTableLayout();
 }
 const bracket = [
       ["Cheezeninja", "Marquis", "X", "X", -1],
@@ -978,6 +1186,177 @@ const scrims = [[0,1,0],[2,3,0],[4,5,1],[6,7,0],[8,9,0],[10,11,0],[12,13,1],[14,
 
 }
 
+let filterArc = false;
+let filterCav = false;
+let filterInf = false;
+/**
+ * Generate aggregated stats for players from match data while applying class filters.
+ *
+ * @param {number[]} playerIds - Array of player IDs.
+ * @param {object} matches - Match data, where matches.matches is an array of match objects.
+ * @param {Map} nameToIdMap - A Map from lower-case player names to their IDs.
+ * @param {Array} playerNames - An array or object that maps player IDs to [name, ...] (used for display).
+ * @param {boolean} filterInf - If true, skip players whose class matches any string in infClasses.
+ * @param {boolean} filterCav - If true, skip players whose class matches any string in cavClasses.
+ * @param {boolean} filterArc - If true, skip players whose class matches any string in arcClasses.
+ * @param {string[]} infClasses - Array of class substrings for infantry.
+ * @param {string[]} cavClasses - Array of class substrings for cav.
+ * @param {string[]} arcClasses - Array of class substrings for archers.
+ * @returns {object[]} A filtered array of aggregated player stats.
+ */
+ function generatePlayerStats(
+  playerIds,
+  matches,
+  nameToIdMap,
+  playerNames
+) {
+  // Initialize aggregation object.
+  const playerStats = {};
+  playerIds.forEach(id => {
+    if (id === 0) return;
+    playerStats[id] = {
+      kills: 0,
+      classes: [],
+      deaths: 0,
+      assists: 0,
+      dmg: 0,
+      tks: 0,
+      tdmg: 0,
+      tkd: 0,
+      rounds: 0,
+      wins: 0,
+      teams: 0
+    };
+  });
+
+  // Process each match and round.
+  matches.matches.forEach(match => {
+    match.rounds.forEach(round => {
+      const { kills, deaths, teamkills, teamkilled, assists, dmg, tdmg, players, classes, teams } = round;
+
+      // Build an array of players we want to include for this round.
+      const filteredPlayers = [];
+      players.forEach((name, index) => {
+        const playerClass = classes[index]; // class for this player in the round
+
+        // Exit early if any filter is enabled and the player's class matches.
+        if (
+          (filterInf && infClasses.some(infClass => playerClass.includes(infClass))) ||
+          (filterCav && cavClasses.some(cavClass => playerClass.includes(cavClass))) ||
+          (filterArc && arcClasses.some(arcClass => playerClass.includes(arcClass)))
+        ) {
+          return; // Skip this player.
+        }
+        // Otherwise, include this player's name in the filtered list.
+        filteredPlayers.push(name);
+        const playerId = nameToIdMap.get(name.toLowerCase());
+        if (playerId) {
+          // Count rounds played.
+          playerStats[playerId].rounds += 1;
+
+          // Track the player's class if not already tracked.
+          if (!playerStats[playerId].classes.includes(playerClass)) {
+            playerStats[playerId].classes.push(playerClass);
+          }
+
+          // (If you have additional round-level logic [such as wins], process it here.)
+          // Example:
+          if (playerStats[playerId].teams === getWinner(round.result)) {
+            playerStats[playerId].wins += 1;
+          }
+        }
+      });
+
+      // Now, for stats that depend on loop index and player identity, use filteredPlayers.
+      kills.forEach(name => {
+        if (filteredPlayers.includes(name)) {
+          const playerId = nameToIdMap.get(name.toLowerCase());
+          if (playerId) {
+            playerStats[playerId].kills += 1;
+          }
+        }
+      });
+
+      deaths.forEach(name => {
+        if (filteredPlayers.includes(name)) {
+          const playerId = nameToIdMap.get(name.toLowerCase());
+          if (playerId) {
+            playerStats[playerId].deaths += 1;
+          }
+        }
+      });
+
+      teamkills.forEach(name => {
+        if (filteredPlayers.includes(name)) {
+          const playerId = nameToIdMap.get(name.toLowerCase());
+          if (playerId) {
+            playerStats[playerId].tks += 1;
+          }
+        }
+      });
+
+      teamkilled.forEach(name => {
+        if (filteredPlayers.includes(name)) {
+          const playerId = nameToIdMap.get(name.toLowerCase());
+          if (playerId) {
+            playerStats[playerId].tkd += 1;
+          }
+        }
+      });
+
+      // For assists, damage, and team damage, the index in the original players array is used.
+      assists.forEach((value, index) => {
+        const name = players[index];
+        if (filteredPlayers.includes(name)) {
+          const playerId = nameToIdMap.get(name.toLowerCase());
+          if (playerId) {
+            playerStats[playerId].assists += value;
+          }
+        }
+      });
+
+      dmg.forEach((value, index) => {
+        const name = players[index];
+        if (filteredPlayers.includes(name)) {
+          const playerId = nameToIdMap.get(name.toLowerCase());
+          if (playerId) {
+            playerStats[playerId].dmg += value;
+          }
+        }
+      });
+
+      tdmg.forEach((value, index) => {
+        const name = players[index];
+        if (filteredPlayers.includes(name)) {
+          const playerId = nameToIdMap.get(name.toLowerCase());
+          if (playerId) {
+            playerStats[playerId].tdmg += value;
+          }
+        }
+      });
+    });
+  });
+
+  // Convert stats object into an array for sorting or display.
+  let statsArray = playerIds.map(id => ({
+    id,
+    name: playerNames[playerIds.indexOf(id)][0],
+    ...playerStats[id]
+  }));
+
+  // Filter out players with all stats as 0.
+  statsArray = statsArray.filter(player =>
+    player.kills > 0 ||
+    player.deaths > 0 ||
+    player.assists > 0 ||
+    player.dmg > 0 ||
+    player.tks > 0 ||
+    player.tkd > 0
+  );
+
+  return { statsArray, playerStats };
+}
+
 function renderPlayersList() {
     const container = document.getElementById("tab-content");
     container.innerHTML = "";  // Clear previous content
@@ -1004,95 +1383,38 @@ function renderPlayersList() {
             });
         });
 
-        // Step 2: Initialize aggregation object
-        const playerStats = {};
-        playerIds.forEach(id => {
-          if (id === 0 ) return;
-            playerStats[id] = { kills: 0, deaths: 0, assists: 0, dmg: 0, tks: 0, tdmg: 0, tkd: 0, rounds: 0 };
-        });
-        matches.matches.forEach(match => {
-            match.rounds.forEach(round => {
-                // Count string matches for kills, deaths, etc.
-                const { kills, deaths, teamkills, teamkilled, assists, dmg, tdmg, players } = round;
-
-                kills.forEach(name => {
-                    const playerId = nameToIdMap.get(name.toLowerCase());
-                    if (playerId) playerStats[playerId].kills += 1;
-                });
-
-                deaths.forEach(name => {
-                    const playerId = nameToIdMap.get(name.toLowerCase());
-                    if (playerId) playerStats[playerId].deaths += 1;
-                });
-
-                teamkills.forEach(name => {
-                    const playerId = nameToIdMap.get(name.toLowerCase());
-                    if (playerId) playerStats[playerId].tks += 1;
-                });
-
-                teamkilled.forEach(name => {
-                    const playerId = nameToIdMap.get(name.toLowerCase());
-                    if (playerId) playerStats[playerId].tkd += 1;
-                });
-
-                players.forEach(name => {
-                    const playerId = nameToIdMap.get(name.toLowerCase());
-                    if (playerId) playerStats[playerId].rounds += 1;
-                });
-
-                // Aggregate assists and damage using the player index
-                assists.forEach((value, index) => {
-                    const playerId = nameToIdMap.get(players[index].toLowerCase());
-                    if (playerId) playerStats[playerId].assists += value;
-                });
-
-                dmg.forEach((value, index) => {
-                    const playerId = nameToIdMap.get(players[index].toLowerCase());
-                    if (playerId) playerStats[playerId].dmg += value;
-                });
-
-                tdmg.forEach((value, index) => {
-                    const playerId = nameToIdMap.get(players[index].toLowerCase());
-                    if (playerId) playerStats[playerId].tdmg += value;
-                });
-            });
-        });
-
+        let { statsArray, playerStats } = generatePlayerStats(playerIds, matches, nameToIdMap, playerNames);
         var playersContainer = document.createElement("div");
         playersContainer.id = "players-container";
 
-        // Convert stats into an array for sorting
-        let statsArray = playerIds.map(id => ({
-            id,
-            name: playerNames[playerIds.indexOf(id)][0],
-            ...playerStats[id]
-        }));
-
-        // Filter out players with all stats as 0
-        statsArray = statsArray.filter(player =>
-            player.kills > 0 ||
-            player.deaths > 0 ||
-            player.assists > 0 ||
-            player.dmg > 0 ||
-            player.tks > 0 ||
-            player.tked > 0
-        );
-
         // Default sort by kills (high to low)
         let currentSortColumn = "kills";
+        let currentSortDivisor = "none";
         let currentSortDirection = "desc"; // "desc" or "asc"
 
         // Function to render the table
         const renderTable = () => {
           playersContainer.innerHTML = ""; // Clear previous content
 
+            // Sort the stats array
+            statsArray.sort((a, b) => {
+                const valueA = a[currentSortColumn];
+                const valueB = b[currentSortColumn];
+
+                if (currentSortDirection === "desc") {
+                    return valueB - valueA;
+                } else {
+                    return valueA - valueB;
+                }
+            });
             const table = document.createElement("table");
             table.style.width = "100%";
             table.style.borderCollapse = "collapse";
 
+            const columns = ["Player Name", "Kills", "Deaths", "Assists", "Dmg", "TKs", "TDmg", "TKd", "Rounds", "Wins"];
             // Create table header
             const headerRow = document.createElement("tr");
-            ["Player Name", "Kills", "Deaths", "Assists", "Dmg", "TKs", "TDmg", "TKd", "Rounds"].forEach(column => {
+            columns.forEach(column => {
                 const th = document.createElement("th");
                 th.textContent = column;
                 th.style.borderBottom = "1px solid #ccc";
@@ -1100,17 +1422,115 @@ function renderPlayersList() {
                 th.style.textAlign = "left";
                 // Add click event for sorting
               if (column !== "Player Name"){
+                let ignore = false;
                 th.style.cursor = "pointer";
+                // Add a span for the clickable division symbol
+                const divisionSpan = document.createElement("span");
+                divisionSpan.textContent = " ÷"; 
+                divisionSpan.style.marginLeft = "5px"; 
+                divisionSpan.style.opacity ="1"; 
+                divisionSpan.style.display = "inline-block"; 
+                divisionSpan.style.width = "1em";
+                divisionSpan.style.textAlign = "center";
+                if (currentSortDivisor == column) divisionSpan.style.color = "green";
+                  if (currentSortColumn === column.toLowerCase()) {
+                  
+                  th.style.color = currentSortDirection === "asc" ? "red" : "green";
+                  divisionSpan.style.opacity = "0";
+                } else {
+                  divisionSpan.style.opacity = "1";
+                  
+                  divisionSpan.style.cursor = "pointer";
+                  
+                  divisionSpan.onclick = () => {
+                    ignore = true;
+                    //duplicated code -- reset stats 
+                    statsArray = playerIds.map(id => ({
+                        id,
+                        name: playerNames[playerIds.indexOf(id)][0],
+                        ...playerStats[id]
+                    }));
+                    
+                    const columnIndex = columns.indexOf(column)
+                    // Filter out players with all stats as 0
+                    statsArray = statsArray.filter(player =>
+                    player[columns[columnIndex].toLowerCase()] !== 0
+                    && player[columns[columnIndex].toLowerCase()] !== undefined
+                    && (player.kills > 0 ||
+                        player.deaths > 0 ||
+                        player.assists > 0 ||
+                        player.dmg > 0 ||
+                        player.tks > 0 ||
+                        player.tked > 0)
+                    );
+                    if(currentSortDivisor !== column) {
+                      currentSortDivisor = column;
+                      statsArray = statsArray.map(player => {
+                          const divider = player[columns[columnIndex].toLowerCase()]; // Value to divide by
+                          // Create a new object with divided values for other stats
+                          const dividedPlayer = { ...player };
+                          columns.forEach(stat => {
+                              if (stat !== "Player Name" && stat !== column) {
+                                  dividedPlayer[stat.toLowerCase()] = 
+                                      (player[stat.toLowerCase()] / divider).toFixed(2); // Perform division
+                              }
+                          });
+                          return dividedPlayer;
+                        });
+
+                        console.log(`Divided values by ${column}`);
+                      } else {
+                        currentSortDivisor = "none";
+                      };
+                      // Sort the stats array
+                      statsArray.sort((a, b) => {
+                          const valueA = a[currentSortColumn];
+                          const valueB = b[currentSortColumn];
+
+                          if (currentSortDirection === "desc") {
+                              return valueB - valueA;
+                          } else {
+                              return valueA - valueB;
+                          }
+                      });
+                      renderTable();
+                    };
+                }
+                th.appendChild(divisionSpan);
                 th.onclick = () => {
+                  if(!ignore){
                     if (currentSortColumn === column.toLowerCase()) {
-                        // Toggle sort direction
+                          // Toggle sort direction
                         currentSortDirection = currentSortDirection === "desc" ? "asc" : "desc";
                     } else {
                         // Change sort column
                         currentSortColumn = column.toLowerCase();
-                        currentSortDirection = "desc"; // Default to high-to-low
+                        currentSortDirection = "desc"; 
+                        if(currentSortDivisor == currentSortColumn) {
+                          currentSortDivisor = "none";
+                          //duplicated code -- reset stats 
+                          statsArray = playerIds.map(id => ({
+                              id,
+                              name: playerNames[playerIds.indexOf(id)][0],
+                              ...playerStats[id]
+                          }));
+                          
+                          const columnIndex = columns.indexOf(column)
+                          // Filter out players with all stats as 0
+                          statsArray = statsArray.filter(player =>
+                          player[columns[columnIndex].toLowerCase()] !== 0
+                          && player[columns[columnIndex].toLowerCase()] !== undefined
+                          && (player.kills > 0 ||
+                              player.deaths > 0 ||
+                              player.assists > 0 ||
+                              player.dmg > 0 ||
+                              player.tks > 0 ||
+                              player.tked > 0)
+                          );
+                        }
                     }
 
+            
                     // Sort the stats array
                     statsArray.sort((a, b) => {
                         const valueA = a[currentSortColumn];
@@ -1122,20 +1542,72 @@ function renderPlayersList() {
                             return valueA - valueB;
                         }
                     });
-                    console.log(column, currentSortColumn, currentSortDirection)
                     // Re-render the table
                     renderTable();
                 };
+                ignore = false;
               }
+              } else {
+                const infclass = document.createElement("img");
+                infclass.style.cursor = "pointer";
+                infclass.onclick = () => {
+                  filterInf = !filterInf;
+                  ({ statsArray, playerStats  } = generatePlayerStats(playerIds, matches, nameToIdMap, playerNames));
+                  renderTable();
+                  console.log("Inf filter:", filterInf)
+                }
+                infclass.style.filter = `grayscale(${+filterInf})`;
+                infclass.src = "img/class_inf.png";
+                infclass.height *= 0.5;
+                infclass.width *= 0.5;
+                infclass.style.alignItems = "left;"
+                infclass.style.paddingLeft = "8px";
+                th.appendChild(infclass);
+
+                const cavclass = document.createElement("img");
+                cavclass.style.cursor = "pointer";
+                cavclass.onclick = () => {
+                  filterCav = !filterCav;
+                  ({ statsArray, playerStats  } = generatePlayerStats(playerIds, matches, nameToIdMap, playerNames));
+                  renderTable();
+                  console.log("Cav filter:", filterCav)
+                }
+                cavclass.style.filter = `grayscale(${+filterCav})`;
+                cavclass.src = "img/class_cav.png";
+                cavclass.height *= 0.5;
+                cavclass.width *= 0.5;
+                cavclass.style.alignItems = "left;"
+                cavclass.style.paddingLeft = "8px";
+                th.appendChild(cavclass);
+
+                const arcclass = document.createElement("img");
+                arcclass.style.cursor = "pointer";
+                arcclass.onclick = () => {
+                  filterArc = !filterArc;
+                  ({ statsArray, playerStats } = generatePlayerStats(playerIds, matches, nameToIdMap, playerNames));
+                  renderTable();
+                  console.log("Archer filter:", filterArc)
+                }
+                arcclass.style.filter = `grayscale(${+filterArc})`;
+                arcclass.src = "img/class_arc.png";
+                arcclass.height *= 0.5;
+                arcclass.width *= 0.5;
+                arcclass.style.alignItems = "left;"
+                arcclass.style.paddingLeft = "8px";
+                th.appendChild(arcclass);
+              }
+
+        
                 headerRow.appendChild(th);
             });
             table.appendChild(headerRow);
 
             // Populate table rows
-            statsArray.forEach(player => {
+            statsArray.forEach((player) => {
                 const row = document.createElement("tr");
                 [
                     player.name,
+                    //player.class,
                     player.kills,
                     player.deaths,
                     player.assists,
@@ -1143,12 +1615,52 @@ function renderPlayersList() {
                     player.tks,
                     player.tdmg,
                     player.tkd,
-                    player.rounds
+                    player.rounds,
+                    player.wins
                 ].forEach(value => {
                     const td = document.createElement("td");
-                    td.textContent = value;
-                    td.style.borderBottom = "1px solid #ccc";
+                    if (value === player.name){
+                      const nameSpan = document.createElement("span");
+                      nameSpan.textContent = value;
+
+                      td.appendChild(nameSpan);
+                      let type;
+                      if(player.classes.some(className => infClasses.includes(className))){
+                        type = "inf";
+                        const infclass = document.createElement("img");
+                        infclass.src = `/img/class_` + `${type}` +`.png`;
+                        infclass.height *= 0.5;
+                        infclass.width *= 0.5;
+                        infclass.style.alignItems = "left;"
+                        infclass.style.paddingLeft = "8px";
+                        td.appendChild(infclass);
+                      } 
+                      if(player.classes.some(className => cavClasses.includes(className))){
+                        type = "cav";
+                        const infclass = document.createElement("img");
+                        infclass.src = `/img/class_` + `${type}` +`.png`;
+                        infclass.height *= 0.5;
+                        infclass.width *= 0.5;
+                        infclass.style.alignItems = "left;"
+                        infclass.style.paddingLeft = "8px";
+                        td.appendChild(infclass);
+                      } 
+                      if(player.classes.some(className => arcClasses.includes(className))){
+                        type = "arc";
+                        const infclass = document.createElement("img");
+                        infclass.src = `/img/class_` + `${type}` +`.png`;
+                        infclass.height *= 0.5;
+                        infclass.width *= 0.5;
+                        infclass.style.alignItems = "left;"
+                        infclass.style.paddingLeft = "8px";
+                        td.appendChild(infclass);
+                      }  
+                    } else {
+                      td.textContent = value;
                     td.style.padding = "8px";
+                  }
+                    
+                    td.style.borderBottom = "1px solid #ccc";
                     row.appendChild(td);
                 });
                 table.appendChild(row);
@@ -1407,6 +1919,7 @@ function calculateTotalStats(match) {
     statsContainer.className = "stats-container";  // Use your pre-defined CSS
 
     const tableWrapper = document.createElement("div");
+    tableWrapper.id = "tables-container"; 
     tableWrapper.className = "table-wrapper";  // This should style the tables side by side with padding/gap
 
     // 5. Generate each team’s table using our helper (which applies common styling).
@@ -1423,6 +1936,7 @@ function calculateTotalStats(match) {
     // 7. Finally, append the stats container to the content area.
     const contentDiv = document.getElementById("content");
     contentDiv.appendChild(statsContainer);
+    adjustTableLayout();
 }
   // Helper: Flip the team assignments for a round.
   function flipRound(round) {
@@ -1440,6 +1954,7 @@ function calculateTotalStats(match) {
       result: round.result // leave as-is
     };
   }
+
 
   /**
    * Render half view.
@@ -1535,44 +2050,161 @@ function calculateTotalStats(match) {
     backButton.onclick = updateURLToLanding;
     contentDiv.appendChild(backButton);
 
-    // Center container for displaying the half details
-    const halfContainer = document.createElement("div");
-    halfContainer.style.textAlign = "center";
-    halfContainer.style.marginBottom = "20px";
-
     // Fetch map and match details
     const match1Info = matches[halfIndices[0]];
     const match2Info = matches[halfIndices[1]];
+    
+    const halfHeaderContainer = document.createElement("div");
+    halfHeaderContainer.style.display = "flex";
+    halfHeaderContainer.style.flexDirection = "column";
+    halfHeaderContainer.style.alignItems = "center";
 
-    // Map name (same for both matches)
-    const mapName = document.createElement("h1");
-    mapName.textContent = `${match1Info.map}`;
-    mapName.style.marginBottom = "15px"; // Add spacing below
-    halfContainer.appendChild(mapName);
+    // Row for Half 1:
+    const half1Row = document.createElement("div");
+    half1Row.style.display = "flex";
+    half1Row.style.width = "100%";
+    half1Row.style.justifyContent = "space-between";
+    half1Row.style.alignItems = "center";
+    // Create five flex cells (each 20% width)
+    const half1Team0ScoreDiv = document.createElement("h1");
+    half1Team0ScoreDiv.style.flex = "1";
+    half1Team0ScoreDiv.style.textAlign = "right";
+    half1Team0ScoreDiv.textContent = m1team0Score;
 
-    // Match 1 details
-    const match1Details = document.createElement("h2");
-    match1Details.style.marginBottom = "10px";
-    match1Details.style.cursor = "pointer";
-    match1Details.innerHTML = `
-      <strong>${m1team0Score}</strong> - ${match1Info.faction_1} &nbsp;&nbsp;&nbsp; ${match1Info.faction_2} - <strong>${m1team1Score}</strong>
-    `;
-    match1Details.onclick = () => {
-      updateURLToMatch(halfIndices[0]); // Navigate to Half 1
+    const half1Faction1Div = document.createElement("h2");
+    const fac11Img = document.createElement("img");
+    const flag11 = facIcons[factions.indexOf(match1Info.faction_1)];
+    fac11Img.src = `/img/${flag11}.png`;
+    half1Faction1Div.appendChild(fac11Img);
+    half1Faction1Div.style.flex = "1";
+    half1Faction1Div.style.textAlign = "center";
+    //half1Faction1Div.textContent = half1Info.faction_1;
+
+    const half1MapDiv = document.createElement("h1");
+    half1MapDiv.style.flex = "1";
+    half1MapDiv.style.textAlign = "center";
+    half1MapDiv.textContent = match1Info.map;
+
+    const half1Faction2Div = document.createElement("h2");
+    const fac12Img = document.createElement("img");
+    const flag12 = facIcons[factions.indexOf(match1Info.faction_2)];
+    fac12Img.src = `/img/${flag12}.png`;
+    half1Faction2Div.appendChild(fac12Img);
+    half1Faction2Div.style.flex = "1";
+    half1Faction2Div.style.textAlign = "center";
+    //half1Faction2Div.textContent = half1Info.faction_2;
+
+    const half1Team1ScoreDiv = document.createElement("h1");
+    half1Team1ScoreDiv.style.flex = "1";
+    half1Team1ScoreDiv.style.textAlign = "left";
+    half1Team1ScoreDiv.textContent = m1team1Score;
+
+    // Make the entire row clickable:
+    half1Row.style.cursor = "pointer";
+    half1Row.onclick = () => {
+        updateURLToMatch(halfIndices[0])
     };
-    halfContainer.appendChild(match1Details);
 
-    // Match 2 details
-    const match2Details = document.createElement("h2");
-    match2Details.style.marginBottom = "10px";
-    match2Details.style.cursor = "pointer";
-    match2Details.innerHTML = `
-      <strong>${m2team0Score}</strong> - ${match2Info.faction_2} &nbsp;&nbsp;&nbsp; ${match2Info.faction_1} - <strong>${m2team1Score}</strong>
-    `;
-    match2Details.onclick = () => {
-      updateURLToMatch(halfIndices[1]); // Navigate to Half 2
-    };
-    halfContainer.appendChild(match2Details);
+    half1Row.appendChild(half1Team0ScoreDiv);
+    half1Row.appendChild(half1Faction1Div);
+    half1Row.appendChild(half1MapDiv);
+    half1Row.appendChild(half1Faction2Div);
+    half1Row.appendChild(half1Team1ScoreDiv);
+
+// Row for Half 2:
+const half2Row = document.createElement("div");
+half2Row.style.display = "flex";
+half2Row.style.width = "100%";
+half2Row.style.justifyContent = "space-between";
+half2Row.style.alignItems = "center";
+
+const half2Team0ScoreDiv = document.createElement("h1");
+half2Team0ScoreDiv.style.flex = "1";
+half2Team0ScoreDiv.style.textAlign = "right";
+half2Team0ScoreDiv.textContent = m2team0Score;
+
+const half2Faction1Div = document.createElement("h2");
+const fac21Img = document.createElement("img");
+const flag21 = facIcons[factions.indexOf(match2Info.faction_2)];
+fac21Img.src = `/img/${flag21}.png`;
+half2Faction1Div.appendChild(fac21Img);
+half2Faction1Div.style.flex = "1";
+half2Faction1Div.style.textAlign = "center";
+// half2Faction1Div.textContent = 
+
+const half2MapDiv = document.createElement("h1");
+half2MapDiv.style.flex = "1";
+half2MapDiv.style.textAlign = "center";
+// half2MapDiv.textContent = match2Info.map;
+
+const half2Faction2Div = document.createElement("h2");
+const fac22Img = document.createElement("img");
+const flag22 = facIcons[factions.indexOf(match2Info.faction_1)];
+fac22Img.src = `/img/${flag22}.png`;
+half2Faction2Div.appendChild(fac22Img);
+half2Faction2Div.style.flex = "1";
+half2Faction2Div.style.textAlign = "center";
+
+// half2Faction2Div.textContent = half2Info.faction_2;
+
+const half2Team1ScoreDiv = document.createElement("h1");
+half2Team1ScoreDiv.style.flex = "1";
+half2Team1ScoreDiv.style.textAlign = "left";
+half2Team1ScoreDiv.textContent = m2team1Score;
+
+half2Row.style.cursor = "pointer";
+half2Row.onclick = () => {
+   updateURLToMatch(halfIndices[1])
+};
+
+half2Row.appendChild(half2Team0ScoreDiv);
+half2Row.appendChild(half2Faction1Div);
+half2Row.appendChild(half2MapDiv);
+half2Row.appendChild(half2Faction2Div);
+half2Row.appendChild(half2Team1ScoreDiv);
+
+// Append both rows to the container:
+halfHeaderContainer.appendChild(half1Row);
+halfHeaderContainer.appendChild(half2Row);
+    // // Center container for displaying the half details
+    // const halfContainer = document.createElement("div");
+    // halfContainer.style.textAlign = "center";
+    // halfContainer.style.marginBottom = "20px";
+
+
+    // // Map name (same for both matches)
+    // const mapName = document.createElement("h1");
+    // mapName.textContent = `${match1Info.map}`;
+    // mapName.style.marginBottom = "15px"; // Add spacing below
+    // halfContainer.appendChild(mapName);
+
+    // // Match 1 details
+    // const match1Details = document.createElement("div");
+    // match1Details.style.marginBottom = "10px";
+    // match1Details.style.cursor = "pointer";
+    // const image = document.createElement("img");
+    // image.src = '/img/flag_nord.png';
+    // //image.alt = "Placeholder";
+    // match1Details.appendChild(image);
+    // // match1Details.innerHTML = `
+    // //   <strong>${m1team0Score}</strong> - ${match1Info.faction_1} &nbsp;&nbsp;&nbsp; ${match1Info.faction_2} - <strong>${m1team1Score}</strong>
+    // // `;
+    // match1Details.onclick = () => {
+    //   updateURLToMatch(halfIndices[0]); // Navigate to Half 1
+    // };
+    // halfContainer.appendChild(match1Details);
+
+    // // Match 2 details
+    // const match2Details = document.createElement("h2");
+    // match2Details.style.marginBottom = "10px";
+    // match2Details.style.cursor = "pointer";
+    // match2Details.innerHTML = `
+    //   <strong>${m2team0Score}</strong> - ${match2Info.faction_2} &nbsp;&nbsp;&nbsp; ${match2Info.faction_1} - <strong>${m2team1Score}</strong>
+    // `;
+    // match2Details.onclick = () => {
+    //   updateURLToMatch(halfIndices[1]); // Navigate to Half 2
+    // };
+    // halfContainer.appendChild(match2Details);
 
     // Total score
     const totalTeam0Score = match1Info.team0Score + match2Info.team0Score;
@@ -1582,13 +2214,14 @@ function calculateTotalStats(match) {
     // totalScore.style.fontSize = "1.2em";
     totalScore.style.fontWeight = "bold";
     totalScore.textContent = `${team0Score} - ${team1Score}`;
-    halfContainer.appendChild(totalScore);
+    halfHeaderContainer.appendChild(totalScore);
 
     // Add everything to the main content div
-    contentDiv.appendChild(halfContainer);
+    contentDiv.appendChild(halfHeaderContainer);
     // Create a table wrapper for side–by–side tables.
     const tableWrapper = document.createElement("div");
     tableWrapper.className = "table-wrapper";
+    tableWrapper.id = "tables-container"; 
     tableWrapper.style.display = "flex";
     //tableWrapper.style.gap = "150px";
 
@@ -1604,6 +2237,7 @@ function calculateTotalStats(match) {
 
     // Append the tables to the content.
     contentDiv.appendChild(tableWrapper);
+    adjustTableLayout();
   }
 
 

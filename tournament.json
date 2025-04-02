@@ -39,7 +39,6 @@
                         18,
                         113,
                         59,
-                        0,
                         0
                     ],
                     "start_time": "19:32:01",
@@ -64,8 +63,7 @@
                         28,
                         41,
                         0,
-                        14,
-                        0
+                        14
                     ],
                     "teamkills": [
                         "FalconHunter",
@@ -100,8 +98,7 @@
                         "logman",
                         "ae",
                         "[AmoX]Popo",
-                        "FalconHunter",
-                        "Van"
+                        "FalconHunter"
                     ],
                     "classes": [
                         "Nord Archer",
@@ -119,8 +116,7 @@
                         "Rhodok Sergeant",
                         "Nord Huscarl",
                         "Nord Archer",
-                        "Nord Huscarl",
-                        "Swadian Man at Arms"
+                        "Nord Huscarl"
                     ],
                     "deaths": [
                         "MOG",
@@ -143,7 +139,6 @@
                         1,
                         0,
                         1,
-                        0,
                         0,
                         0,
                         0,
@@ -179,8 +174,7 @@
                         1,
                         0,
                         0,
-                        0,
-                        1
+                        0
                     ],
                     "end_time": "19:34:49"
                 },

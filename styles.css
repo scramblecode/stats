@@ -37,20 +37,30 @@
       color: white;
     }
     /* The overall content box */
-    #content {
-        width: 90%;
-        margin: 20px auto;
-        padding: 20px;
-        border: 2px solid #ccc;
-        border-radius: 10px;
+#content {
+  width: 90%;
+  margin: 20px auto;
+  padding: 20px;
+  border: 2px solid #ccc;
+  border-radius: 10px;
         /* background-color: #292525; */
         background-color: rgba(59, 53, 53, 0.8); /* 80% opaque white */
-        box-sizing: border-box;
+  box-sizing: border-box;
         position: relative;
-        height: calc(100vh - 200px);
+  height: calc(100vh - 150px);
         overflow: hidden; 
-        position: relative;
-      }
+        overflow-y: auto;
+        overflow-x: auto;
+  position: relative;
+  /* Hide scrollbar for IE, Edge */
+  -ms-overflow-style: none; 
+  /* Hide scrollbar for Firefox */
+  scrollbar-width: none; 
+}
+/* Hide scrollbar for Chrome, Safari and Opera */
+#content::-webkit-scrollbar {
+  display: none;
+}
       /* Landing page tabs */
       .tabs {
         position: absolute;
@@ -125,6 +135,12 @@
         /* Hide scrollbar for Firefox */
         scrollbar-width: none; 
       }
+      .active-filter {
+        outline: 5px solid #4caf50; /* Green outline */
+        border-radius: 5px; /* Optional: Make it look nicer */
+        padding: 5px; /* Ensure the outline fits around the filter nicely */
+        box-shadow: 0px 0px 5px rgba(76, 175, 80, 0.5); /* Optional: Add a glow effect */
+    }
 
       /* Hide scrollbar for Chrome, Safari and Opera */
       #players-container::-webkit-scrollbar {
@@ -133,7 +149,7 @@
     #players-container li {
       padding: 5px;  /* Padding inside each UL */
       list-style: none; /* Remove default bullet */
-    }
+      }
       /* Bracket box styles */
       .bracket-box {
         border: 1px solid #999;
@@ -165,10 +181,17 @@
     .stats-container {
       margin-top: 20px;
     }
+    #tables-container {
+      display: flex;
+      gap: 150px; /* Add spacing between tables */
+      justify-content: center;
+      align-items: flex-start; /* Default: side-by-side alignment */
+  }
     .table-wrapper {
       display: flex;
       gap: 150px;  /* Space between the two team tables */
       height: 100%;
+      align-items: flex-start; /* Default: side-by-side alignment */
     }
     .stats-container div {
       flex: 1;  /* Equal size for both tables */
