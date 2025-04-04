@@ -152,7 +152,7 @@ function getWinner(result){
         stats[player].teamkills += round.teamkills.filter(tk => tk === player).length;
         stats[player].tdmg += round.tdmg[index] || 0;
         stats[player].wins += getWinner(round.result) == stats[player].team ? 1 : 0;
-        stats[player].classes.push(round.classes[index])
+        //stats[player].classes.push(round.classes[index])
       });
     });
     return stats;
@@ -252,28 +252,12 @@ function getWinner(result){
     contentDiv.classList.add("match-detail");
     contentDiv.innerHTML = ""; // Clear previous content
 
-    // "Back" button
-    // const backButton = document.createElement("button");
-    // backButton.textContent = "Back to Matches";
-    // backButton.style.marginBottom = "20px";
-    // backButton.onclick = updateURLToLanding;
-    // contentDiv.appendChild(backButton);
     renderTabBar(contentDiv);
 
     // Match info header
     const mapHeading = document.createElement("h1");
     mapHeading.textContent = `${match.map}`;
     contentDiv.appendChild(mapHeading);
-
-    // const factionsHeader = document.createElement("div");
-    // factionsHeader.className = "team-header";
-    // factionsHeader.style.display = "flex";
-    //factionsHeader.style.justifyContent = "space-between";
-    // factionsHeader.style.alignItems = "center";
-
-    // const factionsLeft = document.createElement("span"); 
-    // factionsLeft.textContent = `Factions: ${match.faction_1} vs ${match.faction_2}`;
-    // factionsLeft.style.textAlign = "left";
 
     // Compute overall score from round results:
     let team0Score = 0;
@@ -303,11 +287,6 @@ function getWinner(result){
     half1Row.style.width = "100%";
     half1Row.style.justifyContent = "space-between";
     half1Row.style.alignItems = "center";
-    // Create five flex cells (each 20% width)
-    // const half1Team0ScoreDiv = document.createElement("h1");
-    // half1Team0ScoreDiv.style.flex = "1";
-    // half1Team0ScoreDiv.style.textAlign = "right";
-    // half1Team0ScoreDiv.textContent = m1team0Score;
 
     const half1Faction1Div = document.createElement("h2");
     for(let i = 0; i < team0Score; i++){
@@ -365,12 +344,6 @@ function getWinner(result){
     contentDiv.classList.add("match-detail");
     contentDiv.innerHTML = "";  // Clear existing content
 
-    // "Back" button
-    // const backButton = document.createElement("button");
-    // backButton.textContent = "Back to Matches";
-    // backButton.style.marginBottom = "20px";
-    // backButton.onclick = updateURLToLanding;
-    // contentDiv.appendChild(backButton);
     renderTabBar(contentDiv);
 
     // Header with basic match info; you might want to include the round's start time.
@@ -378,27 +351,9 @@ function getWinner(result){
     mapHeading.textContent = `${match.map} (Round ${roundIndex + 1})`;
     contentDiv.appendChild(mapHeading);
 
-    // const factionsHeader = document.createElement("div");
-    // factionsHeader.className = "team-header";
-
-    // const factionsLeft = document.createElement("span");
-    // factionsLeft.textContent = `Factions: ${match.faction_1} vs ${match.faction_2}`;
-    // factionsLeft.style.textAlign = "left";
-
     // For a single round, you might decide to show no score or compute a score based on round.result.
     const scoreElement = document.createElement("h1");
-    // For example, if round.result is "Team 2 win" we could assign a score of "1 - 0" for that round.
-    // let roundScore = "";
-    // if (round.result.includes("Team 2 win")) {
-    //       if (round.result.includes("flag"))
-    //         {roundScore = "+0 - +1"} else {roundScore = "+1 - +0"}
-    //   roundScore = "+1 - +0";
-    // } else if (round.result.includes("Team 1 win")) {
-    //       if (round.result.includes("flag"))
-    //         {roundScore = "+1 - +0"} else {roundScore = "+0 - +1"};
-    // } else {
-    //   roundScore = "+0 - +0";
-    // }
+
     let team0Score, team1Score;
     let cumulativeTeam0 = 0, cumulativeTeam1 = 0;
     let currentChangeTeam0 = 0, currentChangeTeam1 = 0;
@@ -481,24 +436,19 @@ if (roundIndex === 0) {
 }
     scoreElement.textContent = `${team0Score} - ${team1Score}`;
     scoreElement.style.textAlign = "center";
+    scoreElement.style.cursor = "pointer";
 
-    // const halfHeaderContainer = document.createElement("div");
-    // halfHeaderContainer.style.display = "flex";
-    // halfHeaderContainer.style.flexDirection = "column";
-    // halfHeaderContainer.style.alignItems = "center";
+    const halfHeaderContainer = document.createElement("div");
+    halfHeaderContainer.style.display = "flex";
+    halfHeaderContainer.style.flexDirection = "column";
+    halfHeaderContainer.style.alignItems = "center";
 
     // Row for Half 1:
     const half1Row = document.createElement("div");
-    half1Row.style.marginBottom = "75px"; // 
     half1Row.style.display = "flex";
     half1Row.style.width = "100%";
     half1Row.style.justifyContent = "space-between";
     half1Row.style.alignItems = "center";
-    // Create five flex cells (each 20% width)
-    // const half1Team0ScoreDiv = document.createElement("h1");
-    // half1Team0ScoreDiv.style.flex = "1";
-    // half1Team0ScoreDiv.style.textAlign = "right";
-    // half1Team0ScoreDiv.textContent = m1team0Score;
 
     half1Row.style.cursor = "pointer";
     half1Row.onclick = () => {
@@ -569,6 +519,10 @@ if (roundIndex === 0) {
       return [player, { ...stats, ...formattedStats }];
     });
 
+
+    const statsContainer = document.createElement("div");
+    statsContainer.className = "stats-container";  // Use your pre-defined CSS
+
     // Display formatted stats for Round 0
     const tableWrapper = document.createElement("div");
     tableWrapper.id = "tables-container";
@@ -579,7 +533,8 @@ if (roundIndex === 0) {
     tableWrapper.appendChild(generateTeamTableCommon(formattedTeam0, match.faction_1, 1));
     tableWrapper.appendChild(generateTeamTableCommon(formattedTeam1, match.faction_2, 1));
 
-    contentDiv.appendChild(tableWrapper);
+    statsContainer.appendChild(tableWrapper)
+    contentDiv.appendChild(statsContainer);
     adjustTableLayout();
   } else {
     // Handle rounds beyond Round 0
@@ -595,10 +550,14 @@ if (roundIndex === 0) {
     tableWrapper.style.display = "flex";
     //tableWrapper.style.gap = "30px";
 
+    const statsContainer = document.createElement("div");
+    statsContainer.className = "stats-container";  // Use your pre-defined CSS
+
     tableWrapper.appendChild(generateTeamTableCommon(team0, match.faction_1, 1));
     tableWrapper.appendChild(generateTeamTableCommon(team1, match.faction_2, 1));
 
-    contentDiv.appendChild(tableWrapper);
+    statsContainer.appendChild(tableWrapper);
+    contentDiv.appendChild(statsContainer);
     adjustTableLayout();
   }
   }
@@ -951,10 +910,14 @@ contentDiv.appendChild(totalScoreDiv);
   const faction0 = matches[halfs[halfId1][0]].faction_1;
   const faction1 = matches[halfs[halfId1][0]].faction_2;
   
+  const statsContainer = document.createElement("div");
+    statsContainer.className = "stats-container";  // Use your pre-defined CSS
+
   tableWrapper.appendChild(generateTeamTableCommon(team0, faction0));
   tableWrapper.appendChild(generateTeamTableCommon(team1, faction1));
   
-  contentDiv.appendChild(tableWrapper);
+  statsContainer.appendChild(tableWrapper);
+  contentDiv.appendChild(statsContainer);
   adjustTableLayout();
 }
 const bracket = [
@@ -2574,11 +2537,15 @@ halfHeaderContainer.appendChild(half2Row);
     const faction0 = matches[halfIndices[0]].faction_1;
     const faction1 = matches[halfIndices[0]].faction_2;
 
+    const statsContainer = document.createElement("div");
+    statsContainer.className = "stats-container";  // Use your pre-defined CSS
+
     tableWrapper.appendChild(generateTeamTableCommon(team0, faction0));
     tableWrapper.appendChild(generateTeamTableCommon(team1, faction1));
 
     // Append the tables to the content.
-    contentDiv.appendChild(tableWrapper);
+    statsContainer.appendChild(tableWrapper);
+    contentDiv.appendChild(statsContainer);
     adjustTableLayout();
   }
 
