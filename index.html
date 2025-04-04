@@ -1299,9 +1299,9 @@ let filterInf = false;
           playerStats[playerId].rounds += 1;
 
           // Track the player's class if not already tracked.
-          if (!playerStats[playerId].classes.includes(playerClass)) {
+          //if (!playerStats[playerId].classes.includes(playerClass)) {
             playerStats[playerId].classes.push(playerClass);
-          }
+          //}
 
           // (If you have additional round-level logic [such as wins], process it here.)
           // Example:
@@ -1399,6 +1399,10 @@ let filterInf = false;
   );
 
   return { statsArray, playerStats };
+}
+// Helper function to count occurrences of a specific classfunction 
+function countClassUsage(classes, classGroup){
+  return classes.reduce((count, className) => (classGroup.includes(className) ? count + 1 : count), 0);
 }
 
 function renderPlayersList() {
@@ -1697,36 +1701,94 @@ function renderPlayersList() {
                       nameSpan.textContent = value;
 
                       td.appendChild(nameSpan);
-                      let type;
-                      if(player.classes.some(className => infClasses.includes(className))){
-                        type = "inf";
+                      // Count occurrences for each class
+                      const infCount = countClassUsage(player.classes, infClasses);
+                      const cavCount = countClassUsage(player.classes, cavClasses);
+                      const arcCount = countClassUsage(player.classes, arcClasses);
+                      console.log(value, infCount, cavCount, arcCount)
+                      
+                      // Infantry Icon with Count
+                      if (infCount > 0) {
+                        const infContainer = document.createElement("div");
+                        infContainer.style.position = "relative";
+                        infContainer.style.display = "inline-block";
+                        infContainer.style.marginLeft = "8px";
+
                         const infclass = document.createElement("img");
-                        infclass.src = `assets/img/class_` + `${type}` +`.png`;
+                        infclass.src = "assets/img/class_inf.png";
+                        infclass.alt = "inf";
                         infclass.height *= 0.5;
                         infclass.width *= 0.5;
-                        infclass.style.alignItems = "left;"
-                        infclass.style.paddingLeft = "8px";
-                        td.appendChild(infclass);
-                      } 
-                      if(player.classes.some(className => cavClasses.includes(className))){
-                        type = "cav";
-                        const infclass = document.createElement("img");
-                        infclass.src = `assets/img/class_` + `${type}` +`.png`;
-                        infclass.height *= 0.5;
-                        infclass.width *= 0.5;
-                        infclass.style.alignItems = "left;"
-                        infclass.style.paddingLeft = "8px";
-                        td.appendChild(infclass);
-                      } 
-                      if(player.classes.some(className => arcClasses.includes(className))){
-                        type = "arc";
-                        const infclass = document.createElement("img");
-                        infclass.src = `assets/img/class_` + `${type}` +`.png`;
-                        infclass.height *= 0.5;
-                        infclass.width *= 0.5;
-                        infclass.style.alignItems = "left;"
-                        infclass.style.paddingLeft = "8px";
-                        td.appendChild(infclass);
+                        infclass.style.display = "block";
+
+                        const infCountSpan = document.createElement("span");
+                        infCountSpan.textContent = infCount;
+                        infCountSpan.style.position = "absolute";
+                        infCountSpan.style.bottom = "-2px"; // Slightly below the image
+                        infCountSpan.style.left = "60%";
+                        infCountSpan.style.transform = "translateX(-50%)";
+                        infCountSpan.style.fontSize = "10px"; // Small font
+                        infCountSpan.style.color = "#d1d1d1";
+
+                        infContainer.appendChild(infclass);
+                        infContainer.appendChild(infCountSpan);
+                        td.appendChild(infContainer);
+                      }
+
+                      // Cavalry Icon with Count
+                      if (cavCount > 0) {
+                        const cavContainer = document.createElement("div");
+                        cavContainer.style.position = "relative";
+                        cavContainer.style.display = "inline-block";
+                        cavContainer.style.marginLeft = "8px";
+
+                        const cavclass = document.createElement("img");
+                        cavclass.src = "assets/img/class_cav.png";
+                        cavclass.alt = "cav";
+                        cavclass.height *= 0.5;
+                        cavclass.width *= 0.5;
+                        cavclass.style.display = "block";
+
+                        const cavCountSpan = document.createElement("span");
+                        cavCountSpan.textContent = cavCount;
+                        cavCountSpan.style.position = "absolute";
+                        cavCountSpan.style.bottom = "-2px"; // Slightly below the image
+                        cavCountSpan.style.left = "60%";
+                        cavCountSpan.style.transform = "translateX(-50%)";
+                        cavCountSpan.style.fontSize = "10px"; // Small font
+                        cavCountSpan.style.color = "#d1d1d1";
+
+                        cavContainer.appendChild(cavclass);
+                        cavContainer.appendChild(cavCountSpan);
+                        td.appendChild(cavContainer);
+                      }
+
+                      // Archer Icon with Count
+                      if (arcCount > 0) {
+                        const arcContainer = document.createElement("div");
+                        arcContainer.style.position = "relative";
+                        arcContainer.style.display = "inline-block";
+                        arcContainer.style.marginLeft = "8px";
+
+                        const arcclass = document.createElement("img");
+                        arcclass.src = "assets/img/class_arc.png";
+                        arcclass.alt = "arc";
+                        arcclass.height *= 0.5; // Adjusted size
+                        arcclass.width *= 0.5;
+                        arcclass.style.display = "block";
+
+                        const arcCountSpan = document.createElement("span");
+                        arcCountSpan.textContent = arcCount;
+                        arcCountSpan.style.position = "absolute";
+                        arcCountSpan.style.bottom = "-2px"; // Slightly below the image
+                        arcCountSpan.style.left = "60%";
+                        arcCountSpan.style.transform = "translateX(-50%)";
+                        arcCountSpan.style.fontSize = "10px"; // Small font
+                        arcCountSpan.style.color = "#d1d1d1";
+
+                        arcContainer.appendChild(arcclass);
+                        arcContainer.appendChild(arcCountSpan);
+                        td.appendChild(arcContainer);
                       }  
                     } else {
                       td.textContent = value;
@@ -2043,7 +2105,7 @@ function setClassImage(usedclass, targetElement, flip) {
       }
     } else if (state.match) {
       // User navigated to a match
-      renderMatchStats(state.match);
+      renderMatchDetails(state.match);
     }
   } else {
     // Handle the base case (no state) – go to the default tab
