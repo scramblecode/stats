@@ -1839,8 +1839,16 @@ function renderMatchList() {
   container.innerHTML = ""; // Clear any existing content
 
   if (matches && matches.length > 0) {
-    matches.forEach((match, index) => {
-      if (index < 45) return;
+    
+    // Reverse the matches array
+    const reversedMatches = matches.slice().reverse(); // Create a reversed copy of the matches array
+
+    // Loop through the reversed array
+    reversedMatches.forEach((match, reversedIndex) => {
+      if (reversedIndex >= reversedMatches.length - 45) return; // Skip the first 45 matches in the reversed order if needed
+
+      // Calculate the correct index in the original `matches` array
+      const ogindex= matches.length - 1 - reversedIndex;
 
       // Create a container for the match
       const matchDiv = document.createElement("div");
@@ -2039,7 +2047,7 @@ function renderMatchList() {
 
       // Add click event to update the URL and view match stats
       matchDiv.addEventListener("click", () => {
-        updateURLToMatch(index);
+        updateURLToMatch(ogindex);
       });
 
       // Append the match container to the tab content
