@@ -1410,7 +1410,7 @@ function renderPlayersList() {
     container.innerHTML = "";  // Clear previous content
 
     Promise.all([
-        fetch("players.json").then(res => res.json()),
+        fetch("allplayers.json").then(res => res.json()),
         fetch("allmatches.json").then(res => res.json())
     ])
     .then(([playersData, matches]) => {
