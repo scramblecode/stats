@@ -2116,7 +2116,8 @@ function setClassImage(usedclass, targetElement, flip) {
     }
   } else {
     // Handle the base case (no state) – go to the default tab
-    renderLandingPage("bracket"); // Assuming "bracket" is your default tab
+    renderLandingPage("bracket"); 
+    handleURLChange();
   }
 });
 function handleURLChange() {
@@ -2169,6 +2170,7 @@ function handleURLChange() {
 
   // Default to rendering the "bracket" tab if no parameters are found
   renderLandingPage("bracket");
+  //handleURLChange();
 }
 
 
@@ -2231,7 +2233,7 @@ function handleURLChange() {
     url.searchParams.delete("match");
     url.searchParams.delete("round");
     window.history.pushState(null, '', url.toString());
-    renderLandingPage("bracket");
+    //renderLandingPage("bracket");
   }
 // Hook into browser navigation (Back/Forward)
 //window.addEventListener('popstate', handleURLChange);
@@ -2251,7 +2253,7 @@ function handleURLChange() {
       })
       .then(data => {
         matches = data.matches;
-        renderLandingPage("bracket");
+        //renderLandingPage("bracket");
         handleURLChange();
         window.addEventListener('popstate', handleURLChange);
       })
