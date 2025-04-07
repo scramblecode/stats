@@ -110,10 +110,10 @@ function getWinner(result){
   let winner = -1;
     if (result.includes("Team 2 win")) {
       if (result.includes("flag"))
-        {winner = 1} else {winner = 0};
+        {winner = 0} else {winner = 0};
     } else if (result.includes("Team 1 win")) {
       if (result.includes("flag"))
-        {winner = 0} else {winner = 1};
+        {winner = 1} else {winner = 1};
     }
     return winner;
 }
@@ -976,7 +976,7 @@ function renderTabBar(contentDiv, activeTabId){
             tab.addEventListener("click", () => {
               const tabContentContainer = document.getElementById("tab-content");
               if (tabContentContainer) {
-                console.log(activeTabId, tabContentContainer.scrollTop)
+                //console.log(activeTabId, tabContentContainer.scrollTop)
                 scrollPositions[activeTabId] = tabContentContainer.scrollTop; // Save the scroll position for the current tab
               }
               // Remove active class from all tabs.
@@ -1023,7 +1023,7 @@ function trackScrollPosition(tabId) {
       // Render default tab content ("scrims").
       renderTabContent(tab);
       // Restore scroll position
-      console.log(tab, scrollPositions[tab])
+      //console.log(tab, scrollPositions[tab])
       tabContentContainer.scrollTop = scrollPositions[tab] || 0;
 
     }
@@ -1281,7 +1281,6 @@ let filterInf = false;
       const filteredPlayers = [];
       players.forEach((name, index) => {
         const playerClass = classes[index]; // class for this player in the round
-
         // Exit early if any filter is enabled and the player's class matches.
         if (
           (filterInf && infClasses.some(infClass => playerClass.includes(infClass))) ||
@@ -1628,7 +1627,7 @@ function renderPlayersList() {
                   filterInf = !filterInf;
                   ({ statsArray, playerStats  } = generatePlayerStats(playerIds, matches, nameToIdMap, playerNames));
                   renderTable();
-                  console.log("Inf filter:", filterInf)
+                  //console.log("Inf filter:", filterInf)
                 }
                 infclass.style.filter = `grayscale(${+filterInf})`;
                 infclass.src = "assets/img/class_inf.png";
@@ -1645,7 +1644,7 @@ function renderPlayersList() {
                   filterCav = !filterCav;
                   ({ statsArray, playerStats  } = generatePlayerStats(playerIds, matches, nameToIdMap, playerNames));
                   renderTable();
-                  console.log("Cav filter:", filterCav)
+                  //console.log("Cav filter:", filterCav)
                 }
                 cavclass.style.filter = `grayscale(${+filterCav})`;
                 cavclass.src = "assets/img/class_cav.png";
@@ -1662,7 +1661,7 @@ function renderPlayersList() {
                   filterArc = !filterArc;
                   ({ statsArray, playerStats } = generatePlayerStats(playerIds, matches, nameToIdMap, playerNames));
                   renderTable();
-                  console.log("Archer filter:", filterArc)
+                  //console.log("Archer filter:", filterArc)
                 }
                 arcclass.style.filter = `grayscale(${+filterArc})`;
                 arcclass.src = "assets/img/class_arc.png";
@@ -1705,7 +1704,7 @@ function renderPlayersList() {
                       const infCount = countClassUsage(player.classes, infClasses);
                       const cavCount = countClassUsage(player.classes, cavClasses);
                       const arcCount = countClassUsage(player.classes, arcClasses);
-                      console.log(value, infCount, cavCount, arcCount)
+                      //console.log(value, infCount, cavCount, arcCount)
                       
                       // Infantry Icon with Count
                       if (infCount > 0) {

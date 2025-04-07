@@ -121,9 +121,13 @@
         "3372589",
         "1660069",
         "3415304",
-        "3365230"
+        "3365230",
+        "1170561",
+        "1230258",
+        "716558",
+        "2162136"
     ],
-    "number_of_players": 122,
+    "number_of_players": 126,
     "player_names": [
         [
             "SERVER"
@@ -269,7 +273,9 @@
             "Cheesy_Old_Man_KoA_John",
             "KoA_John",
             "Old_Old_Man_KoA_John",
-            "ElderlyElder_KoA_John"
+            "ElderlyElder_KoA_John",
+            "DustySkeleton_KoA_John",
+            "OldOld_KoA_John"
         ],
         [
             "[GF]Pichurin",
@@ -560,6 +566,20 @@
         ],
         [
             "LGN_Shovenio"
+        ],
+        [
+            "Cocomelon_Sega_Fanboy"
+        ],
+        [
+            "Troubadour",
+            "wK_Achilles"
+        ],
+        [
+            "KoA_Troubadour",
+            "Elthor"
+        ],
+        [
+            "Quake"
         ]
     ]
 }
