@@ -370,10 +370,10 @@ function getWinner(result){
     
     const bgSrc = match.map.toLowerCase().replaceAll(" ", "_").replaceAll("'","");
     if (bgSrc == "nord_town"){
-      body.style.backgroundImage = `url('/assets/img/mb2.png')`;
+      body.style.backgroundImage = `url('assets/img/mb2.png')`;
 
     } else {
-      body.style.backgroundImage = `url('/assets/img/bg_${bgSrc}.png')`;
+      body.style.backgroundImage = `url('assets/img/bg_${bgSrc}.png')`;
 
     }
 
@@ -1195,7 +1195,7 @@ function trackScrollPosition(tabId) {
       if (tabId === "scrims") {
         renderScrimList();
       } else if (tabId === "matches") {
-        body.style.backgroundImage = "url('/assets/img/mb2.png')";
+        body.style.backgroundImage = "url('assets/img/mb2.png')";
         //renderMatchList();
         renderHalfList(halfs);
       } else if (tabId === "halfs") {
@@ -1208,7 +1208,7 @@ function trackScrollPosition(tabId) {
       } else if (tabId === "teams") {
         renderTeamList();
       } else if (tabId === "players") {
-        body.style.backgroundImage = "url('/assets/img/mb4.png')";
+        body.style.backgroundImage = "url('assets/img/mb4.png')";
         renderPlayersList();
       } else {
         //container.textContent = "Unknown tab.";
@@ -2404,7 +2404,7 @@ function renderHalfList(halves) {
         // Check if this player is the MVP
         if (i === match0.rounds[match0.rounds.length - 1].players.indexOf(topPlayers.team0.name)) {
           const team0mvp = document.createElement("img");
-          team0mvp.src = "/assets/img/mvp.png";
+          team0mvp.src = "assets/img/mvp.png";
           team0mvp.style.position = "absolute"; 
           team0mvp.style.top = "-18px"; 
           team0mvp.style.left = "60%"; // inf is a little forward
@@ -2478,7 +2478,7 @@ function renderHalfList(halves) {
         // Check if this player is the MVP
         if (i === match0.rounds[match0.rounds.length - 1].players.indexOf(topPlayers.team1.name)) {
           const team1mvp = document.createElement("img");
-          team1mvp.src = "/assets/img/mvp.png";
+          team1mvp.src = "assets/img/mvp.png";
           team1mvp.style.position = "absolute"; 
           team1mvp.style.top = "-18px"; 
           team1mvp.style.left = "40%"; // inf is a little forward
@@ -2902,10 +2902,10 @@ function calculateTotalStats(match) {
     
     const bgSrc = matches[halfIndices[0]].map.toLowerCase().replaceAll(" ", "_").replaceAll("'","");
     if (bgSrc == "nord_town"){
-      body.style.backgroundImage = `url('/assets/img/mb2.png')`;
+      body.style.backgroundImage = `url('assets/img/mb2.png')`;
 
     } else {
-      body.style.backgroundImage = `url('/assets/img/bg_${bgSrc}.png')`;
+      body.style.backgroundImage = `url('assets/img/bg_${bgSrc}.png')`;
 
     }
 
