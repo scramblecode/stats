@@ -72,7 +72,7 @@ if (window.innerWidth < window.innerHeight) {
 function adjustTableLayout() {
     const tablesContainer = document.getElementById("tables-container");
     if(tablesContainer === null) return;
-    //console.log("Adjust", colNames, tablesContainer)
+    // console.log("Adjust", colNames, tablesContainer.children[1].children[1].children)
     const team1Table = tablesContainer.children[0]; // First table
     const team2Table = tablesContainer.children[1]; // Second table
 
@@ -85,6 +85,18 @@ function adjustTableLayout() {
 
     // Stack vertically if tables are too wide for the screen or screen is portrait
     if (totalWidth > windowWidth || windowWidth < windowHeight) {
+
+    // Shorten player names if longer than 20 characters
+    // for (let i = 0; i < playerNames.length; i++) {
+    //     if (playerNames[i].length > 20) {
+    //         const aliasArray = playerAliases[i]; // Array of aliases for the current player
+    //         const shortestAlias = aliasArray.reduce((shortest, current) => 
+    //             current.length < shortest.length ? current : shortest, aliasArray[0]
+    //         );
+    //         playerNames[i] = shortestAlias; // Replace with the shortest alias
+    //     }
+    // }
+    
         tablesContainer.style.flexDirection = "column"; // Stack vertically
         tablesContainer.style.alignItems = "center"; // Center the tables
         for (let i = 0; i < colNames.length; i++) {
@@ -110,10 +122,10 @@ function getWinner(result){
   let winner = -1;
     if (result.includes("Team 2 win")) {
       if (result.includes("flag"))
-        {winner = 0} else {winner = 0};
+        {winner = 1} else {winner = 0};
     } else if (result.includes("Team 1 win")) {
       if (result.includes("flag"))
-        {winner = 1} else {winner = 1};
+        {winner = 0} else {winner = 1};
     }
     return winner;
 }
@@ -129,7 +141,7 @@ function getWinner(result){
       rounds = [rounds];
     }
 
-    rounds.forEach(round => {
+    rounds.forEach((round, roundID) => {
       round.players.forEach((player, index) => {
         if (!stats[player]) {
           stats[player] = {
@@ -151,8 +163,8 @@ function getWinner(result){
         stats[player].dmg += round.dmg[index] || 0;
         stats[player].teamkills += round.teamkills.filter(tk => tk === player).length;
         stats[player].tdmg += round.tdmg[index] || 0;
-        stats[player].wins += getWinner(round.result) == stats[player].team ? 1 : 0;
-        //stats[player].classes.push(round.classes[index])
+        stats[player].wins += getWinner(round.result) === stats[player].team ? 1 : 0;
+        stats[player].classes.push(round.classes[index])
       });
     });
     return stats;
@@ -229,6 +241,104 @@ function getWinner(result){
           td.style.textAlign = "left";
           td.style.whiteSpace = "nowrap";
           td.style.overflow = "visible";
+          
+          const dead = !Number.isInteger(stats.deaths) && stats.deaths.includes("+1");
+          const flip = stats.team;
+          // Count occurrences for each class
+          const infCount = countClassUsage(infClasses, stats.classes);
+          const cavCount = countClassUsage(cavClasses, stats.classes);
+          const arcCount = countClassUsage(arcClasses, stats.classes);
+          //console.log(value, infCount, cavCount, arcCount)
+          
+          // Infantry Icon with Count
+          if (infCount > 0) {
+            const infContainer = document.createElement("div");
+            infContainer.style.position = "relative";
+            infContainer.style.display = "inline-block";
+            infContainer.style.marginLeft = "8px";
+
+            const infclass = document.createElement("img");
+            infclass.src = "assets/img/class_inf.png";
+            infclass.alt = "inf";
+            if (flip) infclass.style.transform = "scaleX(-1)";
+            infclass.style.filter = `grayscale(${+dead})`;
+            infclass.height *= 0.35;
+            infclass.width *= 0.35;
+            infclass.style.display = "block";
+
+            // const infCountSpan = document.createElement("span");
+            // infCountSpan.textContent = infCount;
+            // infCountSpan.style.position = "absolute";
+            // infCountSpan.style.bottom = "-2px"; // Slightly below the image
+            // infCountSpan.style.left = "60%";
+            // infCountSpan.style.transform = "translateX(-50%)";
+            // infCountSpan.style.fontSize = "10px"; // Small font
+            // infCountSpan.style.color = "#d1d1d1";
+
+            infContainer.appendChild(infclass);
+            // infContainer.appendChild(infCountSpan);
+            td.appendChild(infContainer);
+          }
+
+          // Cavalry Icon with Count
+          if (cavCount > 0) {
+            const cavContainer = document.createElement("div");
+            cavContainer.style.position = "relative";
+            cavContainer.style.display = "inline-block";
+            cavContainer.style.marginLeft = "8px";
+
+            const cavclass = document.createElement("img");
+            cavclass.src = "assets/img/class_cav.png";
+            cavclass.alt = "cav";
+            if (flip) cavclass.style.transform = "scaleX(-1)";
+            cavclass.style.filter = `grayscale(${+dead})`;
+            cavclass.height *= 0.35;
+            cavclass.width *= 0.35;
+            cavclass.style.display = "block";
+
+            // const cavCountSpan = document.createElement("span");
+            // cavCountSpan.textContent = cavCount;
+            // cavCountSpan.style.position = "absolute";
+            // cavCountSpan.style.bottom = "-2px"; // Slightly below the image
+            // cavCountSpan.style.left = "60%";
+            // cavCountSpan.style.transform = "translateX(-50%)";
+            // cavCountSpan.style.fontSize = "10px"; // Small font
+            // cavCountSpan.style.color = "#d1d1d1";
+
+            cavContainer.appendChild(cavclass);
+            // cavContainer.appendChild(cavCountSpan);
+            td.appendChild(cavContainer);
+          }
+
+          // Archer Icon with Count
+          if (arcCount > 0) {
+            const arcContainer = document.createElement("div");
+            arcContainer.style.position = "relative";
+            arcContainer.style.display = "inline-block";
+            arcContainer.style.marginLeft = "8px";
+
+            const arcclass = document.createElement("img");
+            arcclass.src = "assets/img/class_arc.png";
+            arcclass.alt = "arc";
+            if (flip) arcclass.style.transform = "scaleX(-1)";
+            arcclass.style.filter = `grayscale(${+dead})`;
+            arcclass.height *= 0.35; // Adjusted size
+            arcclass.width *= 0.35;
+            arcclass.style.display = "block";
+
+            // const arcCountSpan = document.createElement("span");
+            // arcCountSpan.textContent = arcCount;
+            // arcCountSpan.style.position = "absolute";
+            // arcCountSpan.style.bottom = "-2px"; // Slightly below the image
+            // arcCountSpan.style.left = "60%";
+            // arcCountSpan.style.transform = "translateX(-50%)";
+            // arcCountSpan.style.fontSize = "10px"; // Small font
+            // arcCountSpan.style.color = "#d1d1d1";
+
+            arcContainer.appendChild(arcclass);
+            // arcContainer.appendChild(arcCountSpan);
+            td.appendChild(arcContainer);
+          }
         // } else if (idx === 4 || idx === 6) {
         //   td.style.textAlign = "right";
         } else {
@@ -251,6 +361,21 @@ function getWinner(result){
     contentDiv.classList.remove("landing");
     contentDiv.classList.add("match-detail");
     contentDiv.innerHTML = ""; // Clear previous content
+    
+    const body = document.body;
+    body.style.backgroundRepeat = "no-repeat"; 
+    body.style.backgroundPosition = "center center"; 
+    body.style.backgroundAttachment = "fixed"; 
+    body.style.backgroundSize = "cover"; 
+    
+    const bgSrc = match.map.toLowerCase().replaceAll(" ", "_").replaceAll("'","");
+    if (bgSrc == "nord_town"){
+      body.style.backgroundImage = `url('/assets/img/mb2.png')`;
+
+    } else {
+      body.style.backgroundImage = `url('/assets/img/bg_${bgSrc}.png')`;
+
+    }
 
     renderTabBar(contentDiv);
 
@@ -492,7 +617,7 @@ if (roundIndex === 0) {
   if (roundIndex === 0) {
     // Stats for the current round only
     const currentStats = getPlayerStats([match.rounds[roundIndex]]);
-
+    //console.log(currentStats)
     // Split and sort players by teams
     const { team0, team1 } = splitAndSortByTeam(currentStats);
 
@@ -500,7 +625,7 @@ if (roundIndex === 0) {
     const formattedTeam0 = team0.map(([player, stats]) => {
       const formattedStats = {};
       Object.keys(stats).forEach(key => {
-        if (key !== "team") {
+        if (key !== "team" && key !== "classes") {
           const value = stats[key] || 0;
           formattedStats[key] = value > 0 ? `+${value}` : "0";
         }
@@ -511,7 +636,7 @@ if (roundIndex === 0) {
     const formattedTeam1 = team1.map(([player, stats]) => {
       const formattedStats = {};
       Object.keys(stats).forEach(key => {
-        if (key !== "team") {
+        if (key !== "team" && key !== "classes") {
           const value = stats[key] || 0;
           formattedStats[key] = value > 0 ? `+${value}` : "0";
         }
@@ -565,7 +690,7 @@ if (roundIndex === 0) {
   function computeRoundChanges(aggregatePlayerStats, currentPlayerStats) {
   const team0 = [];
   const team1 = [];
-
+    console.log(aggregatePlayerStats, currentPlayerStats)
   // Step 1: Sort players by team using splitAndSortByTeam
   const { team0: sortedTeam0, team1: sortedTeam1 } = splitAndSortByTeam(aggregatePlayerStats);
 
@@ -580,7 +705,7 @@ if (roundIndex === 0) {
         const aggregateValue = aggregateStats[key] || 0;
         const currentValue = currStats[key] || 0;
         prevStats[key] = aggregateValue - currentValue;
-      }
+      } 
     });
 
     // Generate display values by combining prevStats and currStats
@@ -590,8 +715,8 @@ if (roundIndex === 0) {
       const currValue = currStats[key] || 0;
       const change = currValue; // Change is the current round's value
       statsWithChanges[key] = change > 0 ? `+${change}` : `${prevValue}`;
+      if(key == "classes") statsWithChanges[key] = currValue;
     });
-
     // Push updated stats with changes into the team array
     team0.push([player, { ...aggregateStats, ...statsWithChanges }]);
   });
@@ -617,12 +742,13 @@ if (roundIndex === 0) {
       const currValue = currStats[key] || 0;
       const change = currValue; // Change is the current round's value
       statsWithChanges[key] = change > 0 ? `+${change}` : `${prevValue}`;
+      if(key == "classes") statsWithChanges[key] = currValue;
     });
 
     // Push updated stats with changes into the team array
     team1.push([player, { ...aggregateStats, ...statsWithChanges }]);
   });
-
+  console.log("TEAMS", team0, team1)
   return { team0, team1 };
 }
 
@@ -729,6 +855,7 @@ function mergeAggregates(agg1, agg2) {
       merged[player].dmg += stats.dmg;
       merged[player].teamkills += stats.teamkills;
       merged[player].tdmg += stats.tdmg;
+      merged[player].classes += stats.classes;
     } else {
       merged[player] = stats;
     }
@@ -742,6 +869,11 @@ function mergeAggregates(agg1, agg2) {
  */
 function renderScrim(scrimSpec) {
   const [halfId1, halfId2, s] = scrimSpec;
+
+  // if (!window.history.state || window.history.state.tab !== tab) {
+  //   const baseUrl = window.location.origin + window.location.pathname;
+  //   window.history.pushState({ scrim: scrimId }, "", `${baseUrl}?scrim=${scrimId}`);
+  // }
   // Obtain aggregated statistics for each half.
   let halfAgg1 = getHalfAggregate(halfs[halfId1]);
   let halfAgg2 = getHalfAggregate(halfs[halfId2]);
@@ -758,6 +890,8 @@ function renderScrim(scrimSpec) {
   // Merge the aggregated stats.
   const finalAggregatedStats = mergeAggregates(halfAgg1.aggregatedStats, halfAgg2.aggregatedStats);
   const { team0, team1 } = splitAndSortByTeam(finalAggregatedStats);
+  console.log("Team0:", team0);
+  console.log("Team1:", team1);
   
   // Render the scrim view.
   const contentDiv = document.getElementById("content");
@@ -939,8 +1073,27 @@ const bracket = [
 
 
 
-const halfs = [[0,1],[2,3],[4,5],[6,7],[8,9],[10,11],[12,13],[14,15],[16,17],[18,19],[20,21],[22,23],[24,25],[26,27],[28,29],[30,31],[32,33],[34,44],[35,36],[37,38],[39,40],[41,42],[43,44],[44,44]];
-const scrims = [[0,1,0],[2,3,0],[4,5,1],[6,7,0],[8,9,0],[10,11,0],[12,13,1],[14,15,0],[16,17,0],[18,19,0],[20,21,1],[22,23,0]];
+const halfs = [
+  [0,1],[2,3],[4,5],[6,7],[8,9],
+  [10,11],[12,13],[14,15],[16,17],
+  [18,19],[20,21],[22,23],[24,25],
+  [26,27],[28,29],[30,44],[32,33],
+  [34,44],[35,36],[37,38],[39,40],
+  [41,42],[43,-1],[44,44],
+  //24 
+  [45,46],[47,48],[49,50],[51,52],
+  [53,54],[55,56],[57,58],[59,60],
+  [61,62],[63,64],[65,44],[66,67],
+  [68,69],[70,44],[71,72],[73,44],[74,75],
+  [76,77],[78,44],[79,80],[81,82],
+  [83,84],[85,86],[87,88],[89,90],
+  [91,92],[93,94],[95,96],[97,98],
+  [99,100],[101,102],[103,104],[105,106],
+  [107,108],[109,110],[111,112],[113,114],
+  [115,116],
+  
+];
+const scrims = [[0,1,0],[2,3,0],[4,5,1],[6,7,0],[8,9,0],[10,11,0],[12,13,1],[14,15,0],[16,17,0],[18,19,0],[20,21,1],[22,-1,0]];
 
 //hardcoding in the tournament arrays start - end matches
 const robScramble_1 = [0, 45];
@@ -1007,10 +1160,10 @@ function trackScrollPosition(tabId) {
       //contentDiv.classList.add("landing");
       contentDiv.innerHTML = ""; // Clear previous content.
       
-      const baseUrl = window.location.origin + window.location.pathname;  
-      if (!window.history.state || window.history.state.tab !== tab) {
-        window.history.pushState({ tab: tab }, "", `${baseUrl}?tab=${tab}`);
-      }
+      //const baseUrl = window.location.origin + window.location.pathname;  
+      // if (!window.history.state || window.history.state.tab !== tab) {
+      //   window.history.pushState({ tab: tab }, "", `${baseUrl}?tab=${tab}`);
+      // }
 
       renderTabBar(contentDiv, tab);
 
@@ -1032,20 +1185,30 @@ function trackScrollPosition(tabId) {
     function renderTabContent(tabId) {
       const container = document.getElementById("tab-content");
       if (container !== null) container.innerHTML = "";
+
+      const body = document.body;
+      body.style.backgroundRepeat = "no-repeat"; 
+      body.style.backgroundPosition = "center center"; 
+      body.style.backgroundAttachment = "fixed"; 
+      body.style.backgroundSize = "cover"; 
       
       if (tabId === "scrims") {
         renderScrimList();
       } else if (tabId === "matches") {
-        renderMatchList();
+        body.style.backgroundImage = "url('/assets/img/mb2.png')";
+        //renderMatchList();
+        renderHalfList(halfs);
       } else if (tabId === "halfs") {
-        renderMatchList();
+        renderMatchList(halfs);
       } else if (tabId === "tournament") {
         renderTournamentList();
       } else if (tabId === "bracket") {
+        body.style.backgroundImage = "url('assets/img/mb3.png')";
         renderBracketList();
       } else if (tabId === "teams") {
         renderTeamList();
       } else if (tabId === "players") {
+        body.style.backgroundImage = "url('/assets/img/mb4.png')";
         renderPlayersList();
       } else {
         //container.textContent = "Unknown tab.";
@@ -1060,6 +1223,8 @@ function renderBracketList() {
   const container = document.getElementById("tab-content");
   container.classList.add("bracket");
   container.innerHTML = "";
+
+  const body = document.body;
 
   if (!bracket || bracket.length === 0) {
     container.textContent = "No bracket available.";
@@ -1267,13 +1432,12 @@ let filterInf = false;
       tdmg: 0,
       tkd: 0,
       rounds: 0,
-      wins: 0,
-      teams: 0
+      wins: 0
     };
   });
 
   // Process each match and round.
-  matches.matches.forEach((match, matchID) => {
+  matches.forEach((match, matchID) => {
       //console.log("MATCH:", matchID)
     match.rounds.forEach((round, roundID) => {
       const { kills, deaths, teamkills, teamkilled, assists, dmg, tdmg, players, classes, teams } = round;
@@ -1302,9 +1466,7 @@ let filterInf = false;
             playerStats[playerId].classes.push(playerClass);
           //}
 
-          // (If you have additional round-level logic [such as wins], process it here.)
-          // Example:
-          if (playerStats[playerId].teams === getWinner(round.result)) {
+          if (round.teams[index] === getWinner(round.result)) {
             playerStats[playerId].wins += 1;
           }
         }
@@ -1410,9 +1572,9 @@ function renderPlayersList() {
 
     Promise.all([
         fetch("allplayers.json").then(res => res.json()),
-        fetch("allmatches.json").then(res => res.json())
+        //fetch("allmatches.json").then(res => res.json())
     ])
-    .then(([playersData, matches]) => {
+    .then(([playersData]) => {
         const playerIds = playersData.player_ids;
         const playerNames = playersData.player_names;
 
@@ -1844,7 +2006,7 @@ function renderMatchList() {
 
     // Loop through the reversed array
     reversedMatches.forEach((match, reversedIndex) => {
-      if (reversedIndex >= reversedMatches.length - 45) return; // Skip the first 45 matches in the reversed order if needed
+      if (reversedIndex >= reversedMatches.length - 45) return; 
 
       // Calculate the correct index in the original `matches` array
       const ogindex= matches.length - 1 - reversedIndex;
@@ -2011,33 +2173,98 @@ function renderMatchList() {
       });
       team1Div.appendChild(team1Classes);
 
+      
       // Center Section (Map and Score)
       const centerDiv = document.createElement("div");
       centerDiv.style.flex = "1";
       centerDiv.style.textAlign = "center";
+      centerDiv.style.alignItems = "center";
 
-      // Map name
-      const mapName = document.createElement("h1");
+      // Create a container for the thumbnail and text overlay
+      const mapContainer = document.createElement("div");
+      mapContainer.style.position = "relative"; // Enables positioning of text relative to the image
+      mapContainer.style.display = "inline-block"; // Ensures proper layout
+
+      // Map thumbnail image
+      const mapThumbn = document.createElement("img");
+      const thmbSrc = match.map.toLowerCase().replaceAll(" ", "_").replaceAll("'","");
+
+      mapThumbn.src = `assets/img/tbn_${thmbSrc}.png`
+      mapThumbn.alt = "";
+      
+      // mapThumbn.style.width = "400px"; // Adjust width as needed
+      // mapThumbn.style.height = "auto"; // Maintain aspect ratio
+      mapContainer.appendChild(mapThumbn);
+
+      // Map name text overlay
+      const mapName = document.createElement("span");
+      mapName.style.position = "absolute";
+      mapName.style.top = "10px"; // Position near the top of the image
+      mapName.style.left = "50%"; // Center horizontally
+      mapName.style.transform = "translateX(-50%)"; // Align text to the center
+      mapName.style.color = "white"; // Set text color for visibility
       mapName.style.fontWeight = "bold";
+      mapName.style.fontSize = "32px"; // Adjust font size as needed
+      mapName.style.textShadow = "2px 2px 4px rgba(0, 0, 0, 0.7)"; // Add text shadow for readability
+      mapName.style.whiteSpace = "nowrap"; 
       mapName.textContent = match.map;
-      centerDiv.appendChild(mapName);
+      mapContainer.appendChild(mapName);
 
-      // Score (numeric values only)
-      const scoreDiv = document.createElement("h1");
-      scoreDiv.style.marginTop = "10px";
+      // Score with flag icons overlay
+      const scoreContainer = document.createElement("div");
+      scoreContainer.style.position = "absolute"; // Overlay on top of the image
+      scoreContainer.style.top = "75%"; // C
+      scoreContainer.style.left = "50%"; // Center horizontally
+      scoreContainer.style.transform = "translate(-50%, -50%)"; // Offset for perfect centering
+      scoreContainer.style.display = "flex";
+      scoreContainer.style.alignItems = "center";
+      scoreContainer.style.justifyContent = "center";
+      scoreContainer.style.gap = "10px"; // Space between elements
+
+      // Flag 1 (Team 0)
+      const fac1Img = document.createElement("img");
+      const flag1 = facIcons[factions.indexOf(match.faction_1)];
+      fac1Img.src = `assets/img/${flag1}.png`;
+      fac1Img.height *= 0.35; 
+      fac1Img.width *= 0.35;
+      scoreContainer.appendChild(fac1Img);
+
+      // Score Text
+      const scoreDiv = document.createElement("span");
+      scoreDiv.style.fontSize = "32px"; // Adjust font size as needed
+      scoreDiv.style.fontWeight = "bold";
+      scoreDiv.style.color = "white"; // Ensure it stands out on the image
+      scoreDiv.style.textShadow = "2px 2px 4px rgba(0, 0, 0, 0.7)"; // Add shadow for readability
       scoreDiv.textContent = `${team0Score} - ${team1Score}`;
-      centerDiv.appendChild(scoreDiv);
+      scoreContainer.appendChild(scoreDiv);
 
-      // Factions vs text
-      const faction1Vs = document.createElement("h2");
-      faction1Vs.textContent = `${match.faction_1}`;
-      centerDiv.appendChild(faction1Vs);
-      const factionsVs = document.createElement("div");
-      factionsVs.textContent = `vs`;
-      centerDiv.appendChild(factionsVs);
-      const faction2Vs = document.createElement("h2");
-      faction2Vs.textContent = `${match.faction_2}`;
-      centerDiv.appendChild(faction2Vs);
+      // Flag 2 (Team 1)
+      const fac2Img = document.createElement("img");
+      const flag2 = facIcons[factions.indexOf(match.faction_2)];
+      fac2Img.src = `assets/img/${flag2}.png`;
+      fac2Img.height *= 0.35; 
+      fac2Img.width *= 0.35;
+      scoreContainer.appendChild(fac2Img);
+
+      // Add the scoreContainer to the mapContainer (or centerDiv if preferred)
+      mapContainer.appendChild(scoreContainer);
+
+      // Append the container to the center div
+      centerDiv.appendChild(mapContainer);
+
+      // // Factions vs text
+      // const faction1Vs = document.createElement("h2");
+      // faction1Vs.style.margin = "1px";
+      // faction1Vs.textContent = `${match.faction_1}`;
+      // centerDiv.appendChild(faction1Vs);
+      // const factionsVs = document.createElement("div");
+      // factionsVs.style.margin = "1px";
+      // factionsVs.textContent = `vs`;
+      // centerDiv.appendChild(factionsVs);
+      // const faction2Vs = document.createElement("h2");
+      // faction2Vs.style.margin = "1px";
+      // faction2Vs.textContent = `${match.faction_2}`;
+      // centerDiv.appendChild(faction2Vs);
 
       // Append the three sections to the main match container
       matchDiv.appendChild(team0Div); // Left side (Team 0)
@@ -2057,24 +2284,315 @@ function renderMatchList() {
   }
 }
 
+function renderHalfList(halves) {
+  const container = document.getElementById("tab-content");
+  container.innerHTML = ""; // Clear existing content
 
-    function renderHalfList() {
-      const container = document.getElementById("tab-content");
-      if (halfs && halfs.length > 0) {
-        halfs.forEach((scrim, index) => {
-          const p = document.createElement("p");
-          p.textContent = `Half ${index}: [${scrim.join(", ")}]`;
-          p.style.cursor = "pointer";
-          // Optionally, clicking the scrim updates the URL and renders the scrim view.
-          p.addEventListener("click", () => {
-            updateURLToHalf(index);
-          });
-          container.appendChild(p);
+
+  // Reverse the halves array and skip the first 23 in the original order
+  const startingIndex = 23+1; // Number of halves to skip in original order
+  const halvesToRender = halves.slice(startingIndex); // Adjust for skipping
+  const reversedHalves = halvesToRender.slice().reverse(); // Reverse the halves array
+
+  reversedHalves.forEach((half, reversedIndex) => {
+
+    const ogindex= halfs.length - 1 - reversedIndex;
+
+    // Extract matches for the half
+    const match0 = matches[half[0]]; // First match in the half
+    const match1 = matches[half[1]]; // Second match in the half
+
+    // Create a container for the half
+    const halfDiv = document.createElement("div");
+    halfDiv.style.borderTop = "1px solid #ccc";
+    halfDiv.style.marginTop = "40px";
+    halfDiv.style.padding = "10px";
+    halfDiv.style.cursor = "pointer";
+    halfDiv.style.display = "flex";
+    halfDiv.style.justifyContent = "space-between"; // Align teams on either side
+    halfDiv.style.alignItems = "center";
+    halfDiv.style.flexWrap = "wrap";
+
+    // Combine scores for the half
+    const team0Score = parseInt(match0.score.split("-")[0]) + parseInt(match1.score.split("-")[1]);
+    const team1Score = parseInt(match0.score.split("-")[1]) + parseInt(match1.score.split("-")[0]);
+
+    // Calculate top players for the half based on combined scores
+    const topPlayers = { team0: { name: "", kills: 0, class: "" }, team1: { name: "", kills: 0, class: "" } };
+    const playerStats = {};
+
+    // Iterate over rounds in both matches to calculate stats
+    [match0, match1].forEach((match) => {
+      match.rounds.forEach((round) => {
+        round.teams.forEach((team, i) => {
+          const playerName = round.players[i];
+          const playerClass = round.classes[i];
+
+          if (!playerStats[playerName]) {
+            playerStats[playerName] = { kills: 0, teamkills: 0, class: playerClass };
+          }
+
+          const kills = round.kills.filter((name) => name === playerName).length;
+          const teamkills = round.teamkills.filter((name) => name === playerName).length;
+
+          playerStats[playerName].kills += kills;
+          playerStats[playerName].teamkills += teamkills;
         });
-      } else {
-        container.textContent = "No halfs available.";
+      });
+    });
+
+    Object.keys(playerStats).forEach((playerName) => {
+      const total = playerStats[playerName].kills - playerStats[playerName].teamkills;
+      const team = match0.rounds[0].teams[match0.rounds[0].players.indexOf(playerName)]; // Determine the team from match0
+
+      if (team === 0 && total > topPlayers.team0.kills) {
+        topPlayers.team0 = { name: playerName, kills: total, class: playerStats[playerName].class };
+      } else if (team === 1 && total > topPlayers.team1.kills) {
+        topPlayers.team1 = { name: playerName, kills: total, class: playerStats[playerName].class };
       }
+    });
+
+    // Render Team 0 (Left Side)
+    const team0Div = document.createElement("div");
+    team0Div.style.flex = "1";
+    team0Div.style.textAlign = "center";
+    team0Div.style.display = "flex";
+    team0Div.style.flexDirection = "column";
+    team0Div.style.flexWrap = "wrap";
+    team0Div.style.alignItems = "center";
+    team0Div.style.justifyContent = "flex-end";
+
+    const team0Image = document.createElement("div");
+      team0Image.style.textAlign = "center";
+      team0Image.style.display = "flex";
+      team0Image.style.flexDirection = "row";
+      team0Image.style.flexWrap = "wrap";
+      for(let i = 0; i < team0Score; i++){
+        const fac1Img = document.createElement("img");
+        const flag1 = facIcons[factions.indexOf(match0.faction_1)];
+        const flag2 = facIcons[factions.indexOf(match0.faction_2)];
+        fac1Img.src = `assets/img/${flag1}.png`;
+        if (i > parseInt(match0.score.split("-")[0]-1)) fac1Img.src = `assets/img/${flag2}.png`;
+        fac1Img.height *= 0.5;
+        fac1Img.width *= 0.5;
+        fac1Img.style.display = "block";
+        fac1Img.style.padding = "10px";
+        fac1Img.style.margin = "0 auto";
+        team0Image.appendChild(fac1Img);
+      }
+      team0Div.appendChild(team0Image);
+
+    // Render classes from the last round of match0
+    const team0Classes = document.createElement("div");
+    team0Classes.style.marginTop = "10px";
+    team0Classes.style.display = "flex";
+    team0Classes.style.flexWrap = "wrap";
+    team0Classes.style.justifyContent = "center";
+    team0Classes.style.alignItems = "flex-end";
+    
+
+    match0.rounds[match0.rounds.length - 1].classes.forEach((className, i) => {
+      if (match0.rounds[match0.rounds.length - 1].teams[i] === 0) {
+        // Create a container for the class image and MVP star
+        const classContainer = document.createElement("div");
+        classContainer.style.position = "relative"; // Allows positioning of child elements
+        classContainer.style.display = "inline-block"; // Keeps both elements together
+
+        // Append the class image
+        setClassImage(className, classContainer); // Assuming setClassImage returns an image element
+
+        // Check if this player is the MVP
+        if (i === match0.rounds[match0.rounds.length - 1].players.indexOf(topPlayers.team0.name)) {
+          const team0mvp = document.createElement("img");
+          team0mvp.src = "/assets/img/mvp.png";
+          team0mvp.style.position = "absolute"; 
+          team0mvp.style.top = "-18px"; 
+          team0mvp.style.left = "60%"; // inf is a little forward
+          team0mvp.style.transform = "translateX(-50%)"; 
+          classContainer.appendChild(team0mvp); 
+        }
+
+        team0Classes.appendChild(classContainer); // Append the container to the team classes div
+      }
+    });
+    team0Div.appendChild(team0Classes);
+
+    const team0Frag = document.createElement("div");
+    team0Frag.style.marginTop = "10px";
+    team0Frag.style.display = "flex";
+    team0Frag.style.flexWrap = "wrap";
+    team0Frag.style.justifyContent = "center";
+    team0Frag.style.alignItems = "flex-end";
+    team0Frag.textContent = topPlayers.team0.name + ` (${topPlayers.team0.kills} kills)`;
+    team0Div.appendChild(team0Frag);
+
+    // Render Team 1 (Right Side)
+    const team1Div = document.createElement("div");
+    team1Div.style.flex = "1";
+    team1Div.style.textAlign = "center";
+    team1Div.style.display = "flex";
+    team1Div.style.flexDirection = "column";
+    team1Div.style.alignItems = "center";
+    team1Div.style.justifyContent = "flex-end";
+
+    // Render faction flags for match1
+    const team1Image = document.createElement("div");
+    team1Image.style.textAlign = "center";
+    team1Image.style.display = "flex";
+    team1Image.style.flexDirection = "row";
+    team1Image.style.flexWrap = "wrap";
+    for (let i = 0; i < team1Score; i++) {
+      const facImg = document.createElement("img");
+      const flagImg = facIcons[factions.indexOf(match0.faction_2)];
+      const flag2 = facIcons[factions.indexOf(match0.faction_1)];
+      facImg.src = `assets/img/${flagImg}.png`;
+      if (i > parseInt(match0.score.split(" - ")[1])-1) facImg.src = `assets/img/${flag2}.png`;
+      facImg.height *= 0.5;
+      facImg.width *= 0.5;
+      facImg.style.display = "block";
+      facImg.style.padding = "10px";
+      facImg.style.margin = "0 auto";
+      team1Image.appendChild(facImg);
     }
+    team1Div.appendChild(team1Image);
+
+
+      // Class list images for Team 1
+      const team1Classes = document.createElement("div");
+      team1Classes.style.marginTop = "10px";
+      team1Classes.style.display = "flex";
+      team1Classes.style.flexWrap = "wrap";
+      team1Classes.style.justifyContent = "center";
+      team1Classes.style.alignItems = "flex-end";
+      
+      match0.rounds[match0.rounds.length - 1].classes.forEach((className, i) => {
+      if (match0.rounds[match0.rounds.length - 1].teams[i] === 1) {
+        // Create a container for the class image and MVP star
+        const classContainer = document.createElement("div");
+        classContainer.style.position = "relative"; // Allows positioning of child elements
+        classContainer.style.display = "inline-block"; // Keeps both elements together
+
+        // Append the class image
+        setClassImage(className, classContainer, 1); // Assuming setClassImage returns an image element
+
+        // Check if this player is the MVP
+        if (i === match0.rounds[match0.rounds.length - 1].players.indexOf(topPlayers.team1.name)) {
+          const team1mvp = document.createElement("img");
+          team1mvp.src = "/assets/img/mvp.png";
+          team1mvp.style.position = "absolute"; 
+          team1mvp.style.top = "-18px"; 
+          team1mvp.style.left = "40%"; // inf is a little forward
+          team1mvp.style.transform = "translateX(-50%)"; 
+          classContainer.appendChild(team1mvp); 
+        }
+
+        team1Classes.appendChild(classContainer); // Append the container to the team classes div
+      }
+    });
+
+      team1Div.appendChild(team1Classes);
+
+    const team1Frag = document.createElement("div");
+    team1Frag.style.marginTop = "10px";
+    team1Frag.style.display = "flex";
+    team1Frag.style.flexWrap = "wrap";
+    team1Frag.style.justifyContent = "center";
+    team1Frag.style.alignItems = "flex-end";
+    team1Frag.textContent = topPlayers.team1.name + ` (${topPlayers.team1.kills} kills)`;
+    team1Div.appendChild(team1Frag);
+
+      // Center Section (Map and Score)
+      const centerDiv = document.createElement("div");
+      centerDiv.style.flex = "1";
+      centerDiv.style.textAlign = "center";
+      centerDiv.style.alignItems = "center";
+
+      // Create a container for the thumbnail and text overlay
+      const mapContainer = document.createElement("div");
+      mapContainer.style.position = "relative"; // Enables positioning of text relative to the image
+      mapContainer.style.display = "inline-block"; // Ensures proper layout
+
+      // Map thumbnail image
+      const mapThumbn = document.createElement("img");
+      const thmbSrc = match0.map.toLowerCase().replaceAll(" ", "_").replaceAll("'","");
+
+      mapThumbn.style.objectFit = "cover";
+      mapThumbn.style.objectPosition = "center";
+      mapThumbn.src = `assets/img/tbn_${thmbSrc}.png`
+      mapThumbn.alt = "";
+      
+      // mapThumbn.style.width = "400px"; // Adjust width as needed
+      // mapThumbn.style.height = "auto"; // Maintain aspect ratio
+      mapContainer.appendChild(mapThumbn);
+
+      // Map name text overlay
+      const mapName = document.createElement("span");
+      mapName.style.position = "absolute";
+      mapName.style.top = "10px"; // Position near the top of the image
+      mapName.style.left = "50%"; // Center horizontally
+      mapName.style.transform = "translateX(-50%)"; // Align text to the center
+      mapName.style.color = "white"; // Set text color for visibility
+      mapName.style.fontWeight = "bold";
+      mapName.style.fontSize = "32px"; // Adjust font size as needed
+      mapName.style.textShadow = "2px 2px 4px rgba(0, 0, 0, 0.7)"; // Add text shadow for readability
+      mapName.style.whiteSpace = "nowrap"; 
+      mapName.textContent = match0.map;
+      mapContainer.appendChild(mapName);
+
+      // Score with flag icons overlay
+      const scoreContainer = document.createElement("div");
+      scoreContainer.style.position = "absolute"; // Overlay on top of the image
+      scoreContainer.style.top = "75%"; // C
+      scoreContainer.style.left = "50%"; // Center horizontally
+      scoreContainer.style.transform = "translate(-50%, -50%)"; // Offset for perfect centering
+      scoreContainer.style.display = "flex";
+      scoreContainer.style.alignItems = "center";
+      scoreContainer.style.justifyContent = "center";
+      scoreContainer.style.gap = "10px"; // Space between elements
+
+      // Flag 1 (Team 0)
+      const fac1Img = document.createElement("img");
+      const flag1 = facIcons[factions.indexOf(match0.faction_1)];
+      fac1Img.src = `assets/img/${flag1}.png`;
+      fac1Img.height *= 0.35; 
+      fac1Img.width *= 0.35;
+      scoreContainer.appendChild(fac1Img);
+
+      // Score Text
+      const scoreDiv = document.createElement("span");
+      scoreDiv.style.fontSize = "32px"; // Adjust font size as needed
+      scoreDiv.style.fontWeight = "bold";
+      scoreDiv.style.color = "white"; // Ensure it stands out on the image
+      scoreDiv.style.textShadow = "2px 2px 4px rgba(0, 0, 0, 0.7)"; // Add shadow for readability
+      scoreDiv.textContent = `${team0Score} - ${team1Score}`;
+      scoreContainer.appendChild(scoreDiv);
+
+      // Flag 2 (Team 1)
+      const fac2Img = document.createElement("img");
+      const flag2 = facIcons[factions.indexOf(match0.faction_2)];
+      fac2Img.src = `assets/img/${flag2}.png`;
+      fac2Img.height *= 0.35; 
+      fac2Img.width *= 0.35;
+      scoreContainer.appendChild(fac2Img);
+
+      // Add the scoreContainer to the mapContainer (or centerDiv if preferred)
+      mapContainer.appendChild(scoreContainer);
+
+      // Append the container to the center div
+      centerDiv.appendChild(mapContainer);
+
+    // Append to the container
+    halfDiv.appendChild(team0Div);
+    halfDiv.appendChild(centerDiv);
+    halfDiv.appendChild(team1Div);
+    
+    halfDiv.addEventListener("click", () => {
+        updateURLToHalf(ogindex);
+      });
+
+    container.appendChild(halfDiv);
+  });
+}
 
 function setClassImage(usedclass, targetElement, flip) {
   let type = null;
@@ -2195,7 +2713,10 @@ function handleURLChange() {
       //window.history.pushState({ match: matchId }, "", `${baseUrl}?match=${matchId}&round=${roundId}`);
     } else {
       renderMatchDetails(matchId);
-      window.history.pushState({ match: matchId }, "", `${baseUrl}?match=${matchId}`);
+      if (!window.history.state || window.history.state.match !== matchId) {
+        window.history.pushState({ match: matchId }, "", `${baseUrl}?match=${matchId}`);
+      console.log(window.history.state)
+      }
     }
   }
 
@@ -2207,9 +2728,18 @@ function handleURLChange() {
     url.searchParams.delete("match");
     url.searchParams.delete("round");
     url.searchParams.set("half", halfId);
-    const baseUrl = window.location.origin + window.location.pathname;
-    window.history.pushState({ half: halfId }, "", `${baseUrl}?half=${halfId}`);
-    renderHalf(halfs[halfId]);
+    
+    if(halfs[halfId][1] === -1 || halfs[halfId][1] === 44) {
+
+      //history.replaceState(null, document.title, window.location.href);
+      updateURLToMatch(halfs[halfId][0]);
+      return;
+    } else {
+      const baseUrl = window.location.origin + window.location.pathname;
+      window.history.pushState({ half: halfId }, "", `${baseUrl}?half=${halfId}`);
+      renderHalf(halfs[halfId]);
+
+    }
   }
 
   // Update the URL to show a scrim view.
@@ -2220,9 +2750,16 @@ function handleURLChange() {
     url.searchParams.delete("match");
     url.searchParams.delete("round");
     url.searchParams.set("scrim", scrimId);
+    if(scrims[scrimId][1] === -1) {
+      //history.replaceState(null, document.title, window.location.href);
+      updateURLToHalf(scrims[scrimId][0]);
+      return;
+    } else {
     const baseUrl = window.location.origin + window.location.pathname;
     window.history.pushState({ scrim: scrimId }, "", `${baseUrl}?scrim=${scrimId}`);
     renderScrim(scrims[scrimId]);
+
+    }
   }
 
   // Update the URL to clear all view state and display the landing page.
@@ -2326,6 +2863,7 @@ function calculateTotalStats(match) {
       dmg: round.dmg.slice(),
       teamkills: round.teamkills.slice(),
       tdmg: round.tdmg.slice(),
+      classes: round.classes.slice(),
       result: round.result // leave as-is
     };
   }
@@ -2341,6 +2879,12 @@ function calculateTotalStats(match) {
    * Also, we flip the scoring logic for rounds coming from the second match.
    */
   function renderHalf(halfIndices) {
+    
+    
+    // if (!window.history.state || window.history.state.tab !== tab) {
+    //   const baseUrl = window.location.origin + window.location.pathname;
+    //   window.history.pushState({ half: halfId }, "", `${baseUrl}?half=${halfId}`);
+    // }
     let combinedRounds = [];
     // Compute overall scores for the half.
     let team0Score = 0;
@@ -2350,6 +2894,21 @@ function calculateTotalStats(match) {
     let m2team0Score = 0;
     let m2team1Score = 0;
     
+    const body = document.body;
+    body.style.backgroundRepeat = "no-repeat"; 
+    body.style.backgroundPosition = "center center"; 
+    body.style.backgroundAttachment = "fixed"; 
+    body.style.backgroundSize = "cover"; 
+    
+    const bgSrc = matches[halfIndices[0]].map.toLowerCase().replaceAll(" ", "_").replaceAll("'","");
+    if (bgSrc == "nord_town"){
+      body.style.backgroundImage = `url('/assets/img/mb2.png')`;
+
+    } else {
+      body.style.backgroundImage = `url('/assets/img/bg_${bgSrc}.png')`;
+
+    }
+
     halfIndices.forEach((mIndex, i) => {
       const matchObj = matches[mIndex];
       if (matchObj && matchObj.rounds) {
@@ -2437,6 +2996,7 @@ function calculateTotalStats(match) {
 
     // Row for Half 1:
     const half1Row = document.createElement("div");
+    half1Row.style.margin = "0px";
     half1Row.style.display = "flex";
     half1Row.style.width = "100%";
     half1Row.style.justifyContent = "space-between";
@@ -2451,6 +3011,7 @@ function calculateTotalStats(match) {
     const fac11Img = document.createElement("img");
     const flag11 = facIcons[factions.indexOf(match1Info.faction_1)];
     fac11Img.src = `assets/img/${flag11}.png`;
+    fac11Img.style.margin = "0px";
     half1Faction1Div.appendChild(fac11Img);
     half1Faction1Div.style.flex = "1";
     half1Faction1Div.style.textAlign = "center";
@@ -2459,12 +3020,13 @@ function calculateTotalStats(match) {
     const half1MapDiv = document.createElement("h1");
     half1MapDiv.style.flex = "1";
     half1MapDiv.style.textAlign = "center";
-    half1MapDiv.textContent = match1Info.map;
+    half1MapDiv.textContent = match1Info.map + " Set 1";
 
     const half1Faction2Div = document.createElement("h2");
     const fac12Img = document.createElement("img");
     const flag12 = facIcons[factions.indexOf(match1Info.faction_2)];
     fac12Img.src = `assets/img/${flag12}.png`;
+    fac12Img.style.margin = "0px";
     half1Faction2Div.appendChild(fac12Img);
     half1Faction2Div.style.flex = "1";
     half1Faction2Div.style.textAlign = "center";
@@ -2503,6 +3065,7 @@ const half2Faction1Div = document.createElement("h2");
 const fac21Img = document.createElement("img");
 const flag21 = facIcons[factions.indexOf(match2Info.faction_2)];
 fac21Img.src = `assets/img/${flag21}.png`;
+fac21Img.style.margin = "0px";
 half2Faction1Div.appendChild(fac21Img);
 half2Faction1Div.style.flex = "1";
 half2Faction1Div.style.textAlign = "center";
@@ -2511,12 +3074,13 @@ half2Faction1Div.style.textAlign = "center";
 const half2MapDiv = document.createElement("h1");
 half2MapDiv.style.flex = "1";
 half2MapDiv.style.textAlign = "center";
-// half2MapDiv.textContent = match2Info.map;
+half2MapDiv.textContent = match2Info.map + " Set 2";
 
 const half2Faction2Div = document.createElement("h2");
 const fac22Img = document.createElement("img");
 const flag22 = facIcons[factions.indexOf(match2Info.faction_1)];
 fac22Img.src = `assets/img/${flag22}.png`;
+fac22Img.style.margin = "0px";
 half2Faction2Div.appendChild(fac22Img);
 half2Faction2Div.style.flex = "1";
 half2Faction2Div.style.textAlign = "center";
@@ -2542,52 +3106,14 @@ half2Row.appendChild(half2Team1ScoreDiv);
 // Append both rows to the container:
 halfHeaderContainer.appendChild(half1Row);
 halfHeaderContainer.appendChild(half2Row);
-    // // Center container for displaying the half details
-    // const halfContainer = document.createElement("div");
-    // halfContainer.style.textAlign = "center";
-    // halfContainer.style.marginBottom = "20px";
-
-
-    // // Map name (same for both matches)
-    // const mapName = document.createElement("h1");
-    // mapName.textContent = `${match1Info.map}`;
-    // mapName.style.marginBottom = "15px"; // Add spacing below
-    // halfContainer.appendChild(mapName);
-
-    // // Match 1 details
-    // const match1Details = document.createElement("div");
-    // match1Details.style.marginBottom = "10px";
-    // match1Details.style.cursor = "pointer";
-    // const image = document.createElement("img");
-    // image.src = 'assets/img/flag_nord.png';
-    // //image.alt = "Placeholder";
-    // match1Details.appendChild(image);
-    // // match1Details.innerHTML = `
-    // //   <strong>${m1team0Score}</strong> - ${match1Info.faction_1} &nbsp;&nbsp;&nbsp; ${match1Info.faction_2} - <strong>${m1team1Score}</strong>
-    // // `;
-    // match1Details.onclick = () => {
-    //   updateURLToMatch(halfIndices[0]); // Navigate to Half 1
-    // };
-    // halfContainer.appendChild(match1Details);
-
-    // // Match 2 details
-    // const match2Details = document.createElement("h2");
-    // match2Details.style.marginBottom = "10px";
-    // match2Details.style.cursor = "pointer";
-    // match2Details.innerHTML = `
-    //   <strong>${m2team0Score}</strong> - ${match2Info.faction_2} &nbsp;&nbsp;&nbsp; ${match2Info.faction_1} - <strong>${m2team1Score}</strong>
-    // `;
-    // match2Details.onclick = () => {
-    //   updateURLToMatch(halfIndices[1]); // Navigate to Half 2
-    // };
-    // halfContainer.appendChild(match2Details);
-
+    
     // Total score
     const totalTeam0Score = match1Info.team0Score + match2Info.team0Score;
     const totalTeam1Score = match1Info.team1Score + match2Info.team1Score;
 
     const totalScore = document.createElement("h1");
-    // totalScore.style.fontSize = "1.2em";
+    totalScore.style.margin = "0px";
+    totalScore.style.fontSize = "2em";
     totalScore.style.fontWeight = "bold";
     totalScore.textContent = `${team0Score} - ${team1Score}`;
     halfHeaderContainer.appendChild(totalScore);

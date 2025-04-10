@@ -17,8 +17,9 @@
          0.5px -0.5px 0 #20201e,
         -0.5px  0.5px 0 #20201e,
          0.5px  0.5px 0 #20201e;
-      background: url('assets/img/mb1.png') no-repeat center center fixed;
+      background-image: url('/assets/img/mb1.png');
       background-size: cover;
+      transition: background 1.5s ease-in-out;
     }
     h1, p {
       text-align: center;
@@ -115,6 +116,7 @@
       }
     /* When in match detail mode, force the content box to fill the screen height */
     #content.match-detail {
+      margin: auto;
       overflow-y: auto;
       padding-bottom: 20px;  /* Extra padding at the bottom */
       display: flex;
@@ -187,9 +189,17 @@
         border-top: 1px solid #ccc;
         margin: 4px 0;
       }
+
+
+      .stats-container {
+        margin: 10px;
+      }
     /* Stats table styles */
+    @media (max-width: 960px) {
     .stats-container {
-      margin-top: 20px;
+      margin: 0 auto;
+    }
+
     }
     #tables-container {
       display: flex;
