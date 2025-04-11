@@ -98,7 +98,8 @@ function adjustTableLayout() {
     // }
     
         tablesContainer.style.flexDirection = "column"; // Stack vertically
-        tablesContainer.style.alignItems = "center"; // Center the tables
+        tablesContainer.style.alignItems = "left"; // Center the tables
+        tablesContainer.style.margin = "0"; // Center the tables
         for (let i = 0; i < colNames.length; i++) {
             colNames[i] = smolStats[i]; // Replace values
         }
@@ -1397,6 +1398,9 @@ function renderBracketList() {
 let filterArc = false;
 let filterCav = false;
 let filterInf = false;
+
+const filterFac = [false,false,false,false,false,false]
+
 /**
  * Generate aggregated stats for players from match data while applying class filters.
  *
@@ -1445,11 +1449,19 @@ let filterInf = false;
       const filteredPlayers = [];
       players.forEach((name, index) => {
         const playerClass = classes[index]; // class for this player in the round
+        const playerFac = teams[index] === 0 ? match.faction_1 : match.faction_2;
         // Exit early if any filter is enabled and the player's class matches.
         if (
           (filterInf && infClasses.some(infClass => playerClass.includes(infClass))) ||
           (filterCav && cavClasses.some(cavClass => playerClass.includes(cavClass))) ||
           (filterArc && arcClasses.some(arcClass => playerClass.includes(arcClass)))
+          ||
+          (filterFac[0] &&  playerFac === factions[0]) ||
+          (filterFac[1] &&  playerFac === factions[1]) ||
+          (filterFac[2] &&  playerFac === factions[2]) ||
+          (filterFac[3] &&  playerFac === factions[3]) ||
+          (filterFac[4] &&  playerFac === factions[4]) ||
+          (filterFac[5] &&  playerFac === factions[5]) 
         ) {
           return; // Skip this player.
         }
@@ -1595,6 +1607,7 @@ function renderPlayersList() {
         let { statsArray, playerStats } = generatePlayerStats(playerIds, matches, nameToIdMap, playerNames);
         var playersContainer = document.createElement("div");
         playersContainer.id = "players-container";
+        playersContainer.style.paddingLeft = "0";
 
 
         // Default sort by kills (high to low)
@@ -1605,6 +1618,131 @@ function renderPlayersList() {
         // Function to render the table
         const renderTable = () => {
           playersContainer.innerHTML = ""; // Clear previous content
+
+            //filters 
+            const filterContainer = document.createElement("div");
+            const filterH = document.createElement("div");
+            filterH.textContent = "Filters";
+            filterH.style.marginTop = "0";
+            filterH.style.paddingBottom = "10px";
+            filterH.style.paddingLeft = "10px";
+            filterH.style.paddingRight = "10px";
+            filterH.style.maxWidth = "120px";
+            filterH.style.borderBottom = "1px solid #ccc"
+            filterContainer.appendChild(filterH)
+
+                // Create the container for the faction icons
+                const factionContainer = document.createElement("div");
+                factionContainer.style.display = "flex";
+                factionContainer.style.flexWrap = "wrap"; // Allow wrapping to stack icons
+                factionContainer.style.justifyContent = "center"; // Center the icons
+                factionContainer.style.gap = "10px"; // Add spacing between icons
+                factionContainer.style.padding = "10px"; // Optional padding
+                factionContainer.style.maxWidth = "120px"
+                factionContainer.style.borderTop = "1px solid #ccc"
+                factionContainer.style.borderBottom = "1px solid #ccc"
+
+                // Loop through the factions array to generate icons
+                factions.forEach((faction, index) => {
+                  // Create an icon for each faction
+                  const factionIcon = document.createElement("img");
+                  factionIcon.style.cursor = "pointer";
+                  factionIcon.style.width = "30px"; // Adjust size as needed
+                  factionIcon.style.height = "30px"; // Adjust size as needed
+                  factionIcon.style.objectFit = "contain"; // Ensure the icon fits well within its boundaries
+                  factionIcon.src = `assets/img/${facIcons[index]}.png`; // Set the image source dynamically
+                  factionIcon.alt = faction; // Set an alt attribute for accessibility
+                  factionIcon.style.filter = `grayscale(${+filterFac[index]})`;
+
+
+                  // Add click event for toggling the filter
+                  factionIcon.onclick = () => {
+                    filterFac[index] = !filterFac[index];
+                    if(filterFac.every(x => {return x == true})) {filterFac.fill(false)}
+                    // Regenerate player stats and re-render the table
+                    ({ statsArray, playerStats } = generatePlayerStats(playerIds, matches, nameToIdMap, playerNames));
+                    renderTable();
+
+                    // Update icon appearance based on filter state (e.g., grayscale)
+                    //factionIcon.style.filter = `grayscale(${+filterFac[index]})`;
+                    // console.log(`Faction filter for ${faction}:`, factionFilters[faction]);
+                  };
+
+                  // Append the icon to the container
+                  factionContainer.appendChild(factionIcon);
+                });
+                
+                const infclass = document.createElement("img");
+                infclass.style.cursor = "pointer";
+                infclass.onclick = () => {
+                  filterInf = !filterInf;
+                  if(filterInf && filterCav && filterArc) {
+                    filterInf = false;
+                    filterCav = false;
+                    filterArc = false;
+                  }
+                  ({ statsArray, playerStats  } = generatePlayerStats(playerIds, matches, nameToIdMap, playerNames));
+                  renderTable();
+                  //console.log("Inf filter:", filterInf)
+                }
+                infclass.style.filter = `grayscale(${+filterInf})`;
+                infclass.src = "assets/img/class_inf.png";
+                infclass.alt = "inf";
+                infclass.height *= 0.5;
+                infclass.width *= 0.5;
+                infclass.style.alignItems = "left;"
+                infclass.style.paddingLeft = "8px";
+                //infclass.style.borderBottom = "1px solid #ccc"
+                filterContainer.appendChild(infclass);
+
+                const cavclass = document.createElement("img");
+                cavclass.style.cursor = "pointer";
+                cavclass.onclick = () => {
+                  filterCav = !filterCav;
+                  if(filterInf && filterCav && filterArc) {
+                    filterInf = false;
+                    filterCav = false;
+                    filterArc = false;
+                  }
+                  ({ statsArray, playerStats  } = generatePlayerStats(playerIds, matches, nameToIdMap, playerNames));
+                  renderTable();
+                  //console.log("Cav filter:", filterCav)
+                }
+                cavclass.style.filter = `grayscale(${+filterCav})`;
+                cavclass.src = "assets/img/class_cav.png";
+                cavclass.alt = "cav";
+                cavclass.height *= 0.5;
+                cavclass.width *= 0.5;
+                cavclass.style.alignItems = "left;"
+                cavclass.style.paddingLeft = "8px";
+                //cavclass.style.borderBottom = "1px solid #ccc"
+                filterContainer.appendChild(cavclass);
+
+                const arcclass = document.createElement("img");
+                arcclass.style.cursor = "pointer";
+                arcclass.onclick = () => {
+                  filterArc = !filterArc;
+                  if(filterInf && filterCav && filterArc) {
+                    filterInf = false;
+                    filterCav = false;
+                    filterArc = false;
+                  }
+                  ({ statsArray, playerStats } = generatePlayerStats(playerIds, matches, nameToIdMap, playerNames));
+                  renderTable();
+                  //console.log("Archer filter:", filterArc)
+                }
+                arcclass.style.filter = `grayscale(${+filterArc})`;
+                arcclass.src = "assets/img/class_arc.png";
+                arcclass.alt = "arc";
+                arcclass.height *= 0.5;
+                arcclass.width *= 0.5;
+                arcclass.style.alignItems = "left;"
+                arcclass.style.paddingLeft = "8px";
+                //arcclass.style.borderBottom = "1px solid #ccc"
+                filterContainer.appendChild(arcclass);
+
+                filterContainer.appendChild(factionContainer);
+              playersContainer.appendChild(filterContainer);
 
             const table = document.createElement("table");
             table.style.width = "100%";
@@ -1658,6 +1796,7 @@ function renderPlayersList() {
                     return valueA - valueB;
                 }
             });
+
             // Create table header
             const headerRow = document.createElement("tr");
             columns.forEach(column => {
@@ -1727,6 +1866,25 @@ function renderPlayersList() {
                       //   console.log(`Divided values by ${column}`);
                       } else {
                         currentSortDivisor = "none";
+                        //duplicated code -- reset stats 
+                        statsArray = playerIds.map(id => ({
+                            id,
+                            name: playerNames[playerIds.indexOf(id)][0],
+                            ...playerStats[id]
+                        }));
+                        
+                        const columnIndex = columns.indexOf(column)
+                        // Filter out players with all stats as 0
+                        statsArray = statsArray.filter(player =>
+                            player.kills > 0 ||
+                            player.deaths > 0 ||
+                            player.assists > 0 ||
+                            player.dmg > 0 ||
+                            player.tks > 0 ||
+                            player.tked > 0
+                        );
+                        // Re-render the table
+                        renderTable();
                       };
                       // Sort the stats array
                       statsArray.sort((a, b) => {
@@ -1782,57 +1940,6 @@ function renderPlayersList() {
                 };
                 ignore = false;
               }
-              } else {
-                const infclass = document.createElement("img");
-                infclass.style.cursor = "pointer";
-                infclass.onclick = () => {
-                  filterInf = !filterInf;
-                  ({ statsArray, playerStats  } = generatePlayerStats(playerIds, matches, nameToIdMap, playerNames));
-                  renderTable();
-                  //console.log("Inf filter:", filterInf)
-                }
-                infclass.style.filter = `grayscale(${+filterInf})`;
-                infclass.src = "assets/img/class_inf.png";
-                infclass.alt = "inf";
-                infclass.height *= 0.5;
-                infclass.width *= 0.5;
-                infclass.style.alignItems = "left;"
-                infclass.style.paddingLeft = "8px";
-                th.appendChild(infclass);
-
-                const cavclass = document.createElement("img");
-                cavclass.style.cursor = "pointer";
-                cavclass.onclick = () => {
-                  filterCav = !filterCav;
-                  ({ statsArray, playerStats  } = generatePlayerStats(playerIds, matches, nameToIdMap, playerNames));
-                  renderTable();
-                  //console.log("Cav filter:", filterCav)
-                }
-                cavclass.style.filter = `grayscale(${+filterCav})`;
-                cavclass.src = "assets/img/class_cav.png";
-                cavclass.alt = "cav";
-                cavclass.height *= 0.5;
-                cavclass.width *= 0.5;
-                cavclass.style.alignItems = "left;"
-                cavclass.style.paddingLeft = "8px";
-                th.appendChild(cavclass);
-
-                const arcclass = document.createElement("img");
-                arcclass.style.cursor = "pointer";
-                arcclass.onclick = () => {
-                  filterArc = !filterArc;
-                  ({ statsArray, playerStats } = generatePlayerStats(playerIds, matches, nameToIdMap, playerNames));
-                  renderTable();
-                  //console.log("Archer filter:", filterArc)
-                }
-                arcclass.style.filter = `grayscale(${+filterArc})`;
-                arcclass.src = "assets/img/class_arc.png";
-                arcclass.alt = "arc";
-                arcclass.height *= 0.5;
-                arcclass.width *= 0.5;
-                arcclass.style.alignItems = "left;"
-                arcclass.style.paddingLeft = "8px";
-                th.appendChild(arcclass);
               }
 
         
@@ -1841,7 +1948,7 @@ function renderPlayersList() {
             table.appendChild(headerRow);
 
             // Populate table rows
-            statsArray.forEach((player) => {
+            statsArray.forEach((player, index) => {
                 const row = document.createElement("tr");
                 [
                     player.name,
@@ -1855,11 +1962,11 @@ function renderPlayersList() {
                     player.tkd,
                     player.rounds,
                     player.wins
-                ].forEach(value => {
+                ].forEach((value) => {
                     const td = document.createElement("td");
                     if (value === player.name){
                       const nameSpan = document.createElement("span");
-                      nameSpan.textContent = value;
+                      nameSpan.textContent = `${index + 1}. ` + value;
 
                       td.appendChild(nameSpan);
                       // Count occurrences for each class
@@ -1873,7 +1980,7 @@ function renderPlayersList() {
                         const infContainer = document.createElement("div");
                         infContainer.style.position = "relative";
                         infContainer.style.display = "inline-block";
-                        infContainer.style.marginLeft = "8px";
+                        infContainer.style.marginLeft = "5px";
 
                         const infclass = document.createElement("img");
                         infclass.src = "assets/img/class_inf.png";
@@ -1901,7 +2008,7 @@ function renderPlayersList() {
                         const cavContainer = document.createElement("div");
                         cavContainer.style.position = "relative";
                         cavContainer.style.display = "inline-block";
-                        cavContainer.style.marginLeft = "8px";
+                        cavContainer.style.marginLeft = "5px";
 
                         const cavclass = document.createElement("img");
                         cavclass.src = "assets/img/class_cav.png";
@@ -1929,7 +2036,7 @@ function renderPlayersList() {
                         const arcContainer = document.createElement("div");
                         arcContainer.style.position = "relative";
                         arcContainer.style.display = "inline-block";
-                        arcContainer.style.marginLeft = "8px";
+                        arcContainer.style.marginLeft = "5px";
 
                         const arcclass = document.createElement("img");
                         arcclass.src = "assets/img/class_arc.png";
