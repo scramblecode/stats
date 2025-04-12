@@ -1599,7 +1599,10 @@ const filterFac = [false,false,false,false,false,false]
 }
 // Helper function to count occurrences of a specific classfunction 
 function countClassUsage(classes, classGroup){
-  return classes.reduce((count, className) => (classGroup.includes(className) ? count + 1 : count), 0);
+  if(classGroup){
+    return classes.reduce((count, className) => (classGroup.includes(className) ? count + 1 : count), 0);
+  }
+  
 }
 const playerIds = [];
 const playerNames = [];
