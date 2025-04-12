@@ -116,6 +116,30 @@ function adjustTableLayout() {
 window.addEventListener("resize", adjustTableLayout);
 
 
+
+function renderPlayerDetails(playerID) {
+    const contentDiv = document.getElementById("content");
+    contentDiv.classList.remove("landing");
+    contentDiv.classList.add("match-detail");
+    contentDiv.innerHTML = ""; // Clear previous content
+
+    renderTabBar(contentDiv);
+
+    const nameToIdMap = new Map();
+        playerIds.forEach((id, index) => {
+          if (id === 0 ) return;
+            playerNames[index].forEach(name => {
+                nameToIdMap.set(name.toLowerCase(), id); // Use lowercase for case-insensitive mapping
+            });
+        });
+
+    const playersContainer = document.createElement("h1")
+    playersContainer.textContent = `${playerNames[playerIds.indexOf(playerID)][0]}`;
+
+    contentDiv.appendChild(playersContainer);
+}
+
+
 //externally calculate winning team based on Result string
 //input: result, output: 0, 1, -1(draw)
 function getWinner(result){
@@ -1092,7 +1116,8 @@ const halfs = [
   [99,100],[101,102],[103,104],[105,106],
   [107,108],[109,110],[111,112],[113,114],
   [115,116],[117,118],[119,120],[121,122],
-  [123,124],[125,126],
+  [123,124],[125,126],[127,128],[129,130],
+  [131,132],[133,134],[135,136],
   
 ];
 const scrims = [[0,1,0],[2,3,0],[4,5,1],[6,7,0],[8,9,0],[10,11,0],[12,13,1],[14,15,0],[16,17,0],[18,19,0],[20,21,1],[22,-1,0]];
@@ -1102,14 +1127,12 @@ const robScramble_1 = [0, 45];
 
 // Define the tabs. By default "scrims" is active.
 const tabs = [
+  //{ label: "HOME", id: "teams" },
   { label: "TOURNAMENTS", id: "bracket" },
-  // { label: "TEAMS", id: "teams" },
   { label: "PICKUPS", id: "matches" },
   { label: "PLAYERS", id: "players" },
-  // { label: "FACTIONS", id: "factions" },
-  // { label: "Matches", id: "matches" },
-  // { label: "Matches", id: "matches" },
-  // { label: "Halfs", id: "halfs" }
+  //{ label: "MAPS", id: "halfs" },
+  //{ label: "FACTIONS", id: "factions" },
 ];
 let scrollPositions = {};
 function renderTabBar(contentDiv, activeTabId){
@@ -1578,7 +1601,8 @@ const filterFac = [false,false,false,false,false,false]
 function countClassUsage(classes, classGroup){
   return classes.reduce((count, className) => (classGroup.includes(className) ? count + 1 : count), 0);
 }
-
+const playerIds = [];
+const playerNames = [];
 function renderPlayersList() {
     const container = document.getElementById("tab-content");
     container.innerHTML = "";  // Clear previous content
@@ -1588,8 +1612,8 @@ function renderPlayersList() {
         //fetch("allmatches.json").then(res => res.json())
     ])
     .then(([playersData]) => {
-        const playerIds = playersData.player_ids;
-        const playerNames = playersData.player_names;
+        playerIds.splice(0, playerIds.length, ...playersData.player_ids);
+        playerNames.splice(0, playerNames.length, ...playersData.player_names);
 
         if (!playerIds || !playerNames) {
             container.innerHTML = "No player data available.";
@@ -1851,20 +1875,6 @@ function renderPlayersList() {
                     );
                     if(currentSortDivisor !== column) {
                       currentSortDivisor = column;
-                      // statsArray = statsArray.map(player => {
-                      //     const divider = player[columns[columnIndex].toLowerCase()]; // Value to divide by
-                      //     // Create a new object with divided values for other stats
-                      //     const dividedPlayer = { ...player };
-                      //     columns.forEach(stat => {
-                      //         if (stat !== "Player Name" && stat !== column) {
-                      //             dividedPlayer[stat.toLowerCase()] = 
-                      //                 (player[stat.toLowerCase()] / divider).toFixed(2); // Perform division
-                      //         }
-                      //     });
-                      //     return dividedPlayer;
-                      //   });
-
-                      //   console.log(`Divided values by ${column}`);
                       } else {
                         currentSortDivisor = "none";
                         //duplicated code -- reset stats 
@@ -1941,7 +1951,7 @@ function renderPlayersList() {
                 };
                 ignore = false;
               }
-              }
+              } 
 
         
                 headerRow.appendChild(th);
@@ -1969,6 +1979,10 @@ function renderPlayersList() {
                       const nameSpan = document.createElement("span");
                       nameSpan.textContent = `${index + 1}. ` + value;
 
+                      // nameSpan.onclick = () => {
+                      //   console.log("Player..!", playerIds.indexOf(index))
+                      //   updateURLToPlayer(nameToIdMap.get(value.toLowerCase()))
+                      // }
                       td.appendChild(nameSpan);
                       // Count occurrences for each class
                       const infCount = countClassUsage(player.classes, infClasses);
@@ -2795,11 +2809,26 @@ function handleURLChange() {
   }
 
   // Default to rendering the "bracket" tab if no parameters are found
-  renderLandingPage("bracket");
+  renderLandingPage("players");
   //handleURLChange();
 }
 
 
+  // Update the URL to show a match view (with optional round view).
+  function updateURLToPlayer(playerID) {
+    const url = new URL(window.location.href);
+    // Remove scrim and half parameters if present.
+    url.searchParams.delete("scrim");
+    url.searchParams.delete("half");
+    url.searchParams.set("player", playerID);
+    
+    const baseUrl = window.location.origin + window.location.pathname;
+
+      if (!window.history.state || window.history.state.match !== playerID) {
+        window.history.pushState({ player: playerID }, "", `${baseUrl}?player=${playerID}`);
+    }
+    renderPlayerDetails(playerID);
+  }
 
   // Update the URL to show a match view (with optional round view).
   function updateURLToMatch(matchId, roundId) {
@@ -2823,7 +2852,6 @@ function handleURLChange() {
       renderMatchDetails(matchId);
       if (!window.history.state || window.history.state.match !== matchId) {
         window.history.pushState({ match: matchId }, "", `${baseUrl}?match=${matchId}`);
-      console.log(window.history.state)
       }
     }
   }
