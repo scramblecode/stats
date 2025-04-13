@@ -17,7 +17,7 @@
          0.5px -0.5px 0 #20201e,
         -0.5px  0.5px 0 #20201e,
          0.5px  0.5px 0 #20201e;
-      background-image: url('/assets/img/mb1.png');
+      background-image: url('assets/img/mb1.png');
       background-size: cover;
       transition: background 1.5s ease-in-out;
     }
