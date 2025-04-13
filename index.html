@@ -1983,10 +1983,10 @@ function renderPlayersList() {
                       const nameSpan = document.createElement("span");
                       nameSpan.textContent = `${index + 1}. ` + value;
 
-                      nameSpan.onclick = () => {
-                        console.log("Player..!", playerIds.indexOf(index))
-                        updateURLToPlayer(nameToIdMap.get(value.toLowerCase()))
-                      }
+                      // nameSpan.onclick = () => {
+                      //   console.log("Player..!", playerIds.indexOf(index))
+                      //   updateURLToPlayer(nameToIdMap.get(value.toLowerCase()))
+                      // }
                       td.appendChild(nameSpan);
                       // Count occurrences for each class
                       const infCount = countClassUsage(player.classes, infClasses);
