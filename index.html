@@ -257,9 +257,8 @@ function getWinner(result){
       const row = document.createElement("tr");
       [player, stats.kills, stats.deaths, stats.assists, stats.dmg, stats.teamkills, stats.tdmg].forEach((value, idx) => {
         const td = document.createElement("td");
+        td.setAttribute("data-player", player);
         td.textContent = value;
-        if (!Number.isInteger(stats.deaths) && stats.deaths.includes("+1")) {td.style.color = "red"}
-        else if (!Number.isInteger(value) && value.includes("+")) td.style.color = "green"
         // First column (names) left-aligned; index 4 (Damage) and 6 (Team Damage) right-aligned;
         // all others center-aligned.
         if (idx === 0) {
@@ -286,7 +285,7 @@ function getWinner(result){
             infclass.src = "assets/img/class_inf.png";
             infclass.alt = "inf";
             if (flip) infclass.style.transform = "scaleX(-1)";
-            infclass.style.filter = `grayscale(${+dead})`;
+            //infclass.style.filter = `grayscale(${+dead})`;
             infclass.height *= 0.35;
             infclass.width *= 0.35;
             infclass.style.display = "block";
@@ -316,7 +315,7 @@ function getWinner(result){
             cavclass.src = "assets/img/class_cav.png";
             cavclass.alt = "cav";
             if (flip) cavclass.style.transform = "scaleX(-1)";
-            cavclass.style.filter = `grayscale(${+dead})`;
+            //cavclass.style.filter = `grayscale(${+dead})`;
             cavclass.height *= 0.35;
             cavclass.width *= 0.35;
             cavclass.style.display = "block";
@@ -346,7 +345,7 @@ function getWinner(result){
             arcclass.src = "assets/img/class_arc.png";
             arcclass.alt = "arc";
             if (flip) arcclass.style.transform = "scaleX(-1)";
-            arcclass.style.filter = `grayscale(${+dead})`;
+            //arcclass.style.filter = `grayscale(${+dead})`;
             arcclass.height *= 0.35; // Adjusted size
             arcclass.width *= 0.35;
             arcclass.style.display = "block";
@@ -367,6 +366,8 @@ function getWinner(result){
         // } else if (idx === 4 || idx === 6) {
         //   td.style.textAlign = "right";
         } else {
+          if (!Number.isInteger(stats.deaths) && stats.deaths.includes("+1")) {td.style.color = "red"}
+          else if (!Number.isInteger(value) && value.includes("+")) td.style.color = "green"
           td.style.textAlign = "right";
         }
         td.style.padding = "5px";
@@ -485,6 +486,13 @@ function getWinner(result){
     calculateTotalStats(match);
   }
 
+  
+  let activeTimeouts = [];
+  function cancelAllMessages() {
+    activeTimeouts.forEach(clearTimeout); // Clear all scheduled timeouts
+    activeTimeouts = []; // Reset the array
+  }
+
   // New function: renderSingleRound displays match info and stats for one round only.
   function renderSingleRound(matchID, roundIndex) {
     const match = matches[matchID];
@@ -493,6 +501,157 @@ function getWinner(result){
     contentDiv.classList.remove("landing");
     contentDiv.classList.add("match-detail");
     contentDiv.innerHTML = "";  // Clear existing content
+    cancelAllMessages()
+
+    // Create a container for the messages in the bottom-left corner
+    const messageContainer = document.createElement("div");
+    messageContainer.style.position = "fixed";
+    messageContainer.style.bottom = "10px";
+    messageContainer.style.left = "10px";
+    messageContainer.style.zIndex = "1000"; // Ensure it's over other content
+    messageContainer.style.display = "flex";
+    messageContainer.style.flexDirection = "column";
+    messageContainer.style.gap = "5px"; // Add spacing between messages
+    document.body.appendChild(messageContainer);
+
+
+    // Function to convert a timestamp to seconds
+    function timestampToSeconds(timestamp) {
+      const timeParts = timestamp.split(":").map(Number); // Split and parse the timestamp
+      return timeParts[0] * 3600 + timeParts[1] * 60 + timeParts[2]; // Convert to seconds
+    }
+
+    // Determine the earlier time between flag_time and first death time
+    const flagInSeconds = round.flag_time.length > 0 ? timestampToSeconds(round.flag_time[0]) : 999999999;
+    const firstDeathInSeconds = timestampToSeconds(round.death_times[0]);
+    const earliestTimeInSeconds = Math.min(flagInSeconds, firstDeathInSeconds); // Use the earlier time
+
+    // Function to calculate the delay from the earliest time
+    function calculateDelay(timestamp) {
+      const timestampInSeconds = timestampToSeconds(timestamp); // Convert to seconds
+      return (timestampInSeconds - earliestTimeInSeconds) * 333; // Delay in milliseconds / 5
+    }
+
+    // Show a message on screen
+    function showMessage(content, delay, textcol) {
+      console.log("Textcolor", textcol)
+      const timeoutId = setTimeout(() => {
+        const message = document.createElement("div");
+        message.style.padding = "5px 10px"; 
+        message.style.fontSize = "20px"; 
+        message.style.color = textcol;
+        message.style.boxSizing = "border-box"; 
+        message.style.margin = "0"; 
+
+        message.style.display = "flex"; // Use flex to align text, icon, and victim name
+        message.style.alignItems = "center"; // Center align items vertically
+        //message.style.gap = "10px"; // Add space between elements
+        message.style.transition = "opacity 1s ease-out"; // Fade-out transition
+        message.style.opacity = "1"; // Initially fully visible
+
+        groups = content.split(" ");
+        if(groups[1]?.includes("ico")){
+          // Add killer text
+          const killer = document.createElement("span");
+          killer.textContent = groups[0];
+
+          // if (groups[0]) {
+          //   const cell = document.querySelector(`td[data-player="${groups[0]}"]`);
+          //   if (cell) {
+          //     cell.style.color = "#34D313"; // Turn text red for a death
+          //   }
+          // }
+
+          // Add the icon
+          const icon = document.createElement("img");
+          icon.src = `assets/img/${groups[1]}.png`; // Set the source of the icon
+          icon.alt = "Icon"; // Provide alt text for accessibility
+          icon.style.objectFit = "contain"; // Ensure the icon scales well
+
+          // Add victim text
+          const victim = document.createElement("span");
+          victim.textContent = groups[2];
+
+          if (groups[2]) {
+            // Locate the corresponding table cell using `data-player`
+            const cell = document.querySelector(`td[data-player="${groups[2]}"]`);
+            if (cell) {
+              cell.style.color = "red"; // Turn text red for a death
+              cell.children[0].style.filter = `grayscale(1)`;
+            }
+          }
+          
+          // Append killer, icon, and victim to the message
+          message.appendChild(killer);
+          message.appendChild(icon);
+          message.appendChild(victim);
+
+        } else {
+          message.textContent = content;
+        }
+        messageContainer.appendChild(message);
+
+    // Start fade-out after 5 seconds
+    const fadeTimeoutId = setTimeout(() => {
+      message.style.opacity = "0"; // Reduce opacity to make it fade out
+
+        setTimeout(() => {
+          messageContainer.removeChild(message);
+        }, 1000);
+      }, 2000);
+    }, delay);
+    activeTimeouts.push(timeoutId);
+  }
+
+
+    let tkid = 0;
+
+    // Loop through death times and schedule messages
+    round.death_times.forEach((x, id) => {
+      const delay = calculateDelay(x, round.start_time); // Calculate delay based on start time
+      
+      // Determine the message content
+      let messageContent, textColor;
+      let tkmessageContent;
+      if (round.deaths[id] == round.teamkilled[tkid]) {
+        const killerIndex = round.players.indexOf(round.teamkills[tkid]);
+        if (killerIndex !== -1) {
+          const killerTeam = round.teams[killerIndex]; // Get the killer's team (0 or 1)
+          textColor = killerTeam === 0 ? "#59261B" : "#34D313"; //59261B
+        }
+        tkmessageContent = `${round.teamkills[tkid]} has killed a teammate!`;
+        messageContent = `${round.teamkills[tkid]} ${round.tkicons[tkid]} ${round.deaths[id]}`;
+        tkid++;
+      } else {
+        const killerIndex = round.players.indexOf(round.kills[id - tkid]);
+        if (killerIndex !== -1) {
+          const killerTeam = round.teams[killerIndex]; // Get the killer's team (0 or 1)
+          textColor = killerTeam === 0 ? "#34D313" : "#F34323"; //59261B
+        }
+        messageContent = `${round.kills[id - tkid]} ${round.icons[id - tkid]} ${round.deaths[id]}`;
+      }
+
+    // Show the message
+    if (tkmessageContent) showMessage(tkmessageContent, delay, textColor);
+    showMessage(messageContent, delay, textColor);
+    });
+
+    // Schedule message for flag time
+    if(round.flag_time.length > 0){
+      const flagDelay = calculateDelay(round.flag_time[0], round.start_time);
+      showMessage("Flag spawned!", flagDelay);
+    }
+
+    // Schedule message for round end time
+    const endDelay = calculateDelay(round.end_time, round.start_time);
+    const winFac = getWinner(round.result) == 0 ? match.faction_1 : match.faction_2;
+    if (round.result == "Round draw."){
+      showMessage(`Round draw!`, endDelay);
+    } else {
+      const resultFlag = round.result.includes("higher") ? "by flag control!" : "by raising the flag!";
+      const result = round.result.includes("flag") ? `${winFac} won the round ${resultFlag}` : `${winFac} won the round!`;
+      showMessage(`${result}`, endDelay);
+    }
 
     renderTabBar(contentDiv);
 
@@ -684,6 +843,14 @@ if (roundIndex === 0) {
     tableWrapper.appendChild(generateTeamTableCommon(formattedTeam1, match.faction_2, 1));
 
     statsContainer.appendChild(tableWrapper)
+
+    
+    // scroll down for better killfeed legibility
+    const extraSpace = document.createElement("div");
+    extraSpace.style.height = "150px"; 
+    statsContainer.appendChild(extraSpace);
+
+
     contentDiv.appendChild(statsContainer);
     adjustTableLayout();
   } else {
@@ -707,6 +874,12 @@ if (roundIndex === 0) {
     tableWrapper.appendChild(generateTeamTableCommon(team1, match.faction_2, 1));
 
     statsContainer.appendChild(tableWrapper);
+
+    // scroll down for better killfeed legibility
+    const extraSpace = document.createElement("div");
+    extraSpace.style.height = "150px"; 
+    statsContainer.appendChild(extraSpace);
+
     contentDiv.appendChild(statsContainer);
     adjustTableLayout();
   }
@@ -1099,29 +1272,33 @@ const bracket = [
 
 
 const halfs = [
+  //rob tournament
   [0,1],[2,3],[4,5],[6,7],[8,9],
   [10,11],[12,13],[14,15],[16,17],
   [18,19],[20,21],[22,23],[24,25],
-  [26,27],[28,29],[30,44],[32,33],
-  [34,44],[35,36],[37,38],[39,40],
-  [41,42],[43,-1],[44,44],
-  //24 
-  [45,46],[47,48],[49,50],[51,52],
-  [53,54],[55,56],[57,58],[59,60],
-  [61,62],[63,64],[65,44],[66,67],
-  [68,69],[70,44],[71,72],[73,44],[74,75],
-  [76,77],[78,44],[79,80],[81,82],
-  [83,84],[85,86],[87,88],[89,90],
-  [91,92],[93,94],[95,96],[97,98],
-  [99,100],[101,102],[103,104],[105,106],
-  [107,108],[109,110],[111,112],[113,114],
-  [115,116],[117,118],[119,120],[121,122],
-  [123,124],[125,126],[127,128],[129,130],
-  [131,132],[133,134],[135,136],[137,138],
-  [139,140],[141,142],[143,144],[145,146],
-  [147,148],[149,150],[151,152],[153,154],
-  [155,156],
+  [26,27],[28,29],[30,-1],[31,32],
+  [33,-1],[34,35],[36,37],[38,39],
+  [40,41],[42,-1],[43,43], //23
 ];
+function fillHalfsList() {
+  for (let i = 44; i < matches.length; i++) {
+    let match1 = matches[i]; 
+
+    if (
+      i + 1 < matches.length && 
+      matches[i + 1].map === match1.map && 
+      matches[i + 1].faction_1 === match1.faction_1 && 
+      matches[i + 1].faction_2 === match1.faction_2
+    ) {
+      
+      halfs.push([i, i + 1]);
+
+      i++;
+    } else {
+      halfs.push([i, 43]);
+    }
+  }
+}
 const scrims = [[0,1,0],[2,3,0],[4,5,1],[6,7,0],[8,9,0],[10,11,0],[12,13,1],[14,15,0],[16,17,0],[18,19,0],[20,21,1],[22,-1,0]];
 
 //hardcoding in the tournament arrays start - end matches
@@ -1187,6 +1364,7 @@ function trackScrollPosition(tabId) {
       //contentDiv.classList.add("landing");
       contentDiv.innerHTML = ""; // Clear previous content.
       
+      cancelAllMessages();
       //const baseUrl = window.location.origin + window.location.pathname;  
       // if (!window.history.state || window.history.state.tab !== tab) {
       //   window.history.pushState({ tab: tab }, "", `${baseUrl}?tab=${tab}`);
@@ -1226,7 +1404,7 @@ function trackScrollPosition(tabId) {
         //renderMatchList();
         renderHalfList(halfs);
       } else if (tabId === "halfs") {
-        renderMatchList(halfs);
+        renderMatchList();
       } else if (tabId === "tournament") {
         renderTournamentList();
       } else if (tabId === "bracket") {
@@ -1548,6 +1726,7 @@ const filterFac = [false,false,false,false,false,false]
       });
 
       // For assists, damage, and team damage, the index in the original players array is used.
+      //if(!assists) console.log(matchID, match.map, match.faction_1, match.faction_2)
       assists.forEach((value, index) => {
         const name = players[index];
         if (filteredPlayers.includes(name)) {
@@ -1988,6 +2167,7 @@ function renderPlayersList() {
                       //   console.log("Player..!", playerIds.indexOf(index))
                       //   updateURLToPlayer(nameToIdMap.get(value.toLowerCase()))
                       // }
+                      
                       td.appendChild(nameSpan);
                       // Count occurrences for each class
                       const infCount = countClassUsage(player.classes, infClasses);
@@ -2127,13 +2307,12 @@ function renderMatchList() {
   container.innerHTML = ""; // Clear any existing content
 
   if (matches && matches.length > 0) {
-    
     // Reverse the matches array
     const reversedMatches = matches.slice().reverse(); // Create a reversed copy of the matches array
 
     // Loop through the reversed array
     reversedMatches.forEach((match, reversedIndex) => {
-      if (reversedIndex >= reversedMatches.length - 45) return; 
+      //if (reversedIndex >= reversedMatches.length - 45) return; 
 
       // Calculate the correct index in the original `matches` array
       const ogindex= matches.length - 1 - reversedIndex;
@@ -2164,7 +2343,9 @@ function renderMatchList() {
 
       // Iterate through all rounds and process player statistics
       match.rounds.forEach((round, rid) => {
+        console.log("MATCHES?")
         round.teams.forEach((team, i) => {
+          console.log("ROUNDS?")
           const playerName = round.players[i]; // Get player's name
           const playerClass = round.classes[i]; // Get player's class
 
@@ -2870,7 +3051,7 @@ function handleURLChange() {
     url.searchParams.delete("round");
     url.searchParams.set("half", halfId);
     
-    if(halfs[halfId][1] === -1 || halfs[halfId][1] === 44) {
+    if(halfs[halfId][1] === -1 || halfs[halfId][1] === 43) {
 
       //history.replaceState(null, document.title, window.location.href);
       updateURLToMatch(halfs[halfId][0]);
@@ -2931,6 +3112,7 @@ function handleURLChange() {
       })
       .then(data => {
         matches = data.matches;
+        fillHalfsList();
         //renderLandingPage("bracket");
         handleURLChange();
         window.addEventListener('popstate', handleURLChange);

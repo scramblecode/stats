@@ -13,10 +13,10 @@
       background-color: #4e4949;
       color: #C7C7C6;
       text-shadow: 
-        -0.5px -0.5px 0 #20201e,  
-         0.5px -0.5px 0 #20201e,
-        -0.5px  0.5px 0 #20201e,
-         0.5px  0.5px 0 #20201e;
+        -0.75px -0.75px 0 #20201e,  
+         0.75px -0.75px 0 #20201e,
+        -0.75px  0.75px 0 #20201e,
+         0.75px  0.75px 0 #20201e;
       background-image: url('assets/img/mb1.png');
       background-size: cover;
       transition: background 1.5s ease-in-out;
@@ -30,10 +30,10 @@
       font-size: 2.5em; 
       font-weight: "bold";
       text-shadow: 
-        -1px -1px 0 #000,  
-         1px -1px 0 #000,
-        -1px  1px 0 #000,
-         1px  1px 0 #000;
+        -1.2px -1.2px 0 #000,  
+         1.2px -1.2px 0 #000,
+        -1.2px  1.2px 0 #000,
+         1.2px  1.2px 0 #000;
       
       color: white;
     }
@@ -49,13 +49,13 @@
   width: 90%;
   margin: 20px auto;
   padding: 20px;
-  border: 2px solid #ccc;
+  border: 2.5px solid #E7E7C6;
   border-radius: 10px;
     /* background-color: #292525; */
-    background-color: rgba(59, 53, 53, 0.8); /* 80% opaque white */
+    background-color: rgba(32, 32, 32, 0.75);
     box-sizing: border-box;
     position: relative;
-    height: calc(100vh - 150px);
+    height: calc(100vh - 160px);
     overflow: hidden; 
     overflow-y: auto;
     overflow-x: auto;
