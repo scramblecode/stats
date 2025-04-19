@@ -17,13 +17,13 @@
          0.75px -0.75px 0 #20201e,
         -0.75px  0.75px 0 #20201e,
          0.75px  0.75px 0 #20201e;
-      background-image: url('assets/img/mb1.png');
+      background-image: url('https://scramblecode.github.io/stats/assets/img/mb1.png');
       background-size: cover;
       transition: background 1.5s ease-in-out;
     }
     h1, p {
       text-align: center;
-      margin-bottom: 30px; 
+      margin-bottom: 20px; 
     }
 
     .outside-text {
@@ -46,7 +46,7 @@
     }
     /* The overall content box */
 #content {
-  width: 90%;
+  width: 95%;
   margin: 20px auto;
   padding: 20px;
   border: 2.5px solid #E7E7C6;
@@ -101,14 +101,6 @@
         /* Hide scrollbar for Firefox */
         scrollbar-width: none; 
       }
-    /* Added for vertical centering of bracket boxes */
-    #tab-content.bracket {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;      /* Vertical centering */
-        justify-content: center;  /* Horizontal centering */
-        height: 100%;
-    }
       /* Hide default heading margin in landing view */
       #content.landing h2 {
         text-align: left;
@@ -173,6 +165,23 @@
         vertical-align: top;
         box-sizing: border-box;
         color: #afafaf;
+      }
+      /* Added for vertical centering of bracket boxes */
+      .bracket {
+          padding: 50px;
+          height: 100%;
+          width: 100%;
+          min-height: 0;
+          overflow-y: auto;
+          box-sizing: border-box;
+          /* Hide scrollbar for IE, Edge */
+          -ms-overflow-style: none; 
+          /* Hide scrollbar for Firefox */
+          scrollbar-width: none; 
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;      /* Vertical centering */
+          justify-content: center;  /* Horizontal centering */
       }
       .bracket-row {
         display: flex;
@@ -247,3 +256,52 @@
       text-align: center;
       width: 80px; /* Adjust width as needed to fit the largest possible value */
     }
+
+
+.current-tournament {
+  padding: 20px;
+  text-align: center; /* Center text */
+  width: 100%; /* Full width */
+  cursor: pointer;
+}
+
+h1 {
+  font-size: 32px; /* Make the title prominent */
+  margin-bottom: 10px;
+}
+
+.tournament-info {
+  font-size: 16px;
+}
+
+.previous-tournaments {
+  padding: 20px;
+  text-align: center;
+  width: 100%; /* Expand to full width */
+}
+
+.completed-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  border-top: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+  padding: 10px 0;
+}
+
+.previous-tournaments ul {
+  list-style: none;
+  padding: 0;
+  margin-top: 20px;
+}
+
+.previous-tournaments li {
+  padding: 8px 0;
+  border-bottom: 1px solid #ddd;
+  cursor: pointer; /* Pointer for clickable elements */
+  text-align: center; /* Center text */
+}
+
+.previous-tournaments li:hover {
+  background-color: #f0f0f021; /* Highlight on hover */
+}

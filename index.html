@@ -6,15 +6,6 @@
     <title>Scramble Stats</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" type="image/x-icon" href="assets/img/ico.ico">
-    <link rel="preload" as="image" href="assets/img/class_inf.png">
-    <link rel="preload" as="image" href="assets/img/class_cav.png">
-    <link rel="preload" as="image" href="assets/img/class_arc.png">
-    <link rel="preload" as="image" href="assets/img/flag_swadia.png">
-    <link rel="preload" as="image" href="assets/img/flag_vaegir.png">
-    <link rel="preload" as="image" href="assets/img/flag_khergit.png">
-    <link rel="preload" as="image" href="assets/img/flag_nord.png">
-    <link rel="preload" as="image" href="assets/img/flag_rhodok.png">
-    <link rel="preload" as="image" href="assets/img/flag_sarranid.png">
     <!-- Include Open Sans from Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -119,6 +110,7 @@ window.addEventListener("resize", adjustTableLayout);
 
 function renderPlayerDetails(playerID) {
     const contentDiv = document.getElementById("content");
+    contentDiv.classList.remove("bracket");
     contentDiv.classList.remove("landing");
     contentDiv.classList.add("match-detail");
     contentDiv.innerHTML = ""; // Clear previous content
@@ -286,8 +278,10 @@ function getWinner(result){
             infclass.alt = "inf";
             if (flip) infclass.style.transform = "scaleX(-1)";
             //infclass.style.filter = `grayscale(${+dead})`;
-            infclass.height *= 0.35;
-            infclass.width *= 0.35;
+            infclass.height = infclass.naturalHeight * 0.35;
+            infclass.onload = () => {
+              infclass.height = infclass.naturalHeight * 0.35;
+            }
             infclass.style.display = "block";
 
             // const infCountSpan = document.createElement("span");
@@ -316,8 +310,10 @@ function getWinner(result){
             cavclass.alt = "cav";
             if (flip) cavclass.style.transform = "scaleX(-1)";
             //cavclass.style.filter = `grayscale(${+dead})`;
-            cavclass.height *= 0.35;
-            cavclass.width *= 0.35;
+            cavclass.height = cavclass.naturalHeight * 0.35;
+            cavclass.onload = () => {
+              cavclass.height = cavclass.naturalHeight * 0.35;
+            }
             cavclass.style.display = "block";
 
             // const cavCountSpan = document.createElement("span");
@@ -346,8 +342,10 @@ function getWinner(result){
             arcclass.alt = "arc";
             if (flip) arcclass.style.transform = "scaleX(-1)";
             //arcclass.style.filter = `grayscale(${+dead})`;
-            arcclass.height *= 0.35; // Adjusted size
-            arcclass.width *= 0.35;
+            arcclass.height = arcclass.naturalHeight * 0.35;
+            arcclass.onload = () => {
+              arcclass.height = arcclass.naturalHeight * 0.35;
+            }
             arcclass.style.display = "block";
 
             // const arcCountSpan = document.createElement("span");
@@ -381,8 +379,8 @@ function getWinner(result){
   }
 
   // The original function to render full match details (aggregated over rounds).
-  function renderMatchDetails(matchID) {
-    const match = matches[matchID];
+  function renderMatchDetails(matchID, gf) {
+    const match = gf == 0 ? matches[matchID] : groupfights[matchID];
     const contentDiv = document.getElementById("content");
     contentDiv.classList.remove("landing");
     contentDiv.classList.add("match-detail");
@@ -395,7 +393,7 @@ function getWinner(result){
     body.style.backgroundSize = "cover"; 
     
     const bgSrc = match.map.toLowerCase().replaceAll(" ", "_").replaceAll("'","");
-    if (bgSrc == "nord_town"){
+    if (bgSrc == -1){
       body.style.backgroundImage = `url('assets/img/mb2.png')`;
 
     } else {
@@ -494,10 +492,11 @@ function getWinner(result){
   }
 
   // New function: renderSingleRound displays match info and stats for one round only.
-  function renderSingleRound(matchID, roundIndex) {
-    const match = matches[matchID];
+  function renderSingleRound(matchID, roundIndex, gf) {
+    const match = gf == 0 ? matches[matchID] : groupfights[matchID];
     const round = match.rounds[roundIndex];
     const contentDiv = document.getElementById("content");
+    contentDiv.classList.remove("bracket");
     contentDiv.classList.remove("landing");
     contentDiv.classList.add("match-detail");
     contentDiv.innerHTML = "";  // Clear existing content
@@ -534,7 +533,6 @@ function getWinner(result){
 
     // Show a message on screen
     function showMessage(content, delay, textcol) {
-      console.log("Textcolor", textcol)
       const timeoutId = setTimeout(() => {
         const message = document.createElement("div");
         message.style.padding = "5px 10px"; 
@@ -1088,8 +1086,6 @@ function renderScrim(scrimSpec) {
   // Merge the aggregated stats.
   const finalAggregatedStats = mergeAggregates(halfAgg1.aggregatedStats, halfAgg2.aggregatedStats);
   const { team0, team1 } = splitAndSortByTeam(finalAggregatedStats);
-  console.log("Team0:", team0);
-  console.log("Team1:", team1);
   
   // Render the scrim view.
   const contentDiv = document.getElementById("content");
@@ -1252,7 +1248,7 @@ contentDiv.appendChild(totalScoreDiv);
   contentDiv.appendChild(statsContainer);
   adjustTableLayout();
 }
-const bracket = [
+const RobAIbracket = [
       // ["Cheezeninja", "Marquis", "X", "X", -1],
       ["Ebdanian", "Hemp", 9, 6, 0],
       // ["Marquis", "Ebdanian", "X", "X", -1],
@@ -1269,6 +1265,38 @@ const bracket = [
       ["Ebdanian", "Cheezeninja", 9, 7, 9],
     ];
 
+    const Mayhembracket = [
+      // ["team1", "team2", 1, 0, 0],//score1, score2, scrim #
+      ["Chowski/Roberta", "Crusader/Vampy", "?", "?", -1],
+      ["Potesty/Exmarius", "Les/MattTheLord", 15, 3, 0],
+      ["Beansacks/John", "Pichu/Thiago", "?", "?", -1],
+      ["Nasa/CheeseNinja", "BrownMilk/Kurm", "?", "?", -1],
+      ["Zealots/Van", "Konrad/Loki", 15, 1, 4],
+      ["Sitvek/Kman", "Argo/Ingemar", "?", "?", -1],
+      ["BestNAGTA/Chunky", "Powder/Lykia", "0", "x", -1],
+      ["Trox/Wert", "Ducreux/Philip", 15, 4, 1],
+      //round 2 
+      ["Mav/Hemp", "TBD", "?", "?", -1],
+      ["Hey/Daemon", "Potesty/Exmarius", 5, 15, 3],
+      ["Byunos/Chicken", "TBD", "?", "?", -1],
+      ["Danate/Aporta", "TBD", "?", "?", -1],
+      ["Alyss/Gibby", "Zealots/Van", 15, 0, 5],
+      ["Kairos/Shovenio", "TBD", "?", "?", -1],
+      ["Cow/PPK157", "BestNAGTA/Chunky", 15, 5, 2],
+      ["Marquis/Ebdanian", "Trox/Wert", "?", "?", -1],
+      //round 3 
+      ["Mav/Hemp", "Potesty/Exmarius", "?", "?", -1],
+      ["TBD", "TBD", "?", "?", -1],
+      ["TBD", "TBD", "?", "?", -1],
+      ["Cow/PPK157", "TBD", "?", "?", -1],
+      //semifinal
+      ["Semifinalist", "Semifinalist", "?", "?", -1],
+      ["Semifinalist", "Semifinalist", "?", "?", -1],
+      //finals
+      ["Finalist", "Finalist", "?", "?", -1],
+    ];
+
+    const tournaments = [RobAIbracket, Mayhembracket]
 
 
 const halfs = [
@@ -1280,6 +1308,7 @@ const halfs = [
   [33,-1],[34,35],[36,37],[38,39],
   [40,41],[42,-1],[43,43], //23
 ];
+//43 is an empty match with 0-0 score 
 function fillHalfsList() {
   for (let i = 44; i < matches.length; i++) {
     let match1 = matches[i]; 
@@ -1299,15 +1328,25 @@ function fillHalfsList() {
     }
   }
 }
-const scrims = [[0,1,0],[2,3,0],[4,5,1],[6,7,0],[8,9,0],[10,11,0],[12,13,1],[14,15,0],[16,17,0],[18,19,0],[20,21,1],[22,-1,0]];
+//half1, half2, bSwap
+const scrims = [
+  [0,1,0],[2,3,0],[4,5,1],
+  [6,7,0],[8,9,0],[10,11,0],
+  [12,13,1],[14,15,0],[16,17,0],
+  [18,19,0],[20,21,1],[22,-1,0],
+];
 
 //hardcoding in the tournament arrays start - end matches
-const robScramble_1 = [0, 45];
+const robScramble = [0, 44];
+
+//groupfight tourneys are excluded from global stats, so stored separately 
+
+
 
 // Define the tabs. By default "scrims" is active.
 const tabs = [
-  //{ label: "HOME", id: "teams" },
-  { label: "TOURNAMENTS", id: "bracket" },
+  // { label: "HOME", id: "teams" },
+  { label: "TOURNAMENTS", id: "tournaments" },
   { label: "PICKUPS", id: "matches" },
   { label: "PLAYERS", id: "players" },
   //{ label: "MAPS", id: "halfs" },
@@ -1405,11 +1444,12 @@ function trackScrollPosition(tabId) {
         renderHalfList(halfs);
       } else if (tabId === "halfs") {
         renderMatchList();
-      } else if (tabId === "tournament") {
-        renderTournamentList();
-      } else if (tabId === "bracket") {
+      } else if (tabId === "tournaments") {
         body.style.backgroundImage = "url('assets/img/mb3.png')";
-        renderBracketList();
+        renderTournamentList();
+      // } else if (tabId === "bracket") {
+      //   body.style.backgroundImage = "url('assets/img/mb3.png')";
+      //   renderBracketList(RobAIbracket);
       } else if (tabId === "teams") {
         renderTeamList();
       } else if (tabId === "players") {
@@ -1424,12 +1464,17 @@ function trackScrollPosition(tabId) {
     }
 
  // Render the Bracket list.
-function renderBracketList() {
-  const container = document.getElementById("tab-content");
-  container.classList.add("bracket");
-  container.innerHTML = "";
+function renderBracketList(bracket) {
+  const contentDiv = document.getElementById("content");
+  contentDiv.innerHTML = "";
+
 
   const body = document.body;
+
+  renderTabBar(contentDiv);
+
+  const container = document.createElement("div");
+  container.id = "bracket";
 
   if (!bracket || bracket.length === 0) {
     container.textContent = "No bracket available.";
@@ -1437,6 +1482,7 @@ function renderBracketList() {
   }
 
   // Set up container for responsive wrapping
+  container.style.padding = "50px";
   container.style.display = "flex";
   container.style.flexWrap = "wrap";
   container.style.justifyContent = "center"; // Center the boxes
@@ -1458,7 +1504,7 @@ function renderBracketList() {
     box.style.boxSizing = "border-box"; // Prevent padding from affecting width
     //box.style.backgroundColor = "#f9f9f9";
 
-    const isPlayed = !isNaN(parseInt(team1Score, 10)) || !isNaN(parseInt(team2Score, 10));
+    const isPlayed = scrimID >= 0;
     if (isPlayed) {
       box.style.border = "3px solid #aaa"; 
       box.style.color = "#ddd";
@@ -1466,7 +1512,8 @@ function renderBracketList() {
     }
 
     box.addEventListener("click", () => {
-      if (scrimID >= 0) updateURLToScrim(scrimID); // Update the URL and render the Scrim view
+      if (window.history.state.bracket == 1 && scrimID >= 0) updateURLToGFMatch(scrimID);
+      else if (scrimID >= 0) updateURLToScrim(scrimID); // Update the URL and render the Scrim view
     });
 
     // Top row: Team1 name and its score
@@ -1510,12 +1557,70 @@ function renderBracketList() {
     // Append the box to the container
     container.appendChild(box);
   });
+  contentDiv.appendChild(container);
+}
+function renderTournamentList() {
+
+
+  const container = document.getElementById("tab-content");
+  container.innerHTML = "";
+  const body = document.body;
+
+  // Create Current Tournament Section
+  const currentTournamentDiv = document.createElement("div");
+  currentTournamentDiv.className = "current-tournament";
+
+  const currentTournament = { title: "Mountless Mayhem 2v2", info: "Ongoing" };
+
+  // Create Current Tournament Title (as h1)
+  const currentTitle = document.createElement("h1");
+  currentTitle.textContent = currentTournament.title;
+
+  // Create Current Tournament Info
+  const currentInfo = document.createElement("div");
+  currentInfo.className = "tournament-info";
+  currentInfo.textContent = currentTournament.info;
+
+  // Add onClick to the current tournament
+  currentTournamentDiv.onclick = () => {
+    updateURLToBracket(1);
+    body.style.backgroundImage = "url('assets/img/mb5.png')";
+  };
+
+  currentTournamentDiv.appendChild(currentTitle);
+  currentTournamentDiv.appendChild(currentInfo);
+  container.appendChild(currentTournamentDiv);
+
+  // Create Previous Tournaments Section
+  const previousTournamentsDiv = document.createElement("div");
+  previousTournamentsDiv.className = "previous-tournaments";
+
+  // Add COMPLETED Section Title (centered with borders)
+  const completedTitle = document.createElement("div");
+  completedTitle.className = "completed-title";
+  completedTitle.textContent = "COMPLETED";
+
+  // Create List of Previous Tournaments
+  const previousTournaments = ["Roberta's 2025 Scramble League"];
+  const previousList = document.createElement("ul");
+  previousTournaments.forEach((tournament) => {
+    const listItem = document.createElement("li");
+    listItem.textContent = tournament;
+
+    // Add onClick to each previous tournament
+    listItem.onclick = () => {
+      updateURLToBracket(0);
+      body.style.backgroundImage = "url('assets/img/mb3.png')";
+    };
+
+    previousList.appendChild(listItem);
+  });
+
+  previousTournamentsDiv.appendChild(completedTitle);
+  previousTournamentsDiv.appendChild(previousList);
+  container.appendChild(previousTournamentsDiv);
 }
 
-    function renderTournamentList() {
-    const container = document.getElementById("tab-content");
-    container.innerHTML = "";
-    }
 
     function renderTeamList() {
     const container = document.getElementById("tab-content");
@@ -1897,8 +2002,10 @@ function renderPlayersList() {
                 infclass.style.filter = `grayscale(${+filterInf})`;
                 infclass.src = "assets/img/class_inf.png";
                 infclass.alt = "inf";
-                infclass.height *= 0.5;
-                infclass.width *= 0.5;
+                infclass.height = infclass.naturalHeight * 0.5;
+                infclass.onload = () => {
+                  infclass.height = infclass.naturalHeight * 0.5;
+                }
                 infclass.style.alignItems = "left;"
                 infclass.style.paddingLeft = "8px";
                 //infclass.style.borderBottom = "1px solid #ccc"
@@ -1920,8 +2027,10 @@ function renderPlayersList() {
                 cavclass.style.filter = `grayscale(${+filterCav})`;
                 cavclass.src = "assets/img/class_cav.png";
                 cavclass.alt = "cav";
-                cavclass.height *= 0.5;
-                cavclass.width *= 0.5;
+                cavclass.height = cavclass.naturalHeight * 0.5;
+                cavclass.onload = () => {
+                  cavclass.height = cavclass.naturalHeight * 0.5;
+                }
                 cavclass.style.alignItems = "left;"
                 cavclass.style.paddingLeft = "8px";
                 //cavclass.style.borderBottom = "1px solid #ccc"
@@ -1943,8 +2052,10 @@ function renderPlayersList() {
                 arcclass.style.filter = `grayscale(${+filterArc})`;
                 arcclass.src = "assets/img/class_arc.png";
                 arcclass.alt = "arc";
-                arcclass.height *= 0.5;
-                arcclass.width *= 0.5;
+                arcclass.height = arcclass.naturalHeight * 0.5;
+                arcclass.onload = () => {
+                  arcclass.height = arcclass.naturalHeight * 0.5;
+                }
                 arcclass.style.alignItems = "left;"
                 arcclass.style.paddingLeft = "8px";
                 //arcclass.style.borderBottom = "1px solid #ccc"
@@ -2024,7 +2135,7 @@ function renderPlayersList() {
                 divisionSpan.style.marginLeft = "5px"; 
                 divisionSpan.style.opacity ="1"; 
                 divisionSpan.style.display = "inline-block"; 
-                divisionSpan.style.width = "1em";
+                divisionSpan.style.fontSize = "1.45em";
                 divisionSpan.style.textAlign = "center";
                 if (currentSortDivisor == column) divisionSpan.style.color = "green";
                   if (currentSortColumn === column.toLowerCase()) {
@@ -2185,9 +2296,11 @@ function renderPlayersList() {
                         const infclass = document.createElement("img");
                         infclass.src = "assets/img/class_inf.png";
                         infclass.alt = "inf";
-                        infclass.height *= 0.5;
-                        infclass.width *= 0.5;
-                        infclass.style.display = "block";
+                        infclass.height = infclass.naturalHeight * 0.5;
+                        infclass.onload = () => {
+                          infclass.height = infclass.naturalHeight * 0.5;
+                          infclass.style.display = "block";
+                        }
 
                         const infCountSpan = document.createElement("span");
                         infCountSpan.textContent = infCount;
@@ -2213,9 +2326,11 @@ function renderPlayersList() {
                         const cavclass = document.createElement("img");
                         cavclass.src = "assets/img/class_cav.png";
                         cavclass.alt = "cav";
-                        cavclass.height *= 0.5;
-                        cavclass.width *= 0.5;
-                        cavclass.style.display = "block";
+                        cavclass.height = cavclass.naturalHeight * 0.5;
+                        cavclass.onload = () => {
+                          cavclass.height = cavclass.naturalHeight * 0.5;
+                          cavclass.style.display = "block";
+                        }
 
                         const cavCountSpan = document.createElement("span");
                         cavCountSpan.textContent = cavCount;
@@ -2241,9 +2356,12 @@ function renderPlayersList() {
                         const arcclass = document.createElement("img");
                         arcclass.src = "assets/img/class_arc.png";
                         arcclass.alt = "arc";
-                        arcclass.height *= 0.5; // Adjusted size
-                        arcclass.width *= 0.5;
-                        arcclass.style.display = "block";
+                        arcclass.height = arcclass.naturalHeight * 0.5;
+                        arcclass.onload = () => {
+                          arcclass.height = arcclass.naturalHeight * 0.5;
+                          arcclass.style.display = "block";
+                        }
+                        
 
                         const arcCountSpan = document.createElement("span");
                         arcCountSpan.textContent = arcCount;
@@ -2402,8 +2520,10 @@ function renderMatchList() {
         const fac1Img = document.createElement("img");
         const flag1 = facIcons[factions.indexOf(match.faction_1)];
         fac1Img.src = `assets/img/${flag1}.png`;
-        fac1Img.height *= 0.5;
-        fac1Img.width *= 0.5;
+        fac1Img.height = fac1Img.naturalHeight * 0.5;
+        fac1Img.onload = () => {
+          fac1Img.height = fac1Img.naturalHeight * 0.5;
+        }
         fac1Img.style.display = "block";
         fac1Img.style.padding = "10px";
         fac1Img.style.margin = "0 auto";
@@ -2451,8 +2571,10 @@ function renderMatchList() {
         const fac2Img = document.createElement("img");
         const flag2 = facIcons[factions.indexOf(match.faction_2)];
         fac2Img.src = `assets/img/${flag2}.png`;
-        fac2Img.height *= 0.5;
-        fac2Img.width *= 0.5;
+        fac2Img.height = fac2Img.naturalHeight * 0.5;
+        fac2Img.onload = () => {
+          fac2Img.height = fac2Img.naturalHeight * 0.5;
+        }
         fac2Img.style.display = "block";
         fac2Img.style.padding = "10px";
         fac2Img.style.margin = "0 auto";
@@ -2533,8 +2655,10 @@ function renderMatchList() {
       const fac1Img = document.createElement("img");
       const flag1 = facIcons[factions.indexOf(match.faction_1)];
       fac1Img.src = `assets/img/${flag1}.png`;
-      fac1Img.height *= 0.35; 
-      fac1Img.width *= 0.35;
+      fac1Img.height = fac1Img.naturalHeight * 0.35;
+      fac1Img.onload = () => {
+        fac1Img.height = fac1Img.naturalHeight * 0.35;
+      }
       scoreContainer.appendChild(fac1Img);
 
       // Score Text
@@ -2550,8 +2674,10 @@ function renderMatchList() {
       const fac2Img = document.createElement("img");
       const flag2 = facIcons[factions.indexOf(match.faction_2)];
       fac2Img.src = `assets/img/${flag2}.png`;
-      fac2Img.height *= 0.35; 
-      fac2Img.width *= 0.35;
+      fac2Img.height = fac2Img.naturalHeight * 0.35;
+      fac2Img.onload = () => {
+        fac2Img.height = fac2Img.naturalHeight * 0.35;
+      }
       scoreContainer.appendChild(fac2Img);
 
       // Add the scoreContainer to the mapContainer (or centerDiv if preferred)
@@ -2681,8 +2807,10 @@ function renderHalfList(halves) {
         const flag2 = facIcons[factions.indexOf(match0.faction_2)];
         fac1Img.src = `assets/img/${flag1}.png`;
         if (i > parseInt(match0.score.split("-")[0]-1)) fac1Img.src = `assets/img/${flag2}.png`;
-        fac1Img.height *= 0.5;
-        fac1Img.width *= 0.5;
+        fac1Img.height = fac1Img.naturalHeight * 0.5;
+        fac1Img.onload = () => {
+          fac1Img.height = fac1Img.naturalHeight * 0.5;
+        }
         fac1Img.style.display = "block";
         fac1Img.style.padding = "10px";
         fac1Img.style.margin = "0 auto";
@@ -2755,8 +2883,10 @@ function renderHalfList(halves) {
       const flag2 = facIcons[factions.indexOf(match0.faction_1)];
       facImg.src = `assets/img/${flagImg}.png`;
       if (i > parseInt(match0.score.split(" - ")[1])-1) facImg.src = `assets/img/${flag2}.png`;
-      facImg.height *= 0.5;
-      facImg.width *= 0.5;
+      facImg.height = facImg.naturalHeight * 0.5;
+      facImg.onload = () => {
+        facImg.height = facImg.naturalHeight * 0.5;
+      }
       facImg.style.display = "block";
       facImg.style.padding = "10px";
       facImg.style.margin = "0 auto";
@@ -2862,8 +2992,10 @@ function renderHalfList(halves) {
       const fac1Img = document.createElement("img");
       const flag1 = facIcons[factions.indexOf(match0.faction_1)];
       fac1Img.src = `assets/img/${flag1}.png`;
-      fac1Img.height *= 0.35; 
-      fac1Img.width *= 0.35;
+      fac1Img.height = fac1Img.naturalHeight * 0.35;
+      fac1Img.onload = () => {
+        fac1Img.height = fac1Img.naturalHeight * 0.35;
+      }
       scoreContainer.appendChild(fac1Img);
 
       // Score Text
@@ -2879,8 +3011,10 @@ function renderHalfList(halves) {
       const fac2Img = document.createElement("img");
       const flag2 = facIcons[factions.indexOf(match0.faction_2)];
       fac2Img.src = `assets/img/${flag2}.png`;
-      fac2Img.height *= 0.35; 
-      fac2Img.width *= 0.35;
+      fac2Img.height = fac2Img.naturalHeight * 0.35;
+      fac2Img.onload = () => {
+        fac2Img.height = fac2Img.naturalHeight * 0.35;
+      }
       scoreContainer.appendChild(fac2Img);
 
       // Add the scoreContainer to the mapContainer (or centerDiv if preferred)
@@ -2916,8 +3050,10 @@ function setClassImage(usedclass, targetElement, flip) {
   if (type) {
     const classImage = document.createElement("img");
     classImage.src = `assets/img/class_${type}.png`;
-    classImage.height *= 0.5; // Explicit height adjustment
-    classImage.width *= 0.5;  // Explicit width adjustment
+    classImage.height = classImage.naturalHeight * 0.5;
+    classImage.onload = () => {
+      classImage.height = classImage.naturalHeight * 0.5;
+    }
     if (flip) classImage.style.transform = "scaleX(-1)";
     classImage.style.paddingLeft = "8px";
     //classImage.style.verticalAlign = "middle"; // Align image vertically with content
@@ -2936,6 +3072,9 @@ function setClassImage(usedclass, targetElement, flip) {
       if (tabContentContainer && scrollPositions[state.tab]) {
         tabContentContainer.scrollTop = scrollPositions[state.tab];
       }
+    } else if (state.bracket) {
+      // User navigated to a match
+      renderBracketList(tournaments[state.bracket]);
     } else if (state.match) {
       // User navigated to a match
       renderMatchDetails(state.match);
@@ -2956,15 +3095,25 @@ function handleURLChange() {
     return;
   }
 
-  // Handle "scrim" parameter
-  const scrimStr = params.get("scrim");
-  if (scrimStr !== null) {
-    const scrimId = parseInt(scrimStr, 10);
-    if (!isNaN(scrimId) && scrims[scrimId]) {
-      renderScrim(scrims[scrimId]);
-      return;
-    }
+// Handle "bracket" parameter
+const bracketStr = params.get("bracket");
+if (bracketStr !== null) {
+  const bracketId = parseInt(bracketStr, 10);
+  if (!isNaN(bracketId) && tournaments[bracketId]) {
+    renderBracketList(tournaments[bracketId]);
+    return;
   }
+}
+
+// Handle "scrim" parameter
+const scrimStr = params.get("scrim");
+if (scrimStr !== null) {
+  const scrimId = parseInt(scrimStr, 10);
+  if (!isNaN(scrimId) && scrims[scrimId]) {
+    renderScrim(scrims[scrimId]);
+    return;
+  }
+}
 
   // Handle "half" parameter
   const halfStr = params.get("half");
@@ -2985,11 +3134,26 @@ function handleURLChange() {
       if (roundStr !== null) {
         const roundId = parseInt(roundStr, 10);
         if (!isNaN(roundId) && matches[matchId].rounds[roundId] !== undefined) {
-          renderSingleRound(matchId, roundId); // Render the specific round
+          renderSingleRound(matchId, roundId, 0); // Render the specific round
           return;
         }
       }
       renderMatchDetails(matchId); // Render the match details
+      return;
+    }
+  }
+  const gfStr = params.get("gf");
+  if (gfStr !== null) {
+    const gfId = parseInt(gfStr, 10);
+    if (!isNaN(gfId) && groupfights[gfId]) {
+      if (roundStr !== null) {
+        const roundId = parseInt(roundStr, 10);
+        if (!isNaN(roundId) && groupfights[gfId].rounds[roundId] !== undefined) {
+          renderSingleRound(gfId, roundId, 1); // Render the specific round
+          return;
+        }
+      }
+      renderMatchDetails(gfId, 1); // Render the match details
       return;
     }
   }
@@ -2999,6 +3163,21 @@ function handleURLChange() {
   //handleURLChange();
 }
 
+//tournament bracket page
+function updateURLToBracket(tournID) {
+    const url = new URL(window.location.href);
+    // Remove scrim and half parameters if present.
+    url.searchParams.delete("scrim");
+    url.searchParams.delete("half");
+    url.searchParams.delete("match");
+    url.searchParams.delete("player");
+    url.searchParams.set("bracket", tournID);
+    
+    const baseUrl = window.location.origin + window.location.pathname;
+
+    window.history.pushState({ bracket: tournID }, "", `${baseUrl}?bracket=${tournID}`);
+    renderBracketList(tournaments[tournID]);
+  }
 
   // Update the URL to show a match view (with optional round view).
   function updateURLToPlayer(playerID) {
@@ -3010,12 +3189,38 @@ function handleURLChange() {
     
     const baseUrl = window.location.origin + window.location.pathname;
 
-      if (!window.history.state || window.history.state.match !== playerID) {
+      if (!window.history.state || window.history.state.player !== playerID) {
         window.history.pushState({ player: playerID }, "", `${baseUrl}?player=${playerID}`);
     }
     renderPlayerDetails(playerID);
   }
 
+  // Update the URL to show a match view (with optional round view).
+  function updateURLToGFMatch(matchId, roundId) {
+    const url = new URL(window.location.href);
+    // Remove scrim and half parameters if present.
+    url.searchParams.delete("scrim");
+    url.searchParams.delete("half");
+    url.searchParams.delete("match");
+    url.searchParams.set("gf", matchId);
+    if (roundId !== undefined) {
+      url.searchParams.set("round", roundId);
+    } else {
+      url.searchParams.delete("round");
+    } 
+    
+    const baseUrl = window.location.origin + window.location.pathname;
+
+    if (roundId !== undefined) {
+      renderSingleRound(matchId, roundId, 1);
+      //window.history.pushState({ match: matchId }, "", `${baseUrl}?match=${matchId}&round=${roundId}`);
+    } else {
+      renderMatchDetails(matchId, 1);
+      if (!window.history.state || window.history.state.match !== matchId) {
+        window.history.pushState({ gf: matchId }, "", `${baseUrl}?gf=${matchId}`);
+      }
+    }
+  }
   // Update the URL to show a match view (with optional round view).
   function updateURLToMatch(matchId, roundId) {
     const url = new URL(window.location.href);
@@ -3032,10 +3237,10 @@ function handleURLChange() {
     const baseUrl = window.location.origin + window.location.pathname;
 
     if (roundId !== undefined) {
-      renderSingleRound(matchId, roundId);
+      renderSingleRound(matchId, roundId, 0);
       //window.history.pushState({ match: matchId }, "", `${baseUrl}?match=${matchId}&round=${roundId}`);
     } else {
-      renderMatchDetails(matchId);
+      renderMatchDetails(matchId, 0);
       if (!window.history.state || window.history.state.match !== matchId) {
         window.history.pushState({ match: matchId }, "", `${baseUrl}?match=${matchId}`);
       }
@@ -3087,6 +3292,7 @@ function handleURLChange() {
   // Update the URL to clear all view state and display the landing page.
   function updateURLToLanding() {
     const url = new URL(window.location.href);
+    url.searchParams.delete("bracket");
     url.searchParams.delete("scrim");
     url.searchParams.delete("half");
     url.searchParams.delete("match");
@@ -3102,6 +3308,7 @@ function handleURLChange() {
 
   // Fetch matches data and initialize
   let matches = []; // Global storage for matches data
+  let groupfights = []; // Global storage for matches data
   let teams = [];
   fetch('allmatches.json')
       .then(response => {
@@ -3120,6 +3327,22 @@ function handleURLChange() {
       .catch(error => {
         console.error("Error loading match data:", error);
         document.getElementById('content').innerHTML = `<p style="color: red;">Failed to load match data. Please try again later.</p>`;
+      });
+
+      fetch('groupfights.json')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error("Failed to load groupfights.json");
+        }
+        return response.json();
+      })
+      .then(data => {
+        groupfights = data.matches;
+        //renderLandingPage("bracket");
+      })
+      .catch(error => {
+        console.error("Error loading match data:", error);
+        document.getElementById('content').innerHTML = `<p style="color: red;">Failed to load gf data. Please try again later.</p>`;
       });
 
 function calculateTotalStats(match) {
@@ -3224,7 +3447,7 @@ function calculateTotalStats(match) {
     body.style.backgroundSize = "cover"; 
     
     const bgSrc = matches[halfIndices[0]].map.toLowerCase().replaceAll(" ", "_").replaceAll("'","");
-    if (bgSrc == "nord_town"){
+    if (bgSrc == -1){
       body.style.backgroundImage = `url('assets/img/mb2.png')`;
 
     } else {
@@ -3296,6 +3519,7 @@ function calculateTotalStats(match) {
 
     // Render the half view.
     const contentDiv = document.getElementById("content");
+    contentDiv.classList.remove("bracket");
     contentDiv.classList.remove("landing");
     contentDiv.classList.add("match-detail");
     contentDiv.innerHTML = ""; // Clear previous content
