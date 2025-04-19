@@ -3086,7 +3086,7 @@ function setClassImage(usedclass, targetElement, flip) {
     }
   } else {
     // Handle the base case (no state) – go to the default tab
-    renderLandingPage("bracket"); 
+    renderLandingPage("tournaments"); 
     handleURLChange();
   }
 });
@@ -3103,7 +3103,9 @@ function handleURLChange() {
 // Handle "bracket" parameter
 const bracketStr = params.get("bracket");
 if (bracketStr !== null) {
+  const body = document.body;
   const bracketId = parseInt(bracketStr, 10);
+  if (bracketId == 1)body.style.backgroundImage = "url('assets/img/mb5.png')";
   if (!isNaN(bracketId) && tournaments[bracketId]) {
     renderBracketList(tournaments[bracketId]);
     return;
