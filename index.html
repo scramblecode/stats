@@ -469,7 +469,8 @@ function getWinner(result){
     // Make the entire row clickable:
     half1Row.style.cursor = "pointer";
     half1Row.onclick = () => {
-      updateURLToMatch(matchID, 0);
+      if (gf) updateURLToGFMatch(matchID, 0);
+      else updateURLToMatch(matchID, 0);
     };
 
     half1Row.appendChild(half1Faction1Div);
@@ -760,9 +761,11 @@ if (roundIndex === 0) {
     half1Row.style.cursor = "pointer";
     half1Row.onclick = () => {
       if (roundIndex + 1 < match.rounds.length) {
-        updateURLToMatch(matchID, roundIndex + 1); // Render the next round
+        if (gf) updateURLToGFMatch(matchID, roundIndex + 1);
+        else updateURLToMatch(matchID, roundIndex + 1);// Render the next round
       } else {
-        updateURLToMatch(matchID); // Return to match details if it's the last round
+        if (gf) updateURLToGFMatch(matchID);
+        else updateURLToMatch(matchID); // Return to match details if it's the last round
       }
     }
     const half1Faction1Div = document.createElement("h2");
