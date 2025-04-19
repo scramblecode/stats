@@ -1515,7 +1515,9 @@ function renderBracketList(bracket) {
     }
 
     box.addEventListener("click", () => {
-      if (window.history.state.bracket == 1 && scrimID >= 0) updateURLToGFMatch(scrimID);
+      const params = new URLSearchParams(window.location.search);
+      const bracketStr = params.get("bracket")
+      if (bracketStr == 1 && scrimID >= 0) updateURLToGFMatch(scrimID);
       else if (scrimID >= 0) updateURLToScrim(scrimID); // Update the URL and render the Scrim view
     });
 
@@ -3141,7 +3143,7 @@ if (scrimStr !== null) {
           return;
         }
       }
-      renderMatchDetails(matchId); // Render the match details
+      renderMatchDetails(matchId, 0); // Render the match details
       return;
     }
   }
