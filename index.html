@@ -129,6 +129,193 @@ function renderPlayerDetails(playerID) {
     playersContainer.textContent = `${playerNames[playerIds.indexOf(playerID)][0]}`;
 
     contentDiv.appendChild(playersContainer);
+    
+        // Collect associated names for the given playerID
+        const associatedNames = [];
+    nameToIdMap.forEach((id, name) => {
+        if (id === playerID) {
+            associatedNames.push(name);
+        }
+    });
+
+    // Calculate Kills and Deaths
+    let totalKills = 0;
+    let totalDeaths = 0;
+
+    // Assuming `rounds` is an array of round data that contains kills and deaths
+    matches.forEach((match) => {
+      match.rounds.forEach((round) => {
+        // Count kills for all associated names
+        round.kills.forEach((killerName) => {
+            if (associatedNames.includes(killerName.toLowerCase())) {
+                totalKills++;
+            }
+        });
+
+        // Count deaths for all associated names
+        round.deaths.forEach((deathName) => {
+            if (associatedNames.includes(deathName.toLowerCase())) {
+                totalDeaths++;
+            }
+        });
+      });
+
+    })
+
+    // Display Kills and Deaths
+    const statsContainer = document.createElement("div");
+    statsContainer.className = "player-stats";
+
+    const killsDiv = document.createElement("div");
+    killsDiv.textContent = `Total Kills: ${totalKills}`;
+    statsContainer.appendChild(killsDiv);
+
+    const deathsDiv = document.createElement("div");
+    deathsDiv.textContent = `Total Deaths: ${totalDeaths}`;
+    statsContainer.appendChild(deathsDiv);
+
+    contentDiv.appendChild(statsContainer);
+// Prepare to collect kill/death stats
+const killedByCounts = new Map();
+    const killedCounts = new Map();
+
+    matches.forEach((match) => {
+        match.rounds.forEach((round) => {
+            let tkid = 0; // Counter for teamkills
+            let tkkilled = 0; // Counter for teamkilled
+
+            round.deaths.forEach((victimName, index) => {
+                // Adjust for teamkills
+                while (round.teamkilled[tkkilled] === round.deaths[index]) {
+                    tkkilled++;
+                }
+
+                const killerName = round.kills[index - tkkilled]?.toLowerCase(); // Get associated killer
+                const killerID = nameToIdMap.get(killerName); // Map killer name to ID
+                const victimID = nameToIdMap.get(victimName.toLowerCase()); // Map victim name to ID
+
+                if (associatedNames.includes(killerName)) {
+                    // Player killed someone
+                    if (victimID) {
+                        const victimCount = killedCounts.get(victimID) || 0;
+                        killedCounts.set(victimID, victimCount + 1);
+                    }
+                }
+
+                if (associatedNames.includes(victimName.toLowerCase())) {
+                    // Player was killed by someone
+                    if (killerID) {
+                        const killerCount = killedByCounts.get(killerID) || 0;
+                        killedByCounts.set(killerID, killerCount + 1);
+                    }
+                }
+            });
+
+            round.kills.forEach((killerName, index) => {
+                // Adjust for teamkills
+                while (round.teamkills[tkid] === round.kills[index]) {
+                    tkid++;
+                }
+
+                const victimName = round.deaths[index + tkid]?.toLowerCase(); // Get associated victim
+                const killerID = nameToIdMap.get(killerName.toLowerCase()); // Map killer name to ID
+                const victimID = nameToIdMap.get(victimName); // Map victim name to ID
+
+                if (associatedNames.includes(victimName)) {
+                    // Player killed someone
+                    if (victimID) {
+                        const victimCount = killedCounts.get(victimID) || 0;
+                        killedCounts.set(victimID, victimCount + 1);
+                    }
+                }
+
+                if (associatedNames.includes(killerName.toLowerCase())) {
+                    // Player was killed by someone
+                    if (killerID) {
+                        const killerCount = killedByCounts.get(killerID) || 0;
+                        killedByCounts.set(killerID, killerCount + 1);
+                    }
+                }
+            });
+        });
+    });
+// Combine killed and killedBy stats into one list for display
+    const playerStats = new Map();
+    nameToIdMap.forEach((id, name) => {
+        if (!playerStats.has(id)) {
+            playerStats.set(id, { name, killed: 0, killedBy: 0 });
+        }
+    });
+
+    killedCounts.forEach((count, id) => {
+        if (playerStats.has(id)) {
+            playerStats.get(id).killed = count;
+        }
+    });
+
+    killedByCounts.forEach((count, id) => {
+        if (playerStats.has(id)) {
+            playerStats.get(id).killedBy = count;
+        }
+    });
+
+    // Filter players with 1 or more kills or deaths
+    const filteredStats = Array.from(playerStats.values()).filter(
+        (stat) => stat.killed > 0 || stat.killedBy > 0
+    );
+    // Sort the stats by highest count of Killed or Killed By
+    const sortedStats = Array.from(filteredStats.values()).sort(
+        (a, b) => b.killedBy - (a.killedBy)
+    );
+
+    // Create the table
+    const statsTable = document.createElement("table");
+    statsTable.style.width = "100%";
+    statsTable.style.borderCollapse = "collapse";
+
+    const headerRow = document.createElement("tr");
+    ["Player", "Killed", "Killed By"].forEach((header) => {
+        const th = document.createElement("th");
+        th.textContent = header;
+        th.style.border = "1px solid #ddd";
+        th.style.padding = "10px";
+        th.style.textAlign = "center";
+        //th.style.backgroundColor = "#f4f4f4";
+        headerRow.appendChild(th);
+    });
+    statsTable.appendChild(headerRow);
+
+    // Add rows for each player
+    sortedStats.forEach((stat) => {
+      if (associatedNames.includes(stat.name)) return;
+        const row = document.createElement("tr");
+
+        const playerCell = document.createElement("td");
+        playerCell.textContent = stat.name;
+        playerCell.style.border = "1px solid #ddd";
+        playerCell.style.padding = "10px";
+        playerCell.style.textAlign = "center";
+
+        const killedCell = document.createElement("td");
+        killedCell.textContent = stat.killed;
+        killedCell.style.border = "1px solid #ddd";
+        killedCell.style.padding = "10px";
+        killedCell.style.textAlign = "center";
+
+        const killedByCell = document.createElement("td");
+        killedByCell.textContent = stat.killedBy;
+        killedByCell.style.border = "1px solid #ddd";
+        killedByCell.style.padding = "10px";
+        killedByCell.style.textAlign = "center";
+
+        row.appendChild(playerCell);
+        row.appendChild(killedCell);
+        row.appendChild(killedByCell);
+
+        statsTable.appendChild(row);
+    });
+
+    contentDiv.appendChild(statsTable);
 }
 
 
@@ -1603,7 +1790,7 @@ function renderTournamentList() {
   // Add COMPLETED Section Title (centered with borders)
   const completedTitle = document.createElement("div");
   completedTitle.className = "completed-title";
-  completedTitle.textContent = "COMPLETED";
+  completedTitle.textContent = "COMPLETED TOURNAMENTS:";
 
   // Create List of Previous Tournaments
   const previousTournaments = ["Roberta's 2025 Scramble League"];
@@ -1611,6 +1798,8 @@ function renderTournamentList() {
   previousTournaments.forEach((tournament) => {
     const listItem = document.createElement("li");
     listItem.textContent = tournament;
+    listItem.style.margin = "0px";
+    listItem.style.padding = "20px";
 
     // Add onClick to each previous tournament
     listItem.onclick = () => {
@@ -2280,7 +2469,7 @@ function renderPlayersList() {
                       nameSpan.textContent = `${index + 1}. ` + value;
 
                       // nameSpan.onclick = () => {
-                      //   console.log("Player..!", playerIds.indexOf(index))
+                      //   // console.log("Player..!", playerIds.indexOf(index))
                       //   updateURLToPlayer(nameToIdMap.get(value.toLowerCase()))
                       // }
                       
