@@ -732,14 +732,14 @@ function getWinner(result){
         message.style.display = "flex"; // Use flex to align text, icon, and victim name
         message.style.alignItems = "center"; // Center align items vertically
         //message.style.gap = "10px"; // Add space between elements
-        message.style.transition = "opacity 1s ease-out"; // Fade-out transition
+        message.style.transition = "opacity 2s ease-out"; // Fade-out transition
         message.style.opacity = "1"; // Initially fully visible
 
         groups = content.split(" ");
         if(groups[1]?.includes("ico")){
           // Add killer text
           const killer = document.createElement("span");
-          killer.textContent = groups[0];
+          killer.textContent = groups[0] + "  ";
 
           // if (groups[0]) {
           //   const cell = document.querySelector(`td[data-player="${groups[0]}"]`);
@@ -753,10 +753,11 @@ function getWinner(result){
           icon.src = `assets/img/${groups[1]}.png`; // Set the source of the icon
           icon.alt = "Icon"; // Provide alt text for accessibility
           icon.style.objectFit = "contain"; // Ensure the icon scales well
+          icon.style.margin = "0 5px";
 
           // Add victim text
           const victim = document.createElement("span");
-          victim.textContent = groups[2];
+          victim.textContent = "  " + groups[2];
 
           if (groups[2]) {
             // Locate the corresponding table cell using `data-player`
@@ -783,8 +784,8 @@ function getWinner(result){
 
         setTimeout(() => {
           messageContainer.removeChild(message);
-        }, 1000);
-      }, 2000);
+        }, 5000);
+      }, 5000);
     }, delay);
     activeTimeouts.push(timeoutId);
   }
@@ -1460,7 +1461,7 @@ const RobAIbracket = [
       ["Chowski/Roberta", "Crusader/Vampy", "?", "?", -1],
       ["Potesty/Exmarius", "Les/MattTheLord", 15, 3, 0],
       ["Beansacks/John", "Pichu/Thiago", 15, 7, 8],
-      ["Nasa/CheeseNinja", "BrownMilk/Kurm", "?", "?", -1],
+      ["Nasa/CheeseNinja", "BrownMilk/Kurm", 1, 15, 9],
       ["Zealots/Van", "Konrad/Loki", 15, 1, 4],
       ["Sitvek/Kman", "Argo/Ingemar", "?", "?", -1],
       ["BestNAGTA/Chunky", "Powder/Lykia", "0", "x", -1],
@@ -2084,24 +2085,9 @@ function countClassUsage(classes, classGroup){
   }
   
 }
-const playerIds = [];
-const playerNames = [];
 function renderPlayersList() {
     const container = document.getElementById("tab-content");
     container.innerHTML = "";  // Clear previous content
-
-    Promise.all([
-        fetch("allplayers.json").then(res => res.json()),
-        //fetch("allmatches.json").then(res => res.json())
-    ])
-    .then(([playersData]) => {
-        playerIds.splice(0, playerIds.length, ...playersData.player_ids);
-        playerNames.splice(0, playerNames.length, ...playersData.player_names);
-
-        if (!playerIds || !playerNames) {
-            container.innerHTML = "No player data available.";
-            return;
-        }
 
         // Step 1: Map all player names to their unique IDs
         const nameToIdMap = new Map();
@@ -2468,10 +2454,10 @@ function renderPlayersList() {
                       const nameSpan = document.createElement("span");
                       nameSpan.textContent = `${index + 1}. ` + value;
 
-                      // nameSpan.onclick = () => {
-                      //   // console.log("Player..!", playerIds.indexOf(index))
-                      //   updateURLToPlayer(nameToIdMap.get(value.toLowerCase()))
-                      // }
+                      nameSpan.onclick = () => {
+                        // console.log("Player..!", playerIds.indexOf(index))
+                        updateURLToPlayer(nameToIdMap.get(value.toLowerCase()))
+                      }
                       
                       td.appendChild(nameSpan);
                       // Count occurrences for each class
@@ -2588,7 +2574,6 @@ function renderPlayersList() {
         // Initial render
         statsArray.sort((a, b) => b.kills - a.kills); // Default to kills high-to-low
         renderTable();
-    })
     // .catch(error => {
     //     container.innerHTML = "<p style='color:red;'>Error loading data: " + error.message + "</p>";
     // });
@@ -3289,6 +3274,17 @@ function handleURLChange() {
     return;
   }
 
+
+// Handle "player" parameter
+const playerStr = params.get("player");
+if (playerStr !== null) {
+  //const playerId = parseInt(playerStr, 10);
+  //if (!isNaN(playerId)) {
+    renderPlayerDetails(playerStr);
+    return;
+  //}
+}
+
 // Handle "bracket" parameter
 const bracketStr = params.get("bracket");
 if (bracketStr !== null) {
@@ -3385,9 +3381,9 @@ function updateURLToBracket(tournID) {
     
     const baseUrl = window.location.origin + window.location.pathname;
 
-      if (!window.history.state || window.history.state.player !== playerID) {
+      //if (!window.history.state || window.history.state.player !== playerID) {
         window.history.pushState({ player: playerID }, "", `${baseUrl}?player=${playerID}`);
-    }
+    //}
     renderPlayerDetails(playerID);
   }
 
@@ -3506,40 +3502,52 @@ function updateURLToBracket(tournID) {
   let matches = []; // Global storage for matches data
   let groupfights = []; // Global storage for matches data
   let teams = [];
-  fetch('allmatches.json')
-      .then(response => {
+  let playerIds = [];
+  let playerNames = [];Promise.all([
+    fetch('allplayers.json').then(response => {
         if (!response.ok) {
-          throw new Error("Failed to load matches.json");
+            throw new Error("Failed to load allplayers.json");
         }
         return response.json();
-      })
-      .then(data => {
-        matches = data.matches;
+    }),
+    fetch('allmatches.json').then(response => {
+        if (!response.ok) {
+            throw new Error("Failed to load allmatches.json");
+        }
+        return response.json();
+    }),
+    fetch('groupfights.json').then(response => {
+        if (!response.ok) {
+            throw new Error("Failed to load groupfights.json");
+        }
+        return response.json();
+    })
+])
+    .then(([allPlayersData, allMatchesData, groupFightsData]) => {
+        // Process allPlayers.json
+        playerIds = allPlayersData.player_ids;
+        playerNames = allPlayersData.player_names;
+        console.log(playerIds, playerNames);
+        if (!playerIds || !playerNames) {
+            document.getElementById('content').innerHTML = "No player data available.";
+            return;
+        }
+
+        // Process allmatches.json
+        matches = allMatchesData.matches;
         fillHalfsList();
-        //renderLandingPage("bracket");
+
+        // Process groupfights.json
+        groupfights = groupFightsData.matches;
+
+        // Call handleURLChange after all data is processed
         handleURLChange();
         window.addEventListener('popstate', handleURLChange);
-      })
-      .catch(error => {
-        console.error("Error loading match data:", error);
-        document.getElementById('content').innerHTML = `<p style="color: red;">Failed to load match data. Please try again later.</p>`;
-      });
-
-      fetch('groupfights.json')
-      .then(response => {
-        if (!response.ok) {
-          throw new Error("Failed to load groupfights.json");
-        }
-        return response.json();
-      })
-      .then(data => {
-        groupfights = data.matches;
-        //renderLandingPage("bracket");
-      })
-      .catch(error => {
-        console.error("Error loading match data:", error);
-        document.getElementById('content').innerHTML = `<p style="color: red;">Failed to load gf data. Please try again later.</p>`;
-      });
+    })
+    .catch(error => {
+        console.error("Error loading data:", error);
+        document.getElementById('content').innerHTML = `<p style="color: red;">Failed to load data. Please try again later.</p>`;
+    });
 
 function calculateTotalStats(match) {
     // 1. Aggregate cumulative stats over all rounds.

@@ -285,18 +285,19 @@ h1 {
   font-weight: bold;
   margin-bottom: 10px;
   border-top: 1px solid #ddd;
-  border-bottom: 1px solid #ddd;
   padding: 10px 0;
 }
 
 .previous-tournaments ul {
   list-style: none;
+  border-top: 1px solid #ddd;
   padding: 0;
   margin-top: 20px;
 }
 
 .previous-tournaments li {
   padding: 8px 0;
+  margin-bottom: 20px;
   border-bottom: 1px solid #ddd;
   cursor: pointer; /* Pointer for clickable elements */
   text-align: center; /* Center text */

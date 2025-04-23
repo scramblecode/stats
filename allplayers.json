@@ -161,9 +161,11 @@
         "85373",
         "2863555",
         "2967193",
-        "3993440"
+        "3993440",
+        "1112743",
+        "3306305"
     ],
-    "number_of_players": 162,
+    "number_of_players": 164,
     "player_names": [
         [
             "SERVER"
@@ -330,7 +332,8 @@
             "PirateOfTheBlarbaryCoast",
             "BlarbussyEnjoyer",
             "RCC_Eb",
-            "RoachSlayer_Ebdanian"
+            "RoachSlayer_Ebdanian",
+            "ErbsaianAmaidal"
         ],
         [
             "Thiago",
@@ -495,7 +498,8 @@
             "BkS_Rhade",
             "rust",
             "Sir_Smurfsalot",
-            "BkS_Rhade1"
+            "BkS_Rhade1",
+            "Ghost_of_Christmas_Past"
         ],
         [
             "Artimenner",
@@ -591,7 +595,8 @@
             "xixi"
         ],
         [
-            "female_defender_valarr"
+            "female_defender_valarr",
+            "female_attacker_valarr"
         ],
         [
             "vampyrum"
@@ -824,6 +829,12 @@
         ],
         [
             "jjtx02"
+        ],
+        [
+            "Wappaw_Roxhard"
+        ],
+        [
+            "Nubian_Spearman"
         ]
     ]
 }
