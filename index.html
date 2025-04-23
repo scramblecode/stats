@@ -243,7 +243,7 @@ const killedByCounts = new Map();
     const playerStats = new Map();
     nameToIdMap.forEach((id, name) => {
         if (!playerStats.has(id)) {
-            playerStats.set(id, { name, killed: 0, killedBy: 0 });
+            playerStats.set(id, { name: name, killed: 0, killedBy: 0, id: id });
         }
     });
 
@@ -291,7 +291,7 @@ const killedByCounts = new Map();
         const row = document.createElement("tr");
 
         const playerCell = document.createElement("td");
-        playerCell.textContent = stat.name;
+        playerCell.textContent = playerNames[playerIds.indexOf(stat.id)][0];
         playerCell.style.border = "1px solid #ddd";
         playerCell.style.padding = "10px";
         playerCell.style.textAlign = "center";
