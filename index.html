@@ -176,8 +176,10 @@ function renderPlayerDetails(playerID) {
 
     contentDiv.appendChild(statsContainer);
 // Prepare to collect kill/death stats
-const killedByCounts = new Map();
+    const killedByCounts = new Map();
     const killedCounts = new Map();
+    const teamkilledByCounts = new Map();
+    const teamkilledCounts = new Map();
 
     matches.forEach((match) => {
         match.rounds.forEach((round) => {
@@ -237,13 +239,36 @@ const killedByCounts = new Map();
                     }
                 }
             });
+
+            // Handle teamkills/teamkilledBy
+            round.teamkilled.forEach((victimName, tkIndex) => {
+                const killerName = round.teamkills[tkIndex]?.toLowerCase(); // Associated teamkiller
+                const teamkillerID = nameToIdMap.get(killerName); // Map killer name to ID
+                const teamkilledID = nameToIdMap.get(victimName.toLowerCase()); // Map victim name to ID
+
+                if (associatedNames.includes(killerName)) {
+                    // Player teamkilled someone
+                    if (teamkilledID) {
+                        const count = teamkilledCounts.get(teamkilledID) || 0;
+                        teamkilledCounts.set(teamkilledID, count + 1);
+                    }
+                }
+
+                if (associatedNames.includes(victimName.toLowerCase())) {
+                    // Player was teamkilled by someone
+                    if (teamkillerID) {
+                        const count = teamkilledByCounts.get(teamkillerID) || 0;
+                        teamkilledByCounts.set(teamkillerID, count + 1);
+                    }
+                }
+            });
         });
     });
 // Combine killed and killedBy stats into one list for display
     const playerStats = new Map();
     nameToIdMap.forEach((id, name) => {
         if (!playerStats.has(id)) {
-            playerStats.set(id, { name: name, killed: 0, killedBy: 0, id: id });
+            playerStats.set(id, { name: name, killed: 0, killedBy: 0, id: id, teamkilled: 0, teamkilledBy: 0 });
         }
     });
 
@@ -259,9 +284,24 @@ const killedByCounts = new Map();
         }
     });
 
-    // Filter players with 1 or more kills or deaths
+
+    teamkilledCounts.forEach((count, id) => {
+        if (playerStats.has(id)) {
+            playerStats.get(id).teamkilled = count;
+        }
+    });
+
+    teamkilledByCounts.forEach((count, id) => {
+        if (playerStats.has(id)) {
+            playerStats.get(id).teamkilledBy = count;
+        }
+    });
     const filteredStats = Array.from(playerStats.values()).filter(
-        (stat) => stat.killed > 0 || stat.killedBy > 0
+      (stat) =>
+        stat.killed > 0 ||
+        stat.killedBy > 0 ||
+        stat.teamkilled > 0 ||
+        stat.teamkilledBy > 0
     );
     // Sort the stats by highest count of Killed or Killed By
     const sortedStats = Array.from(filteredStats.values()).sort(
@@ -274,7 +314,7 @@ const killedByCounts = new Map();
     statsTable.style.borderCollapse = "collapse";
 
     const headerRow = document.createElement("tr");
-    ["Player", "Killed", "Killed By"].forEach((header) => {
+    ["Player", "Killed", "Killed By", "Teamkilled", "Teamkilled By"].forEach((header) => {
         const th = document.createElement("th");
         th.textContent = header;
         th.style.border = "1px solid #ddd";
@@ -308,9 +348,23 @@ const killedByCounts = new Map();
         killedByCell.style.padding = "10px";
         killedByCell.style.textAlign = "center";
 
+        const teamkilledCell = document.createElement("td");
+        teamkilledCell.textContent = stat.teamkilled;
+        teamkilledCell.style.border = "1px solid #ddd";
+        teamkilledCell.style.padding = "10px";
+        teamkilledCell.style.textAlign = "center";
+
+        const teamkilledByCell = document.createElement("td");
+        teamkilledByCell.textContent = stat.teamkilledBy;
+        teamkilledByCell.style.border = "1px solid #ddd";
+        teamkilledByCell.style.padding = "10px";
+        teamkilledByCell.style.textAlign = "center";
+
         row.appendChild(playerCell);
         row.appendChild(killedCell);
         row.appendChild(killedByCell);
+        row.appendChild(teamkilledCell);
+        row.appendChild(teamkilledByCell);
 
         statsTable.appendChild(row);
     });
