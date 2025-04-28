@@ -50,6 +50,36 @@ const cavClasses = [
   "Sarranid Mamluke",
 ]
 
+const openMaps = [
+  "Ruins",
+  "Steppe Valley",
+  "Cheese Cove",
+  "Field by the River",
+  "Desert Town",
+  "Castellum",
+  "Frosthaven",
+  "Reveran Village",
+  "River Village",
+  "Creekside",
+  "Waterfall",
+];
+const closedMaps = [
+  "Khergit Village",
+  "Nord Town",
+  "Twin Fort",
+  "Fort of Honour",
+  "Naval Outpost",
+  "San'di'boush",
+  "Verloren",
+  "Legacy Town",
+  "Mountain Fortress",
+  "Winterburg",
+  "Beairteas",
+  "Aldea Dumar",
+];
+
+const allMaps = [...openMaps, ...closedMaps];
+
 //sets headers as constants and change on small screen width
 const fullStats = ["Player", "Kills", "Deaths", "Assists", "DMG", "TKs", "TDMG"];
 const smolStats = ["Plyr", "K", "D", "A", "Dm", "TK", "TDm"];
@@ -1590,12 +1620,13 @@ const robScramble = [0, 44];
 
 // Define the tabs. By default "scrims" is active.
 const tabs = [
-  // { label: "HOME", id: "teams" },
+  // { label: "HOME", id: "home" },
   { label: "TOURNAMENTS", id: "tournaments" },
   { label: "PICKUPS", id: "matches" },
   { label: "PLAYERS", id: "players" },
+  // { label: "MAPS", id: "maps" },
+  // { label: "FACTIONS", id: "factions" },
   //{ label: "MAPS", id: "halfs" },
-  //{ label: "FACTIONS", id: "factions" },
 ];
 let scrollPositions = {};
 function renderTabBar(contentDiv, activeTabId){
@@ -2916,6 +2947,7 @@ function renderMatchList() {
       // Add the scoreContainer to the mapContainer (or centerDiv if preferred)
       mapContainer.appendChild(scoreContainer);
 
+
       // Append the container to the center div
       centerDiv.appendChild(mapContainer);
 
@@ -2961,8 +2993,33 @@ function renderHalfList(halves) {
   const halvesToRender = halves.slice(startingIndex); // Adjust for skipping
   const reversedHalves = halvesToRender.slice().reverse(); // Reverse the halves array
 
+  let lastTimestamp = null;
   reversedHalves.forEach((half, reversedIndex) => {
 
+    const curTimestamp = matches[half[0]].start_time;
+    let hr = "0px";
+
+    if (lastTimestamp) {
+            // Calculate the time difference in seconds
+            const lastTimeParts = lastTimestamp.split(":").map(Number); // Convert hh:mm:ss to [hh, mm, ss]
+            const currentTimeParts = curTimestamp.split(":").map(Number);
+
+            const lastSeconds = lastTimeParts[0] * 3600 + lastTimeParts[1] * 60 + lastTimeParts[2];
+            const currentSeconds = currentTimeParts[0] * 3600 + currentTimeParts[1] * 60 + currentTimeParts[2];
+
+            // Handle midnight rollover
+            const timeDifference = lastSeconds >= currentSeconds
+                ? lastSeconds - currentSeconds // Normal difference
+                : lastSeconds + (86400 - currentSeconds); // Crossing midnight
+
+            if (timeDifference > 6 * 3600) { // More than 6 hours
+                // const lineBreak = document.createElement("hr"); // Create a visual separator (line break)
+                //lineBreak.style.border = "1px solid #ccc";
+                // container.appendChild(lineBreak);
+                hr = "1px solid #ccc";
+            }
+        }
+    lastTimestamp = curTimestamp;
     const ogindex= halfs.length - 1 - reversedIndex;
 
     // Extract matches for the half
@@ -2971,7 +3028,8 @@ function renderHalfList(halves) {
 
     // Create a container for the half
     const halfDiv = document.createElement("div");
-    halfDiv.style.borderTop = "1px solid #ccc";
+    halfDiv.style.borderBottom = "1px solid #ccc";
+    halfDiv.style.borderTop = `${hr}`;
     halfDiv.style.marginTop = "40px";
     halfDiv.style.padding = "10px";
     halfDiv.style.cursor = "pointer";
@@ -3253,8 +3311,15 @@ function renderHalfList(halves) {
       // Add the scoreContainer to the mapContainer (or centerDiv if preferred)
       mapContainer.appendChild(scoreContainer);
 
+      //numbering half list to help orient a bit 
+      const pickupName = document.createElement("div");
+      pickupName.style.marginBottom = "10px";
+      pickupName.textContent = `#${halves.length - 24 - reversedIndex}`;
+      centerDiv.appendChild(pickupName);
+
       // Append the container to the center div
       centerDiv.appendChild(mapContainer);
+
 
     // Append to the container
     halfDiv.appendChild(team0Div);
