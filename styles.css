@@ -57,12 +57,6 @@
     position: relative;
     height: calc(100vh - 160px);
     overflow: hidden; 
-    overflow-y: auto;
-    overflow-x: auto;
-    /* Hide scrollbar for IE, Edge */
-    -ms-overflow-style: none; 
-    /* Hide scrollbar for Firefox */
-    scrollbar-width: none; 
 }
 /* Hide scrollbar for Chrome, Safari and Opera */
 #content::-webkit-scrollbar {
@@ -90,7 +84,7 @@
       }
       /* Container for tab-specific content */
       #tab-content {
-        height: calc(100vh - 150px);
+        height: calc(100vh - 200px);
         padding: 10px;
         overflow: hidden;
         overflow-y: auto;

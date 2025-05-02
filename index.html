@@ -70,6 +70,7 @@ const closedMaps = [
   "Fort of Honour",
   "Naval Outpost",
   "San'di'boush",
+  "Dreiecksdorf",
   "Verloren",
   "Legacy Town",
   "Mountain Fortress",
@@ -145,7 +146,10 @@ function renderPlayerDetails(playerID) {
     contentDiv.classList.add("match-detail");
     contentDiv.innerHTML = ""; // Clear previous content
 
-    renderTabBar(contentDiv);
+    renderTabBar(contentDiv, "players");
+    const tabContentContainer = document.createElement("div");
+    tabContentContainer.id = "tab-content";
+    tabContentContainer.style.marginTop = "20px";
 
     const nameToIdMap = new Map();
         playerIds.forEach((id, index) => {
@@ -158,7 +162,7 @@ function renderPlayerDetails(playerID) {
     const playersContainer = document.createElement("h1")
     playersContainer.textContent = `${playerNames[playerIds.indexOf(playerID)][0]}`;
 
-    contentDiv.appendChild(playersContainer);
+    tabContentContainer.appendChild(playersContainer);
     
         // Collect associated names for the given playerID
         const associatedNames = [];
@@ -204,7 +208,7 @@ function renderPlayerDetails(playerID) {
     deathsDiv.textContent = `Total Deaths: ${totalDeaths}`;
     statsContainer.appendChild(deathsDiv);
 
-    contentDiv.appendChild(statsContainer);
+    tabContentContainer.appendChild(statsContainer);
 // Prepare to collect kill/death stats
     const killedByCounts = new Map();
     const killedCounts = new Map();
@@ -399,7 +403,8 @@ function renderPlayerDetails(playerID) {
         statsTable.appendChild(row);
     });
 
-    contentDiv.appendChild(statsTable);
+    tabContentContainer.appendChild(statsTable);
+    contentDiv.appendChild(tabContentContainer);
 }
 
 
@@ -672,12 +677,15 @@ function getWinner(result){
 
     }
 
-    renderTabBar(contentDiv);
+    renderTabBar(contentDiv, "matches");
+    const tabContentContainer = document.createElement("div");
+    tabContentContainer.id = "tab-content";
+    tabContentContainer.style.marginTop = "20px";
 
     // Match info header
     const mapHeading = document.createElement("h1");
     mapHeading.textContent = `${match.map}`;
-    contentDiv.appendChild(mapHeading);
+    tabContentContainer.appendChild(mapHeading);
 
     // Compute overall score from round results:
     let team0Score = 0;
@@ -750,7 +758,8 @@ function getWinner(result){
 
     // factionsHeader.appendChild(factionsLeft);
     // factionsHeader.appendChild(scoreElement);
-    contentDiv.appendChild(half1Row);
+    tabContentContainer.appendChild(half1Row);
+    contentDiv.appendChild(tabContentContainer);
 
     // Instead of listing rounds, render aggregated statistics for the match.
     calculateTotalStats(match);
@@ -924,12 +933,15 @@ function getWinner(result){
       showMessage(`${result}`, endDelay);
     }
 
-    renderTabBar(contentDiv);
+    renderTabBar(contentDiv, "matches");
+    const tabContentContainer = document.createElement("div");
+    tabContentContainer.id = "tab-content";
+    tabContentContainer.style.marginTop = "20px";
 
     // Header with basic match info; you might want to include the round's start time.
     const mapHeading = document.createElement("h1");
     mapHeading.textContent = `${match.map} (Round ${roundIndex + 1})`;
-    contentDiv.appendChild(mapHeading);
+    tabContentContainer.appendChild(mapHeading);
 
     // For a single round, you might decide to show no score or compute a score based on round.result.
     const scoreElement = document.createElement("h1");
@@ -1068,7 +1080,7 @@ if (roundIndex === 0) {
 
     // factionsHeader.appendChild(factionsLeft);
     // factionsHeader.appendChild(scoreElement);
-    contentDiv.appendChild(half1Row);
+    tabContentContainer.appendChild(half1Row);
 
   // Handle stats differently for Round 0
   if (roundIndex === 0) {
@@ -1124,7 +1136,8 @@ if (roundIndex === 0) {
     statsContainer.appendChild(extraSpace);
 
 
-    contentDiv.appendChild(statsContainer);
+    tabContentContainer.appendChild(statsContainer);
+    contentDiv.appendChild(tabContentContainer);
     adjustTableLayout();
   } else {
     // Handle rounds beyond Round 0
@@ -1153,7 +1166,8 @@ if (roundIndex === 0) {
     extraSpace.style.height = "150px"; 
     statsContainer.appendChild(extraSpace);
 
-    contentDiv.appendChild(statsContainer);
+    tabContentContainer.appendChild(statsContainer);
+    contentDiv.appendChild(tabContentContainer);
     adjustTableLayout();
   }
   }
@@ -1161,7 +1175,7 @@ if (roundIndex === 0) {
   function computeRoundChanges(aggregatePlayerStats, currentPlayerStats) {
   const team0 = [];
   const team1 = [];
-    console.log(aggregatePlayerStats, currentPlayerStats)
+    //console.log(aggregatePlayerStats, currentPlayerStats)
   // Step 1: Sort players by team using splitAndSortByTeam
   const { team0: sortedTeam0, team1: sortedTeam1 } = splitAndSortByTeam(aggregatePlayerStats);
 
@@ -1219,7 +1233,7 @@ if (roundIndex === 0) {
     // Push updated stats with changes into the team array
     team1.push([player, { ...aggregateStats, ...statsWithChanges }]);
   });
-  console.log("TEAMS", team0, team1)
+  //console.log("TEAMS", team0, team1)
   return { team0, team1 };
 }
 
@@ -1374,7 +1388,10 @@ function renderScrim(scrimSpec) {
   // backButton.style.marginBottom = "20px";
   // backButton.onclick = updateURLToLanding;
   // contentDiv.appendChild(backButton);
-  renderTabBar(contentDiv);
+  renderTabBar(contentDiv, "tournaments");
+  const tabContentContainer = document.createElement("div");
+  tabContentContainer.id = "tab-content";
+  tabContentContainer.style.marginTop = "20px";
 
   // Get header info for each half from the first match of each half.
   const half1Info = matches[halfs[halfId1][0]];
@@ -1500,8 +1517,8 @@ totalScoreDiv.style.textAlign = "center";
 totalScoreDiv.textContent = `${finalTeam0Score} - ${finalTeam1Score}`;
 
 // Append the header container and total score to the contentDiv
-contentDiv.appendChild(halfHeaderContainer);
-contentDiv.appendChild(totalScoreDiv);
+tabContentContainer.appendChild(halfHeaderContainer);
+tabContentContainer.appendChild(totalScoreDiv);
   // Create side-by-side tables.
   const tableWrapper = document.createElement("div");
   tableWrapper.className = "table-wrapper";
@@ -1520,7 +1537,8 @@ contentDiv.appendChild(totalScoreDiv);
   tableWrapper.appendChild(generateTeamTableCommon(team1, faction1));
   
   statsContainer.appendChild(tableWrapper);
-  contentDiv.appendChild(statsContainer);
+  tabContentContainer.appendChild(statsContainer);
+  contentDiv.appendChild(tabContentContainer);
   adjustTableLayout();
 }
 const RobAIbracket = [
@@ -1556,19 +1574,19 @@ const RobAIbracket = [
       ["Byunos/Chicken", "Beansacks/John", 15, 6, 11],
       ["Danate/Aporta", "BrownMilk/Kurm",11, 15, 10],
       ["Alyss/Gibby", "Zealots/Van", 15, 0, 5],
-      ["Kairos/Shovenio", "Argo/Ingemar", "?", "?", -1],
+      ["Kairos/Shovenio", "Argo/Ingemar", "0", "x", -1],
       ["Cow/PPK157", "BestNAGTA/Chunky", 15, 5, 2],
       ["Marquis/Ebdanian", "Trox/Wert", 15, 13, 6],
       //round 3 
-      ["Mav/Hemp", "Potesty/Exmarius", "?", "?", -1],
-      ["TBD", "BrownMilk/Kurm", "?", "?", -1],
-      ["Alyss/Gibby", "TBD", "?", "?", -1],
+      ["Mav/Hemp", "Potesty/Exmarius", "0", "x", -1],
+      ["Byunos/Chicken", "BrownMilk/Kurm", "?", "?", -1],
+      ["Alyss/Gibby", "Kairos/Shovenio", 15, 3, 12],
       ["Cow/PPK157", "Marquis/Ebdanian", 15, 11, 7],
       //semifinal
-      ["Semifinalist", "Semifinalist", "?", "?", -1],
-      ["Semifinalist", "Semifinalist", "?", "Cow/PPK157", -1],
+      ["Mav/Hemp", "Semifinalist", "?", "?", -1],
+      ["Alyss/Gibby", "Cow/PPK157", 15, 10, 13],
       //finals
-      ["Finalist", "Finalist", "?", "?", -1],
+      ["Finalist", "Alyss/Gibby", "?", "?", -1],
     ];
 
     const tournaments = [RobAIbracket, Mayhembracket]
@@ -1617,10 +1635,21 @@ const robScramble = [0, 44];
 //groupfight tourneys are excluded from global stats, so stored separately 
 
 
+//March - 24th to end only 
+const pickupSeason1 = [44, 73, "MARCH"];
+
+//April 2025
+const pickupSeason2 = [74, 348, "APRIL"];
+
+//ongoing season -- move to the fetch response to automate
+//const currentSeason = [348, matches.length-1];
+
+//pickup "seasons" (monthly aggregate)
+const pickupSeasons = [pickupSeason1, pickupSeason2];
 
 // Define the tabs. By default "scrims" is active.
 const tabs = [
-  // { label: "HOME", id: "home" },
+  { label: "DISCORD", id: "home" },
   { label: "TOURNAMENTS", id: "tournaments" },
   { label: "PICKUPS", id: "matches" },
   { label: "PLAYERS", id: "players" },
@@ -1680,10 +1709,10 @@ function trackScrollPosition(tabId) {
       contentDiv.innerHTML = ""; // Clear previous content.
       
       cancelAllMessages();
-      //const baseUrl = window.location.origin + window.location.pathname;  
-      // if (!window.history.state || window.history.state.tab !== tab) {
-      //   window.history.pushState({ tab: tab }, "", `${baseUrl}?tab=${tab}`);
-      // }
+      const baseUrl = window.location.origin + window.location.pathname;  
+      if (!window.history.state || window.history.state.tab !== tab) {
+        window.history.pushState({ tab: tab }, "", `${baseUrl}?tab=${tab}`);
+      }
 
       renderTabBar(contentDiv, tab);
 
@@ -1697,14 +1726,14 @@ function trackScrollPosition(tabId) {
       renderTabContent(tab);
       // Restore scroll position
       //console.log(tab, scrollPositions[tab])
-      tabContentContainer.scrollTop = scrollPositions[tab] || 0;
+      tabContentContainer.scrollTop = scrollPositions[tab];
 
     }
 
     // Renders content for the given tab ID.
     function renderTabContent(tabId) {
-      const container = document.getElementById("tab-content");
-      if (container !== null) container.innerHTML = "";
+      // const container = document.getElementById("content");
+      // if (container !== null) container.innerHTML = "";
 
       const body = document.body;
       body.style.backgroundRepeat = "no-repeat"; 
@@ -1714,6 +1743,9 @@ function trackScrollPosition(tabId) {
       
       if (tabId === "scrims") {
         renderScrimList();
+      } else if (tabId === "home") {
+        body.style.backgroundImage = "url('assets/img/mb1.png')";
+        renderHomeScreen();
       } else if (tabId === "matches") {
         body.style.backgroundImage = "url('assets/img/mb2.png')";
         //renderMatchList();
@@ -1739,6 +1771,75 @@ function trackScrollPosition(tabId) {
       window.history.replaceState({ tab: tabId }, "", `${baseUrl}?tab=${tabId}`);
     }
 
+function renderHomeScreen() {
+  const contentDiv = document.getElementById("content");
+  contentDiv.innerHTML = "";
+
+  renderTabBar(contentDiv, "home");
+  const tabContentContainer = document.createElement("div");
+  tabContentContainer.id = "tab-content";
+  tabContentContainer.style.marginTop = "20px";
+
+  const welcomeTitle = document.createElement("h1");
+  welcomeTitle.textContent = "Rat Party";
+
+  const messageContent = document.createElement("div");
+  messageContent.style.marginTop = "20px";
+  messageContent.textContent = `Welcome brave warrior,`;
+
+  const messageContent2 = document.createElement("div");
+  messageContent2.style.marginTop = "20px";
+  messageContent2.textContent = `On this page you will find the stats and match history of the freshly undead Warband NA scene. There are both organised tournaments and casual pickup parties weekly.`;
+
+  const messageContent3 = document.createElement("div");
+  messageContent3.style.marginTop = "20px";
+  messageContent3.textContent = `You can navigate using the Tabs at the top left, and interact by clicking on tiles, scoreboards, and names. You can also see a replay of the Killfeed when viewing individual Rounds.`;
+
+  const messageContent4 = document.createElement("div");
+  messageContent4.style.marginTop = "20px";
+  messageContent4.textContent = `This page is not about who is good or bad at the game, it is all in good fun to simply record the matches played and show some information that is not readily available in the game itself.`;
+
+  const messageContent5 = document.createElement("div");
+  messageContent5.style.marginTop = "20px";
+  messageContent5.textContent = `Anyone is more than welcome to play, all you need to do is join the Discord server:`;
+
+  
+  const messageContent6 = document.createElement("div");
+  messageContent6.style.marginTop = "20px";
+  messageContent6.style.marginBottom = "20px";
+  messageContent6.textContent = `Happy warbanding`;
+
+  
+  const linkDiv = document.createElement("div");
+  linkDiv.style.marginBottom = "20px";
+  linkDiv.style.marginTop = "50px";
+  const link = document.createElement("a");
+  link.href = "https://discord.gg/MyucV5GnUv"; // Set the link destination
+  link.target = "_blank"; // Open in a new tab (optional)
+
+  const discordLink = document.createElement("img");
+  discordLink.alt = "RatParty Discord"
+  discordLink.src = "assets/img/Discord-Logo-Blurple.png"
+  discordLink.height = discordLink.naturalHeight * 0.1;
+  discordLink.onload = () => {
+    discordLink.height = discordLink.naturalHeight * 0.1;
+  }
+
+  
+  link.appendChild(discordLink);
+  linkDiv.appendChild(link);
+
+  tabContentContainer.appendChild(welcomeTitle);
+  tabContentContainer.appendChild(messageContent);
+  tabContentContainer.appendChild(messageContent2);
+  tabContentContainer.appendChild(messageContent3);
+  tabContentContainer.appendChild(messageContent4);
+  tabContentContainer.appendChild(messageContent5);
+  tabContentContainer.appendChild(linkDiv);
+  tabContentContainer.appendChild(messageContent6);
+  contentDiv.appendChild(tabContentContainer);
+}
+
  // Render the Bracket list.
 function renderBracketList(bracket) {
   const contentDiv = document.getElementById("content");
@@ -1747,7 +1848,10 @@ function renderBracketList(bracket) {
 
   const body = document.body;
 
-  renderTabBar(contentDiv);
+  renderTabBar(contentDiv, "tournaments");
+  const tabContentContainer = document.createElement("div");
+  tabContentContainer.id = "tab-content";
+  tabContentContainer.style.marginTop = "20px";
 
   const container = document.createElement("div");
   container.id = "bracket";
@@ -1835,7 +1939,8 @@ function renderBracketList(bracket) {
     // Append the box to the container
     container.appendChild(box);
   });
-  contentDiv.appendChild(container);
+  tabContentContainer.appendChild(container);
+  contentDiv.appendChild(tabContentContainer);
 }
 function renderTournamentList() {
 
@@ -2170,10 +2275,30 @@ function countClassUsage(classes, classGroup){
   }
   
 }
-function renderPlayersList() {
+
+// Helper function to convert a numeric value to a gradient color.
+// Lowest value returns red (hue 0), highest returns green (hue 120).
+function getGradientColor(value, min, max, inv=false) {
+  if (max === min) {
+    // If all values are the same, just return a neutral green.
+    return "hsl(120, 100%, 40%)";
+  }
+  let ratio = (value - min) / (max - min);
+  if (inv) {
+    // Invert the ratio so that higher values become lower visually.
+    ratio = 1 - ratio;
+  }
+  const hue = 120 * ratio; // 0 (red) for lowest, 120 (green) for highest.
+  return `hsl(${hue}, 100%, 40%)`;
+}
+
+function renderPlayersList(s1, s2, title="All Player Stats") {
     const container = document.getElementById("tab-content");
     container.innerHTML = "";  // Clear previous content
 
+    const statsTitle = document.createElement("h2");
+    statsTitle.textContent = title;
+    container.appendChild(statsTitle)
         // Step 1: Map all player names to their unique IDs
         const nameToIdMap = new Map();
         playerIds.forEach((id, index) => {
@@ -2183,9 +2308,9 @@ function renderPlayersList() {
             });
         });
 
-        let { statsArray, playerStats } = generatePlayerStats(playerIds, matches, nameToIdMap, playerNames);
+        let { statsArray, playerStats } = generatePlayerStats(playerIds, matches.slice(s1, s2), nameToIdMap, playerNames);
         var playersContainer = document.createElement("div");
-        playersContainer.id = "players-container";
+        //playersContainer.id = "players-container";
         playersContainer.style.paddingLeft = "0";
 
 
@@ -2239,7 +2364,7 @@ function renderPlayersList() {
                     filterFac[index] = !filterFac[index];
                     if(filterFac.every(x => {return x == true})) {filterFac.fill(false)}
                     // Regenerate player stats and re-render the table
-                    ({ statsArray, playerStats } = generatePlayerStats(playerIds, matches, nameToIdMap, playerNames));
+                    ({ statsArray, playerStats } = generatePlayerStats(playerIds, matches.slice(s1, s2), nameToIdMap, playerNames));
                     renderTable();
 
                     // Update icon appearance based on filter state (e.g., grayscale)
@@ -2260,7 +2385,7 @@ function renderPlayersList() {
                     filterCav = false;
                     filterArc = false;
                   }
-                  ({ statsArray, playerStats  } = generatePlayerStats(playerIds, matches, nameToIdMap, playerNames));
+                  ({ statsArray, playerStats  } = generatePlayerStats(playerIds, matches.slice(s1, s2), nameToIdMap, playerNames));
                   renderTable();
                   //console.log("Inf filter:", filterInf)
                 }
@@ -2285,7 +2410,7 @@ function renderPlayersList() {
                     filterCav = false;
                     filterArc = false;
                   }
-                  ({ statsArray, playerStats  } = generatePlayerStats(playerIds, matches, nameToIdMap, playerNames));
+                  ({ statsArray, playerStats  } = generatePlayerStats(playerIds, matches.slice(s1, s2), nameToIdMap, playerNames));
                   renderTable();
                   //console.log("Cav filter:", filterCav)
                 }
@@ -2310,7 +2435,7 @@ function renderPlayersList() {
                     filterCav = false;
                     filterArc = false;
                   }
-                  ({ statsArray, playerStats } = generatePlayerStats(playerIds, matches, nameToIdMap, playerNames));
+                  ({ statsArray, playerStats } = generatePlayerStats(playerIds, matches.slice(s1, s2), nameToIdMap, playerNames));
                   renderTable();
                   //console.log("Archer filter:", filterArc)
                 }
@@ -2346,7 +2471,7 @@ function renderPlayersList() {
                     player.tks > 0 ||
                     player.tked > 0)
                 );
-              const columnIndex = columns.indexOf(currentSortDivisor.toLowerCase())
+              //const columnIndex = columns.indexOf(currentSortDivisor.toLowerCase())
                 statsArray = statsArray.map(player => {
                   const divider = player[currentSortDivisor.toLowerCase()]; // Value to divide by
                   // Create a new object with divided values for other stats
@@ -2402,75 +2527,73 @@ function renderPlayersList() {
                 divisionSpan.style.display = "inline-block"; 
                 divisionSpan.style.fontSize = "1.45em";
                 divisionSpan.style.textAlign = "center";
+                if (currentSortColumn === column.toLowerCase())th.style.color = currentSortDirection === "asc" ? "red" : "green";
+                divisionSpan.style.color = "#C7C7C6";
+                //divisionSpan.style.opacity = "0";
+              //} else {
+                //divisionSpan.style.opacity = "1";
+                
                 if (currentSortDivisor == column) divisionSpan.style.color = "green";
-                  if (currentSortColumn === column.toLowerCase()) {
+                divisionSpan.style.cursor = "pointer";
+                
+                divisionSpan.onclick = () => {
+                  ignore = true;
+                  //duplicated code -- reset stats 
+                  statsArray = playerIds.map(id => ({
+                      id,
+                      name: playerNames[playerIds.indexOf(id)][0],
+                      ...playerStats[id]
+                  }));
                   
-                  th.style.color = currentSortDirection === "asc" ? "red" : "green";
-                  divisionSpan.style.opacity = "0";
-                } else {
-                  divisionSpan.style.opacity = "1";
-                  
-                  divisionSpan.style.cursor = "pointer";
-                  
-                  divisionSpan.onclick = () => {
-                    ignore = true;
-                    //duplicated code -- reset stats 
-                    statsArray = playerIds.map(id => ({
-                        id,
-                        name: playerNames[playerIds.indexOf(id)][0],
-                        ...playerStats[id]
-                    }));
-                    
-                    const columnIndex = columns.indexOf(column)
-                    // Filter out players with all stats as 0
-                    statsArray = statsArray.filter(player =>
-                    player[columns[columnIndex].toLowerCase()] !== 0
-                    && player[columns[columnIndex].toLowerCase()] !== undefined
-                    && (player.kills > 0 ||
-                        player.deaths > 0 ||
-                        player.assists > 0 ||
-                        player.dmg > 0 ||
-                        player.tks > 0 ||
-                        player.tked > 0)
-                    );
-                    if(currentSortDivisor !== column) {
-                      currentSortDivisor = column;
-                      } else {
-                        currentSortDivisor = "none";
-                        //duplicated code -- reset stats 
-                        statsArray = playerIds.map(id => ({
-                            id,
-                            name: playerNames[playerIds.indexOf(id)][0],
-                            ...playerStats[id]
-                        }));
-                        
-                        const columnIndex = columns.indexOf(column)
-                        // Filter out players with all stats as 0
-                        statsArray = statsArray.filter(player =>
-                            player.kills > 0 ||
-                            player.deaths > 0 ||
-                            player.assists > 0 ||
-                            player.dmg > 0 ||
-                            player.tks > 0 ||
-                            player.tked > 0
-                        );
-                        // Re-render the table
-                        renderTable();
-                      };
-                      // Sort the stats array
-                      statsArray.sort((a, b) => {
-                          const valueA = a[currentSortColumn];
-                          const valueB = b[currentSortColumn];
-
-                          if (currentSortDirection === "desc") {
-                              return valueB - valueA;
-                          } else {
-                              return valueA - valueB;
-                          }
-                      });
+                  const columnIndex = columns.indexOf(column)
+                  // Filter out players with all stats as 0
+                  statsArray = statsArray.filter(player =>
+                  player[columns[columnIndex].toLowerCase()] !== 0
+                  && player[columns[columnIndex].toLowerCase()] !== undefined
+                  && (player.kills > 0 ||
+                      player.deaths > 0 ||
+                      player.assists > 0 ||
+                      player.dmg > 0 ||
+                      player.tks > 0 ||
+                      player.tked > 0)
+                  );
+                  if(currentSortDivisor !== column) {
+                    currentSortDivisor = column;
+                    } else {
+                      currentSortDivisor = "none";
+                      //duplicated code -- reset stats 
+                      statsArray = playerIds.map(id => ({
+                          id,
+                          name: playerNames[playerIds.indexOf(id)][0],
+                          ...playerStats[id]
+                      }));
+                      
+                      const columnIndex = columns.indexOf(column)
+                      // Filter out players with all stats as 0
+                      statsArray = statsArray.filter(player =>
+                          player.kills > 0 ||
+                          player.deaths > 0 ||
+                          player.assists > 0 ||
+                          player.dmg > 0 ||
+                          player.tks > 0 ||
+                          player.tked > 0
+                      );
+                      // Re-render the table
                       renderTable();
                     };
-                }
+                    // Sort the stats array
+                    statsArray.sort((a, b) => {
+                        const valueA = a[currentSortColumn];
+                        const valueB = b[currentSortColumn];
+
+                        if (currentSortDirection === "desc") {
+                            return valueB - valueA;
+                        } else {
+                            return valueA - valueB;
+                        }
+                    });
+                    renderTable();
+                  };
                 th.appendChild(divisionSpan);
                 th.onclick = () => {
                   if(!ignore){
@@ -2518,6 +2641,40 @@ function renderPlayersList() {
             });
             table.appendChild(headerRow);
 
+            const divisorIndex = columns.indexOf(currentSortDivisor);
+            const numCols = columns.length;
+
+            // Initialize min and max arrays for each column.
+            const minValues = new Array(numCols).fill(Infinity);
+            const maxValues = new Array(numCols).fill(-Infinity);
+
+            // Pre-compute min and max for each numeric column (ignoring the divisor)
+            // We assume each player's stats are collected in the same order as columns.
+            statsArray.forEach((player) => {
+              // Construct an array with all column values.
+              const rowValues = [
+                player.name,
+                player.kills,
+                player.deaths,
+                player.assists,
+                player.dmg,
+                player.tks,
+                player.tdmg,
+                player.tkd,
+                player.rounds,
+                player.wins
+              ];
+
+              rowValues.forEach((value, idx) => {
+                // Skip divisor column (or any non-numeric field like 'name', if applicable)
+                if (idx === divisorIndex) return;
+                const num = parseFloat(value);
+                if (!isNaN(num)) {
+                  minValues[idx] = Math.min(minValues[idx], num);
+                  maxValues[idx] = Math.max(maxValues[idx], num);
+                }
+              });
+            });
             // Populate table rows
             statsArray.forEach((player, index) => {
                 const row = document.createElement("tr");
@@ -2533,12 +2690,12 @@ function renderPlayersList() {
                     player.tkd,
                     player.rounds,
                     player.wins
-                ].forEach((value) => {
+                ].forEach((value, valueIndex) => {
                     const td = document.createElement("td");
                     if (value === player.name){
                       const nameSpan = document.createElement("span");
                       nameSpan.textContent = `${index + 1}. ` + value;
-
+                      nameSpan.style.cursor = "pointer";
                       nameSpan.onclick = () => {
                         // console.log("Player..!", playerIds.indexOf(index))
                         updateURLToPlayer(nameToIdMap.get(value.toLowerCase()))
@@ -2642,7 +2799,18 @@ function renderPlayersList() {
                         td.appendChild(arcContainer);
                       }  
                     } else {
-                      td.textContent = value;
+                      if(valueIndex !== columns.indexOf(currentSortDivisor)) {
+                        // Try converting the value to a number.
+                        const num = parseFloat(value);
+                        // Only color the cell if it’s a valid number.
+                        if (!isNaN(num)) {
+                          const inverted = valueIndex == columns.indexOf("Deaths") || valueIndex == columns.indexOf("TKs") || valueIndex == columns.indexOf("TKd") || valueIndex == columns.indexOf("TDmg"); 
+                          td.style.color = getGradientColor(num, minValues[valueIndex], maxValues[valueIndex], inverted);
+                        }
+                        td.textContent = value;
+                      } else {
+                        td.textContent = "/" + value;
+                      }
                       td.style.padding = "8px";
                     }
                     
@@ -2725,9 +2893,9 @@ function renderMatchList() {
 
       // Iterate through all rounds and process player statistics
       match.rounds.forEach((round, rid) => {
-        console.log("MATCHES?")
+        //console.log("MATCHES?")
         round.teams.forEach((team, i) => {
-          console.log("ROUNDS?")
+          //console.log("ROUNDS?")
           const playerName = round.players[i]; // Get player's name
           const playerClass = round.classes[i]; // Get player's class
 
@@ -2994,11 +3162,57 @@ function renderHalfList(halves) {
   const reversedHalves = halvesToRender.slice().reverse(); // Reverse the halves array
 
   let lastTimestamp = null;
+  let pickupParties = 1;
+  let partyFirstMatch = reversedHalves[0][0]+1;
+  let pickupMatches = [];
+
+    
+    //Season aggregate
+    //hardcoding this for the moment - this will be the ongoing season aggregate once another match is played
+    //if (halfs[ogindex][1] === pickupSeasons[1][1]) {
+          const wrapUp = document.createElement("h1");
+          wrapUp.textContent = `${pickupSeasons[pickupSeasons.length-1][2]} WRAP UP`;
+          wrapUp.style.cursor = "pointer";
+          wrapUp.style.paddingBottom = "20px";
+          wrapUp.style.borderBottom = "1px solid #ccc";
+          wrapUp.addEventListener("click", () => {
+            renderLandingPage("players");
+            renderPlayersList(pickupSeasons[pickupSeasons.length-1][0], pickupSeasons[pickupSeasons.length-1][1], `${pickupSeasons[pickupSeasons.length-1][2]} WRAP UP`)
+          });
+          container.appendChild(wrapUp);
+    //}
+    
+  const lastPickup = document.createElement("h1");
+  lastPickup.id = "pickup-0"
+  lastPickup.textContent = `PICKUP PARTY #${pickupParties + 1}`;
+  lastPickup.style.cursor = "pointer";
+  lastPickup.style.paddingBottom = "20px";
+  lastPickup.style.borderBottom = "1px solid #ccc";
+  container.appendChild(lastPickup);
+  //console.log("LASTPICKUP", halfs[startingIndex][0], partyFirstMatch);
+
   reversedHalves.forEach((half, reversedIndex) => {
 
+    const ogindex = halfs.length - 1 - reversedIndex;
     const curTimestamp = matches[half[0]].start_time;
-    let hr = "0px";
+    //let hr = "0px";
 
+    //past seasons
+    //console.log(halfs[ogindex][1], pickupSeasons[0][1])
+    if (halfs[ogindex][1] === pickupSeasons[0][1]) {
+      const snwrapUp = document.createElement("h1");
+          snwrapUp.textContent = `${pickupSeasons[0][2]} WRAP UP`;
+          snwrapUp.style.cursor = "pointer";
+          snwrapUp.style.paddingBottom = "20px";
+          snwrapUp.style.borderBottom = "1px solid #ccc";
+          snwrapUp.addEventListener("click", () => {
+            renderLandingPage("players");
+            renderPlayersList(pickupSeasons[0][0], pickupSeasons[0][1], `${pickupSeasons[0][2]} WRAP UP`)
+          });
+          container.appendChild(snwrapUp);
+    }
+
+    //Daily aggregate
     if (lastTimestamp) {
             // Calculate the time difference in seconds
             const lastTimeParts = lastTimestamp.split(":").map(Number); // Convert hh:mm:ss to [hh, mm, ss]
@@ -3016,11 +3230,23 @@ function renderHalfList(halves) {
                 // const lineBreak = document.createElement("hr"); // Create a visual separator (line break)
                 //lineBreak.style.border = "1px solid #ccc";
                 // container.appendChild(lineBreak);
-                hr = "1px solid #ccc";
+                //hr = "1px solid #ccc";
+                const pickupParty = document.createElement("h1");
+                pickupParty.textContent = `PICKUP PARTY`;
+                pickupParty.id = `pickup-${pickupParties}`;
+                pickupParty.style.cursor = "pointer";
+                pickupParty.style.paddingBottom = "20px";
+                pickupParty.style.borderBottom = "1px solid #ccc";
+                pickupParties++
+                container.appendChild(pickupParty);
+
+                //console.log(`MATCHES FOR PICKUP ${pickupParties}:`, reversedHalves[reversedIndex-1][0], partyFirstMatch)
+                pickupMatches.push([reversedHalves[reversedIndex-1][0], partyFirstMatch]);
+                partyFirstMatch = reversedHalves[reversedIndex][0]+1;
             }
         }
     lastTimestamp = curTimestamp;
-    const ogindex= halfs.length - 1 - reversedIndex;
+
 
     // Extract matches for the half
     const match0 = matches[half[0]]; // First match in the half
@@ -3029,7 +3255,7 @@ function renderHalfList(halves) {
     // Create a container for the half
     const halfDiv = document.createElement("div");
     halfDiv.style.borderBottom = "1px solid #ccc";
-    halfDiv.style.borderTop = `${hr}`;
+    //halfDiv.style.borderTop = `${hr}`;
     halfDiv.style.marginTop = "40px";
     halfDiv.style.padding = "10px";
     halfDiv.style.cursor = "pointer";
@@ -3332,6 +3558,18 @@ function renderHalfList(halves) {
 
     container.appendChild(halfDiv);
   });
+  
+  //console.log("FIRSTPICKUP", halfs[startingIndex][0], partyFirstMatch);
+  pickupMatches.push([halfs[startingIndex][0], partyFirstMatch]);
+  //pickupParties++
+  for(let i=0; i<pickupParties; i++){
+    const pickupTile = document.getElementById(`pickup-${i}`);
+    pickupTile.textContent = `PICKUP PARTY #${pickupParties - i}`;
+    pickupTile.addEventListener("click", () => {
+        renderLandingPage("players")
+        renderPlayersList(pickupMatches[i][0], pickupMatches[i][1], `PICKUP PARTY #${pickupParties - i}`)
+      });
+  }
 }
 
 function setClassImage(usedclass, targetElement, flip) {
@@ -3379,7 +3617,7 @@ function setClassImage(usedclass, targetElement, flip) {
     }
   } else {
     // Handle the base case (no state) – go to the default tab
-    renderLandingPage("tournaments"); 
+    renderLandingPage("home"); 
     handleURLChange();
   }
 });
@@ -3470,7 +3708,7 @@ if (scrimStr !== null) {
   }
 
   // Default to rendering the "bracket" tab if no parameters are found
-  renderLandingPage("players");
+  renderLandingPage("home");
   //handleURLChange();
 }
 
@@ -3646,7 +3884,7 @@ function updateURLToBracket(tournID) {
         // Process allPlayers.json
         playerIds = allPlayersData.player_ids;
         playerNames = allPlayersData.player_names;
-        console.log(playerIds, playerNames);
+        //console.log(playerIds, playerNames);
         if (!playerIds || !playerNames) {
             document.getElementById('content').innerHTML = "No player data available.";
             return;
@@ -3715,8 +3953,8 @@ function calculateTotalStats(match) {
     statsContainer.appendChild(tableWrapper);
 
     // 7. Finally, append the stats container to the content area.
-    const contentDiv = document.getElementById("content");
-    contentDiv.appendChild(statsContainer);
+    const tabContentDiv = document.getElementById("tab-content");
+    tabContentDiv.appendChild(statsContainer);
     adjustTableLayout();
 }
   // Helper: Flip the team assignments for a round.
@@ -3846,7 +4084,10 @@ function calculateTotalStats(match) {
     contentDiv.classList.remove("landing");
     contentDiv.classList.add("match-detail");
     contentDiv.innerHTML = ""; // Clear previous content
-    renderTabBar(contentDiv);
+    renderTabBar(contentDiv, "matches");
+    const tabContentContainer = document.createElement("div");
+    tabContentContainer.id = "tab-content";
+    tabContentContainer.style.marginTop = "20px";
 
     // // Add a "Back to Matches" button.
     // const backButton = document.createElement("button");
@@ -3989,7 +4230,7 @@ halfHeaderContainer.appendChild(half2Row);
     halfHeaderContainer.appendChild(totalScore);
 
     // Add everything to the main content div
-    contentDiv.appendChild(halfHeaderContainer);
+    tabContentContainer.appendChild(halfHeaderContainer);
     // Create a table wrapper for side–by–side tables.
     const tableWrapper = document.createElement("div");
     tableWrapper.className = "table-wrapper";
@@ -4012,7 +4253,8 @@ halfHeaderContainer.appendChild(half2Row);
 
     // Append the tables to the content.
     statsContainer.appendChild(tableWrapper);
-    contentDiv.appendChild(statsContainer);
+    tabContentContainer.appendChild(statsContainer);
+    contentDiv.appendChild(tabContentContainer);
     adjustTableLayout();
   }
 
