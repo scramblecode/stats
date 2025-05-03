@@ -1642,10 +1642,10 @@ const pickupSeason1 = [44, 73, "MARCH"];
 const pickupSeason2 = [74, 348, "APRIL"];
 
 //ongoing season -- move to the fetch response to automate
-//const currentSeason = [348, matches.length-1];
+const currentSeason = [348, 370, "MAY"];
 
 //pickup "seasons" (monthly aggregate)
-const pickupSeasons = [pickupSeason1, pickupSeason2];
+const pickupSeasons = [pickupSeason1, pickupSeason2, currentSeason];
 
 // Define the tabs. By default "scrims" is active.
 const tabs = [
@@ -3171,7 +3171,7 @@ function renderHalfList(halves) {
     //hardcoding this for the moment - this will be the ongoing season aggregate once another match is played
     //if (halfs[ogindex][1] === pickupSeasons[1][1]) {
           const wrapUp = document.createElement("h1");
-          wrapUp.textContent = `${pickupSeasons[pickupSeasons.length-1][2]} WRAP UP`;
+          wrapUp.textContent = `${pickupSeasons[pickupSeasons.length-1][2]} (ONGOING)`;
           wrapUp.style.cursor = "pointer";
           wrapUp.style.paddingBottom = "20px";
           wrapUp.style.borderBottom = "1px solid #ccc";
@@ -3199,17 +3199,19 @@ function renderHalfList(halves) {
 
     //past seasons
     //console.log(halfs[ogindex][1], pickupSeasons[0][1])
-    if (halfs[ogindex][1] === pickupSeasons[0][1]) {
-      const snwrapUp = document.createElement("h1");
-          snwrapUp.textContent = `${pickupSeasons[0][2]} WRAP UP`;
-          snwrapUp.style.cursor = "pointer";
-          snwrapUp.style.paddingBottom = "20px";
-          snwrapUp.style.borderBottom = "1px solid #ccc";
-          snwrapUp.addEventListener("click", () => {
-            renderLandingPage("players");
-            renderPlayersList(pickupSeasons[0][0], pickupSeasons[0][1], `${pickupSeasons[0][2]} WRAP UP`)
-          });
-          container.appendChild(snwrapUp);
+    for(let i=0; i<pickupSeasons.length-1; i++){
+      if (halfs[ogindex][1] === pickupSeasons[i][1]) {
+        const snwrapUp = document.createElement("h1");
+            snwrapUp.textContent = `${pickupSeasons[i][2]} WRAP UP`;
+            snwrapUp.style.cursor = "pointer";
+            snwrapUp.style.paddingBottom = "20px";
+            snwrapUp.style.borderBottom = "1px solid #ccc";
+            snwrapUp.addEventListener("click", () => {
+              renderLandingPage("players");
+              renderPlayersList(pickupSeasons[i][0], pickupSeasons[i][1], `${pickupSeasons[i][2]} WRAP UP`)
+            });
+            container.appendChild(snwrapUp);
+      }
     }
 
     //Daily aggregate
