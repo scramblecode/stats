@@ -68,6 +68,7 @@
         top: -5px;
         left: -2px;
         display: flex;
+        overflow-x: auto;
         /* Centering the tabs horizontally */
         justify-content: left;
       }
