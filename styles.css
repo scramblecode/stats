@@ -193,7 +193,18 @@
         border-top: 1px solid #ccc;
         margin: 4px 0;
       }
-
+      @media screen and (max-width: 768px) {
+        .round-container {
+            flex-wrap: wrap;
+            flex-direction: column; /* Stack rounds vertically */
+            align-items: center; /* Center brackets */
+        }
+    
+        .bracket-box {
+            width: 100%; /* Full-width brackets for smaller screens */
+            max-width: 200px; /* Limit width to prevent excessive stretching */
+        }
+    }
 
       .stats-container {
         margin: 10px;

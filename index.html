@@ -1578,7 +1578,7 @@ const RobAIbracket = [
       ["Cow/PPK157", "BestNAGTA/Chunky", 15, 5, 2],
       ["Marquis/Ebdanian", "Trox/Wert", 15, 13, 6],
       //round 3 
-      ["Mav/Hemp", "Potesty/Exmarius", "0", "x", -1],
+      ["Mav/Hemp", "Potesty/Exmarius", "?", "?", -1],
       ["Byunos/Chicken", "BrownMilk/Kurm", 7, 15, 14],
       ["Alyss/Gibby", "Kairos/Shovenio", 15, 3, 12],
       ["Cow/PPK157", "Marquis/Ebdanian", 15, 11, 7],
@@ -1860,87 +1860,111 @@ function renderBracketList(bracket) {
     container.textContent = "No bracket available.";
     return;
   }
+// Set up container for responsive wrapping
+container.style.padding = "50px";
+container.style.display = "flex";
+container.style.flexWrap = "wrap";
+container.style.justifyContent = "center";
+container.style.flexDirection = "column"; // Render rounds separately
 
-  // Set up container for responsive wrapping
-  container.style.padding = "50px";
-  container.style.display = "flex";
-  container.style.flexWrap = "wrap";
-  container.style.justifyContent = "center"; // Center the boxes
+// Reverse the bracket array so the latest match (Finals) comes first
+const reversedBracket = [...bracket].reverse();
 
-  // For each bracket entry, create a small box
-  bracket.forEach((match, index) => {
-    // bracket: [Team1, Team2, Team1Score, Team2Score, ScrimID]
-    const [team1, team2, team1Score, team2Score, scrimID] = match;
-    const box = document.createElement("div");
-    box.className = "bracket-box";
+// Define structure using powers of 2 (for pyramid layout)
+const roundStructure = [];
+let matchesInRound = 1;
+while (matchesInRound <= reversedBracket.length) {
+    roundStructure.push(matchesInRound);
+    matchesInRound *= 2;
+}
 
-    // Style each bracket box
-    box.style.border = "1px solid #aaa";
-    box.style.borderRadius = "8px";
-    box.style.padding = "10px";
-    box.style.margin = "10px";
-    box.style.minWidth = "150px"; // Minimum width to prevent boxes from collapsing
-    box.style.flex = "1 1 200px"; // Allow boxes to shrink and grow while wrapping
-    box.style.boxSizing = "border-box"; // Prevent padding from affecting width
-    //box.style.backgroundColor = "#f9f9f9";
+// Index tracker for matches
+let matchIndex = 0;
+const isMobile = window.innerWidth <= 768;
 
-    const isPlayed = scrimID >= 0;
-    if (isPlayed) {
-      box.style.border = "3px solid #aaa"; 
-      box.style.color = "#ddd";
-      box.style.cursor = "pointer";
+// Render matches according to structure
+roundStructure.forEach((matchesInThisRound) => {
+    // Create a round container
+    const roundContainer = document.createElement("div");
+    roundContainer.className = "round-container";
+    roundContainer.style.display = "flex";
+    roundContainer.style.justifyContent = "center";
+    roundContainer.style.gap = "5px"; // Equal spacing between boxes
+    roundContainer.style.marginBottom = isMobile ? "10px" : "20px"; // Space between rounds
+
+    if (isMobile) {
+        roundContainer.style.flexWrap = "wrap"; // Allow wrapping
+        roundContainer.style.flexDirection = "column"; // Stack matches
     }
 
-    box.addEventListener("click", () => {
-      const params = new URLSearchParams(window.location.search);
-      const bracketStr = params.get("bracket")
-      if (bracketStr == 1 && scrimID >= 0) updateURLToGFMatch(scrimID);
-      else if (scrimID >= 0) updateURLToScrim(scrimID); // Update the URL and render the Scrim view
-    });
+    // Render the matches for this round
+    for (let i = 0; i < matchesInThisRound && matchIndex < reversedBracket.length; i++) {
+        const [team1, team2, team1Score, team2Score, scrimID] = reversedBracket[matchIndex];
+        matchIndex++;
 
-    // Top row: Team1 name and its score
-    const topRow = document.createElement("div");
-    topRow.className = "bracket-row";
-    topRow.style.display = "flex";
-    topRow.style.justifyContent = "space-between"; // Align name and score
-    const team1Name = document.createElement("span");
-    team1Name.className = "team-name";
-    team1Name.textContent = team1;
-    const team1ScoreElem = document.createElement("span");
-    team1ScoreElem.className = "team-score";
-    team1ScoreElem.textContent = team1Score;
-    topRow.appendChild(team1Name);
-    topRow.appendChild(team1ScoreElem);
+        const box = document.createElement("div");
+        box.className = "bracket-box";
 
-    // Divider
-    const divider = document.createElement("hr");
-    divider.className = "bracket-divider";
-    divider.style.margin = "10px 0";
+        // Fixed box size for consistency
+        box.style.width = isMobile ? "100%" : "190px";
+        box.style.height = "100px"; // Fixed height
+        box.style.border = "1px solid #aaa";
 
-    // Bottom row: Team2 name and its score
-    const bottomRow = document.createElement("div");
-    bottomRow.className = "bracket-row";
-    bottomRow.style.display = "flex";
-    bottomRow.style.justifyContent = "space-between"; // Align name and score
-    const team2Name = document.createElement("span");
-    team2Name.className = "team-name";
-    team2Name.textContent = team2;
-    const team2ScoreElem = document.createElement("span");
-    team2ScoreElem.className = "team-score";
-    team2ScoreElem.textContent = team2Score;
-    bottomRow.appendChild(team2Name);
-    bottomRow.appendChild(team2ScoreElem);
+        const isPlayed = scrimID >= 0;
+        if (isPlayed) {
+            box.style.border = "3px solid #aaa"; 
+            box.style.color = "#fff";
+            box.style.cursor = "pointer";
+        }
 
-    // Append rows and scrim ID into the box
-    box.appendChild(topRow);
-    box.appendChild(divider);
-    box.appendChild(bottomRow);
+        box.addEventListener("click", () => {
+            const params = new URLSearchParams(window.location.search);
+            const bracketStr = params.get("bracket");
+            if (bracketStr == 1 && scrimID >= 0) updateURLToGFMatch(scrimID);
+            else if (scrimID >= 0) updateURLToScrim(scrimID);
+        });
 
-    // Append the box to the container
-    container.appendChild(box);
-  });
-  tabContentContainer.appendChild(container);
-  contentDiv.appendChild(tabContentContainer);
+        // Team 1 row
+        const team1Row = document.createElement("div");
+        team1Row.style.display = "flex";
+        team1Row.style.justifyContent = "space-between";
+        const team1Elem = document.createElement("span");
+        team1Elem.textContent = team1;
+        const score1Elem = document.createElement("span");
+        score1Elem.textContent = team1Score;
+        team1Row.appendChild(team1Elem);
+        team1Row.appendChild(score1Elem);
+
+        // Divider
+        const divider = document.createElement("hr");
+        divider.style.margin = "5px 0";
+
+        // Team 2 row
+        const team2Row = document.createElement("div");
+        team2Row.style.display = "flex";
+        team2Row.style.justifyContent = "space-between";
+        const team2Elem = document.createElement("span");
+        team2Elem.textContent = team2;
+        const score2Elem = document.createElement("span");
+        score2Elem.textContent = team2Score;
+        team2Row.appendChild(team2Elem);
+        team2Row.appendChild(score2Elem);
+
+        // Append elements into the box
+        box.appendChild(team1Row);
+        box.appendChild(divider);
+        box.appendChild(team2Row);
+
+        // Append match box to the round container
+        roundContainer.appendChild(box);
+    }
+
+    // Append the round container to the main container
+    container.appendChild(roundContainer);
+});
+
+tabContentContainer.appendChild(container);
+contentDiv.appendChild(tabContentContainer);
 }
 function renderTournamentList() {
 
