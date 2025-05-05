@@ -3201,7 +3201,8 @@ function renderHalfList(halves) {
           wrapUp.style.borderBottom = "1px solid #ccc";
           wrapUp.addEventListener("click", () => {
             renderLandingPage("players");
-            renderPlayersList(pickupSeasons[pickupSeasons.length-1][0], pickupSeasons[pickupSeasons.length-1][1], `${pickupSeasons[pickupSeasons.length-1][2]} WRAP UP`)
+            //for current aggregate we use to the end of matches 
+            renderPlayersList(pickupSeasons[pickupSeasons.length-1][0], matches.length, `${pickupSeasons[pickupSeasons.length-1][2]} WRAP UP`)
           });
           container.appendChild(wrapUp);
     //}
@@ -3267,7 +3268,7 @@ function renderHalfList(halves) {
                 container.appendChild(pickupParty);
 
                 //console.log(`MATCHES FOR PICKUP ${pickupParties}:`, reversedHalves[reversedIndex-1][0], partyFirstMatch)
-                pickupMatches.push([reversedHalves[reversedIndex-1][0], partyFirstMatch]);
+                pickupMatches.push([reversedHalves[reversedIndex-1][0], partyFirstMatch+1]);
                 partyFirstMatch = reversedHalves[reversedIndex][0]+1;
             }
         }
