@@ -452,10 +452,10 @@ function getWinner(result){
         // For kills and teamkills, count the number of appearances in the round’s arrays.
         stats[player].kills += round.kills.filter(k => k === player).length;
         stats[player].deaths += round.deaths.filter(d => d === player).length;
-        stats[player].assists += round.assists[index] || 0;
-        stats[player].dmg += round.dmg[index] || 0;
+        stats[player].assists += round.assists !== undefined ? round.assists[index] : 0;
+        stats[player].dmg += round.dmg !== undefined ? round.dmg[index] : 20;
         stats[player].teamkills += round.teamkills.filter(tk => tk === player).length;
-        stats[player].tdmg += round.tdmg[index] || 0;
+        stats[player].tdmg += round.tdmg !== undefined ? round.tdmg[index] : 0;
         stats[player].wins += getWinner(round.result) === stats[player].team ? 1 : 0;
         stats[player].classes.push(round.classes[index])
       });
@@ -1653,7 +1653,7 @@ const tabs = [
   { label: "TOURNAMENTS", id: "tournaments" },
   { label: "PICKUPS", id: "matches" },
   { label: "PLAYERS", id: "players" },
-  // { label: "MAPS", id: "maps" },
+  { label: "MAPS", id: "maps" },
   // { label: "FACTIONS", id: "factions" },
   //{ label: "MAPS", id: "halfs" },
 ];
@@ -1755,6 +1755,9 @@ function trackScrollPosition(tabId) {
       } else if (tabId === "tournaments") {
         body.style.backgroundImage = "url('assets/img/mb3.png')";
         renderTournamentList();
+      } else if (tabId === "maps") {
+        body.style.backgroundImage = "url('assets/img/mb3.png')";
+        renderMapList();
       // } else if (tabId === "bracket") {
       //   body.style.backgroundImage = "url('assets/img/mb3.png')";
       //   renderBracketList(RobAIbracket);
@@ -1966,6 +1969,310 @@ roundStructure.forEach((matchesInThisRound) => {
 tabContentContainer.appendChild(container);
 contentDiv.appendChild(tabContentContainer);
 }
+function renderMapList() {
+  const container = document.getElementById("tab-content");
+  container.innerHTML = ""; // Clear previous content
+
+  // Aggregation data structures
+  const mapCounts = new Map();              // map => total number of matches on that map
+  const mapFactionCounts = new Map();         // map => Map(faction => appearances) [as before]
+  const mapFactionWins = new Map();           // map => Map(faction => wins) [for individual faction stats if needed]
+  const mapFactionClassCounts = new Map();    // map => Map(faction => { inf, cav, arc })
+  
+  // NEW: Aggregate spawn wins per map.
+  // For each match, increment either spawn1 or spawn2 win for that map.
+  const mapSpawnWins = new Map();             // map => { spawn1: number, spawn2: number }
+
+  matches.forEach((match) => {
+    const { map, faction_1, faction_2, score, rounds } = match;
+    
+    // 1. Count total plays for this map.
+    mapCounts.set(map, (mapCounts.get(map) || 0) + 1);
+    
+    // 2. Setup spawn wins for this map.
+    if (!mapSpawnWins.has(map)) {
+      mapSpawnWins.set(map, { spawn1: 0, spawn2: 0 });
+    }
+    const spawnWins = mapSpawnWins.get(map);
+    
+    // 3. Count faction appearances on this map.
+    if (!mapFactionCounts.has(map)) {
+      mapFactionCounts.set(map, new Map());
+    }
+    const factionCounts = mapFactionCounts.get(map);
+    factionCounts.set(faction_1, (factionCounts.get(faction_1) || 0) + 1);
+    factionCounts.set(faction_2, (factionCounts.get(faction_2) || 0) + 1);
+    
+    // 4. Parse the score (format: "x - x (x draws)").
+    const scoreParts = score.match(/(\d+)\s*-\s*(\d+)/);
+    if (scoreParts) {
+      const faction1Score = parseInt(scoreParts[1], 10);
+      const faction2Score = parseInt(scoreParts[2], 10);
+      
+      // Determine the winner based on first-to-3.
+      if (faction1Score === 3) {
+        spawnWins.spawn1++; // spawn1 (first faction) wins this match.
+        // Optionally aggregate faction wins too:
+        if (!mapFactionWins.has(map)) {
+          mapFactionWins.set(map, new Map());
+        }
+        const winsMap = mapFactionWins.get(map);
+        winsMap.set(faction_1, (winsMap.get(faction_1) || 0) + 1);
+      } else if (faction2Score === 3) {
+        spawnWins.spawn2++; // spawn2 (second faction) wins.
+        if (!mapFactionWins.has(map)) {
+          mapFactionWins.set(map, new Map());
+        }
+        const winsMap = mapFactionWins.get(map);
+        winsMap.set(faction_2, (winsMap.get(faction_2) || 0) + 1);
+      }
+    }
+    
+    // 5. For class counts per match:
+    if (!mapFactionClassCounts.has(map)) {
+      mapFactionClassCounts.set(map, new Map());
+    }
+    const classCountsMap = mapFactionClassCounts.get(map);
+    
+    // Process both factions from this match.
+    [faction_1, faction_2].forEach(factionName => {
+      if (!classCountsMap.has(factionName)) {
+        classCountsMap.set(factionName, { inf: 0, cav: 0, arc: 0 });
+      }
+      const stats = classCountsMap.get(factionName);
+      // Using your global "factions" array, find the correct index for this faction:
+      const idx = factions.indexOf(factionName);
+      if (idx !== -1) {
+        const expectedInf = infClasses[idx];
+        const expectedCav = cavClasses[idx];
+        const expectedArc = arcClasses[idx];
+        if (Array.isArray(rounds)) {
+          rounds.forEach(round => {
+            if (Array.isArray(round.classes)) {
+              round.classes.forEach(cls => {
+                if (cls === expectedInf) stats.inf++;
+                if (cls === expectedCav) stats.cav++;
+                if (cls === expectedArc) stats.arc++;
+              });
+            }
+          });
+        }
+      }
+    });
+  });
+  // --- Helper: Compute per-map spawn faction counts (for spawn1 and spawn2).
+  // For each match, the first faction is assumed to be at spawn1 and the second at spawn2.
+  const mapSpawnFactionCounts = new Map();
+  matches.forEach(match => {
+    const { map, faction_1, faction_2 } = match;
+    if (!mapSpawnFactionCounts.has(map)) {
+      mapSpawnFactionCounts.set(map, { spawn1: new Map(), spawn2: new Map() });
+    }
+    const spawnData = mapSpawnFactionCounts.get(map);
+    spawnData.spawn1.set(faction_1, (spawnData.spawn1.get(faction_1) || 0) + 1);
+    spawnData.spawn2.set(faction_2, (spawnData.spawn2.get(faction_2) || 0) + 1);
+  });
+
+  // Ensure child banners will be centered.
+  container.style.textAlign = "center";
+
+  // For each map in allMaps:
+  allMaps.forEach(mapName => {
+    // Create the banner container as an inline-block so it sizes to the image’s natural dimensions.
+    const banner = document.createElement("div");
+    banner.className = "map-banner";
+    banner.style.position = "relative";
+    banner.style.display = "inline-block";
+    banner.style.margin = "20px"; // space between banners
+
+    // Create an image element for the thumbnail.
+    const bannerImg = document.createElement("img");
+    bannerImg.src = `assets/img/tbn_${mapName.toLowerCase().replaceAll(" ", "_").replaceAll("'", "")}.png`;
+    bannerImg.style.display = "block";
+    bannerImg.style.margin = "0 auto"; // center the image within the banner
+    banner.appendChild(bannerImg);
+    
+    // Once the banner image loads, set the banner's width and height
+    bannerImg.onload = function() {
+      banner.style.width = this.naturalWidth + "px";
+      banner.style.height = this.naturalHeight + "px";
+    };
+
+    // Create an overlay div that fills the banner.
+    const overlay = document.createElement("div");
+    overlay.className = "banner-overlay";
+    overlay.style.position = "absolute";
+    overlay.style.top = "0";
+    overlay.style.left = "0";
+    overlay.style.width = "100%";
+    overlay.style.height = "100%";
+    overlay.style.backgroundColor = "rgba(0, 0, 0, 0.3)"; // semi-transparent dark overlay
+    overlay.style.display = "flex";
+    overlay.style.flexDirection = "column";
+    overlay.style.justifyContent = "space-between";
+    overlay.style.alignItems = "center";
+    banner.appendChild(overlay);
+
+    // Map title: centered at the top of the overlay.
+    const title = document.createElement("div");
+    title.className = "banner-title";
+    title.textContent = mapName;
+    title.style.color = "white";
+    title.style.fontSize = "28px";
+    title.style.fontWeight = "bold";
+    title.style.marginTop = "10px";
+
+    // Map title: centered at the top of the overlay.
+    const numPlayed = document.createElement("div");
+    numPlayed.className = "banner-title";
+    numPlayed.textContent = `Played ${mapCounts.get(mapName)} times`;
+    numPlayed.style.color = "white";
+    numPlayed.style.fontSize = "14px";
+    numPlayed.style.fontWeight = "bold";
+    numPlayed.style.marginTop = "5px";
+    // Ensure the title remains within the image boundaries.
+    title.appendChild(numPlayed);
+    // Ensure the title remains within the image boundaries.
+    overlay.appendChild(title);
+
+    const factionsContainer = document.createElement("div");
+    factionsContainer.className = "faction-container";
+    // Position absolutely at the bottom, full width of the banner:
+    factionsContainer.style.position = "absolute";
+    factionsContainer.style.bottom = "3px";
+    factionsContainer.style.left = "0";
+    factionsContainer.style.width = "100%";
+    // Use flexbox to evenly space the faction icons:
+    factionsContainer.style.display = "flex";
+    factionsContainer.style.justifyContent = "space-around";
+    factionsContainer.style.alignItems = "center";
+    
+    // Here we assume that for this map you have aggregated data in mapFactionCounts,
+    // mapFactionWins, and mapFactionClassCounts.
+    // For this example, we iterate over all factions that appear on this map.
+    const factionCounts = mapFactionCounts.get(mapName) || new Map();
+    factionCounts.forEach((appearances, faction) => {
+      // Create a container for this faction’s flag and class info.
+      const factionDiv = document.createElement("div");
+      factionDiv.className = "faction-banner";
+      factionDiv.style.position = "relative";
+      factionDiv.style.textAlign = "center";
+
+      // Faction flag image.
+      const flagImg = document.createElement("img");
+      // Use the provided path and arrays: facIcons (for filename) and factions (for index)
+      flagImg.src = `assets/img/${facIcons[factions.indexOf(faction)]}.png`;
+      flagImg.style.display = "block";
+      // Once the flag loads, resize it to 25% of its natural size.
+      flagImg.onload = function() {
+        this.style.width = (this.naturalWidth * 0.5) + "px";
+        this.style.height = "auto";
+      };
+      factionDiv.appendChild(flagImg);
+
+      // Compute win rate for this faction on this map (if available).
+      const wins = (mapFactionWins.get(mapName) && mapFactionWins.get(mapName).get(faction)) || 0;
+      const winRate = appearances ? ((wins / appearances) * 100).toFixed(0) : "0";
+
+      // Overlay win rate text on the flag.
+      const winRateDiv = document.createElement("div");
+      winRateDiv.textContent = `${wins}:${appearances - wins}`;
+      // winRateDiv.textContent = `${winRate}%`;
+      winRateDiv.style.position = "absolute";
+      winRateDiv.style.top = "85%";
+      winRateDiv.style.left = "50%";
+      winRateDiv.style.transform = "translate(-50%, -50%)";
+      winRateDiv.style.color = "white";
+      winRateDiv.style.fontSize = "14px";
+      winRateDiv.style.fontWeight = "bold";
+      factionDiv.appendChild(winRateDiv);
+
+      // // Overlay num played under wr%
+      // const numMatches = document.createElement("div");
+      // numMatches.textContent = `${appearances}x`;
+      // numMatches.style.position = "absolute";
+      // numMatches.style.top = "85%";
+      // numMatches.style.left = "50%";
+      // numMatches.style.transform = "translate(-50%, -50%)";
+      // numMatches.style.color = "white";
+      // numMatches.style.fontSize = "14px";
+      // numMatches.style.fontWeight = "bold";
+      // factionDiv.appendChild(numMatches);
+
+      // // CLASS ICONS CONTAINER: positioned at the bottom of the factionDiv.
+      // const classContainer = document.createElement("div");
+      // classContainer.style.position = "absolute";
+      // classContainer.style.bottom = "-10px";      // position container at the bottom of its parent
+      // classContainer.style.left = "50%";
+      // classContainer.style.transform = "translateX(-50%)";
+      // classContainer.style.display = "flex";
+      // classContainer.style.justifyContent = "center"; // center icons horizontally
+      // classContainer.style.alignItems = "flex-end";
+
+      // // Retrieve class counts for this faction from mapFactionClassCounts.
+      // const classCounts = (mapFactionClassCounts.get(mapName) && mapFactionClassCounts.get(mapName).get(faction)) || { inf: 0, cav: 0, arc: 0 };
+      // const total = classCounts.inf + classCounts.cav + classCounts.arc;
+      // // Helper: create one class icon with overlayed count.
+      // function createClassIcon(iconPath, count) {
+      //   const iconDiv = document.createElement("div");
+      //   iconDiv.style.position = "relative";
+      //   iconDiv.style.bottom = "0";
+      //   const iconImg = document.createElement("img");
+      //   iconImg.src = iconPath;
+      //   iconImg.style.display = "block";
+      //   iconImg.onload = function() {
+      //     this.style.width = (this.naturalWidth * 0.42) + "px";
+      //     this.style.height = "auto";
+      //   };
+      //   iconDiv.appendChild(iconImg);
+        
+      //   // Calculate percentage.
+      //   const percentage = total > 0 ? ((count / total) * 100).toFixed(0) + "%" : "0%";
+        
+      //   const countDiv = document.createElement("div");
+      //   countDiv.textContent = percentage;
+      //   countDiv.style.position = "absolute";
+      //   countDiv.style.bottom = "0";
+      //   countDiv.style.left = "50%";
+      //   countDiv.style.transform = "translateX(-50%)";
+      //   countDiv.style.color = "white";
+      //   countDiv.style.fontSize = "10px";
+      //   countDiv.style.fontWeight = "bold";
+      //   iconDiv.appendChild(countDiv);
+      //   return iconDiv;
+      // }
+      
+      // const infIcon = createClassIcon("assets/img/class_inf.png", classCounts.inf);
+      // const arcIcon = createClassIcon("assets/img/class_arc.png", classCounts.arc);
+      // const cavIcon = createClassIcon("assets/img/class_cav.png", classCounts.cav);
+      // classContainer.appendChild(infIcon);
+      // classContainer.appendChild(cavIcon);
+      // classContainer.appendChild(arcIcon);
+      //factionDiv.appendChild(classContainer);
+
+      factionsContainer.appendChild(factionDiv);
+    });
+    
+    overlay.appendChild(factionsContainer);
+    banner.appendChild(overlay);
+
+    // OPTIONAL: Make the entire banner clickable.
+    banner.style.cursor = "pointer";
+    banner.addEventListener("click", () => {
+      console.log("Banner clicked:", mapName);
+      // Add any navigation logic here.
+    });
+
+    container.appendChild(banner);
+  });
+}
+
+
+
+
+
+
+
 function renderTournamentList() {
 
 
@@ -2241,7 +2548,7 @@ const filterFac = [false,false,false,false,false,false]
 
       // For assists, damage, and team damage, the index in the original players array is used.
       //if(!assists) console.log(matchID, match.map, match.faction_1, match.faction_2)
-      assists.forEach((value, index) => {
+      if (assists) assists.forEach((value, index) => {
         const name = players[index];
         if (filteredPlayers.includes(name)) {
           const playerId = nameToIdMap.get(name.toLowerCase());
@@ -2251,7 +2558,7 @@ const filterFac = [false,false,false,false,false,false]
         }
       });
 
-      dmg.forEach((value, index) => {
+      if (dmg) dmg.forEach((value, index) => {
         const name = players[index];
         if (filteredPlayers.includes(name)) {
           const playerId = nameToIdMap.get(name.toLowerCase());
@@ -2261,7 +2568,7 @@ const filterFac = [false,false,false,false,false,false]
         }
       });
 
-      tdmg.forEach((value, index) => {
+      if (tdmg) tdmg.forEach((value, index) => {
         const name = players[index];
         if (filteredPlayers.includes(name)) {
           const playerId = nameToIdMap.get(name.toLowerCase());
