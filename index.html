@@ -2078,6 +2078,14 @@ function renderMapList() {
 
   // For each map in allMaps:
   allMaps.forEach(mapName => {
+
+//debug spawn stats 
+    const totalPlays = mapCounts.get(mapName);
+    const spawnWins = mapSpawnWins.get(mapName) || { spawn1: 0, spawn2: 0 };
+    const spawn1Rate = totalPlays ? ((spawnWins.spawn1 / totalPlays) * 100).toFixed(0) : 0;
+    const spawn2Rate = totalPlays ? ((spawnWins.spawn2 / totalPlays) * 100).toFixed(0) : 0;
+    console.log(mapName, spawn1Rate,"%", spawn2Rate, "%")
+
     // Create the banner container as an inline-block so it sizes to the image’s natural dimensions.
     const banner = document.createElement("div");
     banner.className = "map-banner";
