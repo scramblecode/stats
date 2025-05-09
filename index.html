@@ -15,8 +15,8 @@
     />
 </head>
 <body>
-    <h1 class="outside-text">Battle Stats</h1>
-    
+    <!-- <h1 class="outside-text">Battle Stats</h1> -->
+    <div style="margin-top: 100px;"></div>
     <div id="content">
         <p>Loading match data...</p>
     </div>
@@ -2428,6 +2428,11 @@ function renderTournamentList() {
 
 }
 
+function timeToSeconds(time) {
+  const [hours, minutes, seconds] = time.split(":").map(Number);
+  return hours * 3600 + minutes * 60 + seconds;
+}
+
 let filterArc = false;
 let filterCav = false;
 let filterInf = false;
@@ -2461,6 +2466,8 @@ const filterFac = [false,false,false,false,false,false]
     if (id === 0) return;
     playerStats[id] = {
       kills: 0,
+      earlyKills: 0,
+      earlyDeaths: 0,
       classes: [],
       deaths: 0,
       assists: 0,
@@ -2472,6 +2479,57 @@ const filterFac = [false,false,false,false,false,false]
       wins: 0
     };
   });
+
+  matches.forEach((match, MID) => {
+    match.rounds.forEach((round, roundID) => {
+      const { kills, deaths, teamkilled, death_times, flag_time, players } = round;
+
+      if(flag_time === undefined || flag_time[0] === undefined) return;
+      console.log(MID, roundID, flag_time[0])
+      // Convert flag_time to seconds
+      const flagSeconds = timeToSeconds(flag_time[0]);
+
+      let tkid = 0; // Counter for teamkills
+
+      for (let i = 0; i < death_times.length; i++) {
+        const deathSeconds = timeToSeconds(death_times[i]);
+
+        if (deathSeconds > flagSeconds) break; // Stop if first death is after flag time
+
+        // Find the player associated with this death
+        const playerName = deaths[i];
+
+        // Adjust for teamkills
+        while (round.teamkilled[tkid] === round.deaths[i]) {
+            tkid++;
+        }
+        // Skip if this was a teamkill
+        if (teamkilled.includes(playerName)) continue;
+
+        const playerId = nameToIdMap.get(playerName.toLowerCase());
+        const killerId = nameToIdMap.get(kills[i-tkid].toLowerCase());
+        if (playerId) {
+          playerStats[playerId].earlyDeaths += 1;
+
+          // If this player also had a kill at this index, count it as an early kill
+          if (killerId) {
+            playerStats[killerId].earlyKills += 1;
+          }
+        }
+      }
+    });
+  });
+
+  // Find the players with the most early kills & deaths
+  const mostEarlyKills = Object.entries(playerStats).reduce((best, [id, stats]) =>
+  stats.earlyKills > (best.stats?.earlyKills || 0) ? { id, stats } : best, {});
+
+  const mostEarlyDeaths = Object.entries(playerStats).reduce((best, [id, stats]) =>
+    stats.earlyDeaths > (best.stats?.earlyDeaths || 0) ? { id, stats } : best, {});
+
+  console.log(`Most Early Kills: ${mostEarlyKills.id}`, mostEarlyKills);
+  console.log(`Most Early Deaths: ${mostEarlyDeaths.id}`, mostEarlyDeaths);
+        console.log("Alyss", playerStats[1085169]);
 
   // Process each match and round.
   matches.forEach((match, matchID) => {
