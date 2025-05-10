@@ -62,6 +62,7 @@ const openMaps = [
   "River Village",
   "Creekside",
   "Waterfall",
+  "Legacy Plains"
 ];
 const closedMaps = [
   "Khergit Village",
@@ -1655,12 +1656,14 @@ const tabs = [
   { label: "PLAYERS", id: "players" },
   { label: "MAPS", id: "maps" },
   // { label: "FACTIONS", id: "factions" },
-  //{ label: "MAPS", id: "halfs" },
+  // { label: "MISC", id: "halfs" },
 ];
 let scrollPositions = {};
 function renderTabBar(contentDiv, activeTabId){
   
       // Create the tab bar.
+      const tabsContainer = document.createElement("div");
+      tabsContainer.className = "tabs-container";
       const tabBar = document.createElement("div");
       tabBar.className = "tabs";
       tabs.forEach((tabInfo) => {
@@ -1690,7 +1693,8 @@ function renderTabBar(contentDiv, activeTabId){
             });
             tabBar.appendChild(tab);
           });
-        contentDiv.appendChild(tabBar)
+        tabsContainer.appendChild(tabBar)
+        contentDiv.appendChild(tabsContainer)
       }
       
 function trackScrollPosition(tabId) {
@@ -2485,7 +2489,6 @@ const filterFac = [false,false,false,false,false,false]
       const { kills, deaths, teamkilled, death_times, flag_time, players } = round;
 
       if(flag_time === undefined || flag_time[0] === undefined) return;
-      console.log(MID, roundID, flag_time[0])
       // Convert flag_time to seconds
       const flagSeconds = timeToSeconds(flag_time[0]);
 
@@ -2527,9 +2530,11 @@ const filterFac = [false,false,false,false,false,false]
   const mostEarlyDeaths = Object.entries(playerStats).reduce((best, [id, stats]) =>
     stats.earlyDeaths > (best.stats?.earlyDeaths || 0) ? { id, stats } : best, {});
 
+  console.log(`Most Early Kills: ${playerNames[playerIds.indexOf(mostEarlyKills.id)][0]} (${mostEarlyKills.stats.earlyKills})`);
+  console.log(`Most Early Deaths: ${playerNames[playerIds.indexOf(mostEarlyDeaths.id)][0]} (${mostEarlyDeaths.stats.earlyDeaths})`);
   console.log(`Most Early Kills: ${mostEarlyKills.id}`, mostEarlyKills);
   console.log(`Most Early Deaths: ${mostEarlyDeaths.id}`, mostEarlyDeaths);
-        console.log("Alyss", playerStats[1085169]);
+       // console.log("Alyss", playerStats[1085169]);
 
   // Process each match and round.
   matches.forEach((match, matchID) => {
@@ -2662,7 +2667,6 @@ const filterFac = [false,false,false,false,false,false]
     player.tks > 0 ||
     player.tkd > 0
   );
-
   return { statsArray, playerStats };
 }
 // Helper function to count occurrences of a specific classfunction 
@@ -2707,7 +2711,7 @@ function renderPlayersList(s1, s2, title="All Player Stats") {
 
         let { statsArray, playerStats } = generatePlayerStats(playerIds, matches.slice(s1, s2), nameToIdMap, playerNames);
         var playersContainer = document.createElement("div");
-        //playersContainer.id = "players-container";
+        playersContainer.id = "players-container";
         playersContainer.style.paddingLeft = "0";
 
 
@@ -3037,7 +3041,6 @@ function renderPlayersList(s1, s2, title="All Player Stats") {
                 headerRow.appendChild(th);
             });
             table.appendChild(headerRow);
-
             const divisorIndex = columns.indexOf(currentSortDivisor);
             const numCols = columns.length;
 
@@ -3216,7 +3219,6 @@ function renderPlayersList(s1, s2, title="All Player Stats") {
                 });
                 table.appendChild(row);
             });
-
             playersContainer.appendChild(table);
             container.appendChild(playersContainer);
         };
