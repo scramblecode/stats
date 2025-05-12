@@ -137,7 +137,7 @@
         height: 100%;
         width: 100%;
         min-height: 0;
-        overflow-y: auto;
+        /* overflow-y: auto; */
         box-sizing: border-box;
         /* Hide scrollbar for IE, Edge */
         -ms-overflow-style: none; 
