@@ -1579,7 +1579,7 @@ const RobAIbracket = [
       ["Cow/PPK157", "BestNAGTA/Chunky", 15, 5, 2],
       ["Marquis/Ebdanian", "Trox/Wert", 15, 13, 6],
       //round 3 
-      ["Mav/Hemp", "Potesty/Exmarius", "?", "?", -1],
+      ["Mav/Hemp", "Potesty/Exmarius", "0", "x", -1],
       ["Byunos/Chicken", "BrownMilk/Kurm", 7, 15, 14],
       ["Alyss/Gibby", "Kairos/Shovenio", 15, 3, 12],
       ["Cow/PPK157", "Marquis/Ebdanian", 15, 11, 7],
@@ -1587,7 +1587,7 @@ const RobAIbracket = [
       ["Mav/Hemp", "BrownMilk/Kurm", 15, 7, 15],
       ["Alyss/Gibby", "Cow/PPK157", 15, 10, 13],
       //finals
-      ["Finalist", "Alyss/Gibby", "?", "?", -1],
+      ["Alyss/Gibby", "Mav/Hemp", 10, 15, 16],
     ];
 
     const tournaments = [RobAIbracket, Mayhembracket]
@@ -2530,10 +2530,13 @@ const filterFac = [false,false,false,false,false,false]
   const mostEarlyDeaths = Object.entries(playerStats).reduce((best, [id, stats]) =>
     stats.earlyDeaths > (best.stats?.earlyDeaths || 0) ? { id, stats } : best, {});
 
-  console.log(`Most Early Kills: ${playerNames[playerIds.indexOf(mostEarlyKills.id)][0]} (${mostEarlyKills.stats.earlyKills})`);
-  console.log(`Most Early Deaths: ${playerNames[playerIds.indexOf(mostEarlyDeaths.id)][0]} (${mostEarlyDeaths.stats.earlyDeaths})`);
-  console.log(`Most Early Kills: ${mostEarlyKills.id}`, mostEarlyKills);
-  console.log(`Most Early Deaths: ${mostEarlyDeaths.id}`, mostEarlyDeaths);
+  if(mostEarlyKills.id && mostEarlyDeaths.id){  
+    console.log(`Most Early Kills: ${playerNames[playerIds.indexOf(mostEarlyKills.id)][0]} (${mostEarlyKills.stats.earlyKills})`);
+    console.log(`Most Early Deaths: ${playerNames[playerIds.indexOf(mostEarlyDeaths.id)][0]} (${mostEarlyDeaths.stats.earlyDeaths})`);
+    console.log(`Most Early Kills: ${mostEarlyKills.id}`, mostEarlyKills);
+    console.log(`Most Early Deaths: ${mostEarlyDeaths.id}`, mostEarlyDeaths);
+    
+  }
        // console.log("Alyss", playerStats[1085169]);
 
   // Process each match and round.
