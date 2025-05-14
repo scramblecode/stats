@@ -521,6 +521,14 @@ function getWinner(result){
     });
     table.appendChild(headerRow);
 
+    const nameToIdMap = new Map();
+    playerIds.forEach((id, index) => {
+      if (id === 0 ) return;
+        playerNames[index].forEach(name => {
+            nameToIdMap.set(name.toLowerCase(), id); // Use lowercase for case-insensitive mapping
+        });
+    });
+
     // Add rows for each player in this team
     teamData.forEach(([player, stats]) => {
       const row = document.createElement("tr");
@@ -534,7 +542,12 @@ function getWinner(result){
           td.style.textAlign = "left";
           td.style.whiteSpace = "nowrap";
           td.style.overflow = "visible";
+          td.style.cursor = "pointer";
           
+          td.onclick = () => {
+            // console.log("Player..!", playerIds.indexOf(index))
+            updateURLToPlayer(nameToIdMap.get(value.toLowerCase()))
+          }
           const dead = !Number.isInteger(stats.deaths) && stats.deaths.includes("+1");
           const flip = stats.team;
           // Count occurrences for each class
