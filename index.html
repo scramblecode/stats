@@ -343,6 +343,7 @@ function renderPlayerDetails(playerID) {
         (a, b) => b.killedBy - (a.killedBy)
     );
 
+
     // Create the table
     const statsTable = document.createElement("table");
     statsTable.style.width = "100%";
@@ -370,6 +371,11 @@ function renderPlayerDetails(playerID) {
         playerCell.style.border = "1px solid #ddd";
         playerCell.style.padding = "10px";
         playerCell.style.textAlign = "center";
+        playerCell.style.cursor = "pointer";
+        playerCell.onclick = () => {
+          // console.log("Player..!", playerIds.indexOf(index))
+          updateURLToPlayer(nameToIdMap.get(stat.name.toLowerCase()))
+        }
 
         const killedCell = document.createElement("td");
         killedCell.textContent = stat.killed;
