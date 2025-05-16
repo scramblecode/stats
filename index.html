@@ -140,6 +140,32 @@ window.addEventListener("resize", adjustTableLayout);
 
 
 
+function renderMapDetails(mapName) {
+  const contentDiv = document.getElementById("content");
+    contentDiv.innerHTML = "";
+
+    const body = document.body;
+    body.style.backgroundRepeat = "no-repeat"; 
+    body.style.backgroundPosition = "center center"; 
+    body.style.backgroundAttachment = "fixed"; 
+    body.style.backgroundSize = "cover"; 
+    
+    const bgSrc = mapName.toLowerCase().replaceAll(" ", "_").replaceAll("'","");
+    if (bgSrc == -1){
+      body.style.backgroundImage = `url('assets/img/mb2.png')`;
+
+    } else {
+      body.style.backgroundImage = `url('assets/img/bg_${bgSrc}.png')`;
+
+    }
+  renderTabBar(contentDiv, "maps");
+  const tabContentContainer = document.createElement("div");
+  tabContentContainer.id = "tab-content";
+  tabContentContainer.style.marginTop = "20px";
+
+};
+
+
 function renderPlayerDetails(playerID) {
     const contentDiv = document.getElementById("content");
     contentDiv.classList.remove("bracket");
@@ -2291,7 +2317,7 @@ function renderMapList() {
     banner.style.cursor = "pointer";
     banner.addEventListener("click", () => {
       console.log("Banner clicked:", mapName);
-      // Add any navigation logic here.
+      updateURLToMap(mapName);
     });
 
     container.appendChild(banner);
@@ -4166,6 +4192,22 @@ function updateURLToBracket(tournID) {
         window.history.pushState({ player: playerID }, "", `${baseUrl}?player=${playerID}`);
     //}
     renderPlayerDetails(playerID);
+  }
+
+  // Update the URL to show a match view (with optional round view).
+  function updateURLToMap(mapName) {
+    const url = new URL(window.location.href);
+    // Remove scrim and half parameters if present.
+    url.searchParams.delete("scrim");
+    url.searchParams.delete("half");
+    url.searchParams.set("map", mapName);
+    
+    const baseUrl = window.location.origin + window.location.pathname;
+
+      //if (!window.history.state || window.history.state.player !== playerID) {
+        window.history.pushState({ map: mapName }, "", `${baseUrl}?map=${mapName}`);
+    //}
+    renderMapDetails(mapName);
   }
 
   // Update the URL to show a match view (with optional round view).
