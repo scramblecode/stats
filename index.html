@@ -140,7 +140,12 @@ window.addEventListener("resize", adjustTableLayout);
 
 
 
-function renderMapDetails(mapName) {
+function renderMapDetails(mapStr) {
+
+  const mapName = allMaps.find(map => 
+        map.toLowerCase().replaceAll(" ", "_").replaceAll("'", "") === mapStr
+    );
+
   const contentDiv = document.getElementById("content");
     contentDiv.innerHTML = "";
 
@@ -163,6 +168,387 @@ function renderMapDetails(mapName) {
   tabContentContainer.id = "tab-content";
   tabContentContainer.style.marginTop = "20px";
 
+    const infoContainer = document.createElement("h1")
+    infoContainer.textContent = `${mapName}`;
+    
+    const currentMap = mapName; // or your logic to get the current map name
+
+    // --- Aggregation variables for only the current map ---
+    let totalPlays = 0;                             // Total matches played on this map.
+    let totalRounds = 0;                             // Total matches played on this map.
+    const spawnWins = { spawn1: 0, spawn2: 0 };       // Spawn win counts for each spawn.
+    const factionCounts = new Map();                // Faction appearances: faction => count.
+    const factionWins = new Map();                  // Faction wins: faction => win count.
+    const factionClassCounts = new Map();           // Faction class usage: faction => { inf, cav, arc }.
+    const spawnFactionCounts = {                     // Spawn-specific faction counts.
+      spawn1: new Map(),
+      spawn2: new Map()
+    };
+    const factionKillCounts = new Map();
+    const factionDmgCounts = new Map();
+
+// --- Process each match, filtering by the current map ---
+matches.forEach(match => {
+  // Only process matches that took place on the current map.
+  if (match.map !== currentMap) return;
+  totalRounds += match.rounds.length;
+  totalPlays++;
+  const { faction_1, faction_2, score, rounds } = match;
+  
+  // 1. Update spawn wins based on score.
+  //    Score is assumed to be in form "x - y (...)".
+  const scoreParts = score.match(/(\d+)\s*-\s*(\d+)/);
+  if (scoreParts) {
+    const faction1Score = parseInt(scoreParts[1], 10);
+    const faction2Score = parseInt(scoreParts[2], 10);
+    
+    if (faction1Score === 3) {
+      spawnWins.spawn1++;
+      // Increment win count for faction_1
+      factionWins.set(faction_1, (factionWins.get(faction_1) || 0) + 1);
+    } else if (faction2Score === 3) {
+      spawnWins.spawn2++;
+      // Increment win count for faction_2
+      factionWins.set(faction_2, (factionWins.get(faction_2) || 0) + 1);
+    }
+  }
+  
+  // 2. Count faction appearances.
+  factionCounts.set(faction_1, (factionCounts.get(faction_1) || 0) + 1);
+  factionCounts.set(faction_2, (factionCounts.get(faction_2) || 0) + 1);
+  
+  // 3. Increment class counts per match.
+  //    We expect a global "factions" array along with corresponding arrays for class names:
+  //    infClasses, cavClasses, arcClasses.
+  if (!factionClassCounts.has(faction_1)) {
+    factionClassCounts.set(faction_1, { inf: 0, cav: 0, arc: 0 });
+  }
+  if (!factionClassCounts.has(faction_2)) {
+    factionClassCounts.set(faction_2, { inf: 0, cav: 0, arc: 0 });
+  }
+  const classCounts1 = factionClassCounts.get(faction_1);
+  const classCounts2 = factionClassCounts.get(faction_2);
+  
+  const idx1 = factions.indexOf(faction_1);
+  const idx2 = factions.indexOf(faction_2);
+  
+  if (idx1 !== -1 && Array.isArray(rounds)) {
+    const expectedInf = infClasses[idx1],
+          expectedCav = cavClasses[idx1],
+          expectedArc = arcClasses[idx1];
+    rounds.forEach(round => {
+      if (Array.isArray(round.classes)) {
+        round.classes.forEach(cls => {
+          if (cls === expectedInf) classCounts1.inf++;
+          if (cls === expectedCav) classCounts1.cav++;
+          if (cls === expectedArc) classCounts1.arc++;
+        });
+      }
+    });
+  }
+  
+  if (idx2 !== -1 && Array.isArray(rounds)) {
+    const expectedInf = infClasses[idx2],
+          expectedCav = cavClasses[idx2],
+          expectedArc = arcClasses[idx2];
+    rounds.forEach(round => {
+      if (Array.isArray(round.classes)) {
+        round.classes.forEach(cls => {
+          if (cls === expectedInf) classCounts2.inf++;
+          if (cls === expectedCav) classCounts2.cav++;
+          if (cls === expectedArc) classCounts2.arc++;
+        });
+      }
+    });
+  }
+  
+  // 4. Aggregate spawn faction counts:
+  //     The assumption is the first faction in the match is at spawn1, the second at spawn2.
+  spawnFactionCounts.spawn1.set(
+    faction_1,
+    (spawnFactionCounts.spawn1.get(faction_1) || 0) + 1
+  );
+  spawnFactionCounts.spawn2.set(
+    faction_2,
+    (spawnFactionCounts.spawn2.get(faction_2) || 0) + 1
+  );
+
+  //5. Class kill counts:
+
+  if (!factionKillCounts.has(faction_1)) {
+    factionKillCounts.set(faction_1, { inf: 0, cav: 0, arc: 0 });
+  }
+  if (!factionKillCounts.has(faction_2)) {
+    factionKillCounts.set(faction_2, { inf: 0, cav: 0, arc: 0 });
+  }
+  const killCounts1 = factionKillCounts.get(faction_1);
+  const killCounts2 = factionKillCounts.get(faction_2);
+
+  if (!factionDmgCounts.has(faction_1)) {
+    factionDmgCounts.set(faction_1, { inf: 0, cav: 0, arc: 0 });
+  }
+  if (!factionDmgCounts.has(faction_2)) {
+    factionDmgCounts.set(faction_2, { inf: 0, cav: 0, arc: 0 });
+  }
+  const dmgCounts1 = factionDmgCounts.get(faction_1);
+  const dmgCounts2 = factionDmgCounts.get(faction_2);
+
+  if (Array.isArray(rounds)) {
+    rounds.forEach(round => {
+      if (
+        Array.isArray(round.dmg)
+      ) {
+        round.dmg.forEach((value, idx) => {
+          const dmgClass = round.classes[idx];
+
+          // Determine the type and faction via global arrays:
+          let type = null;
+          let globalFactionIndex = -1;
+
+          // Try to find the killerClass in the infantry classes.
+          globalFactionIndex = infClasses.indexOf(dmgClass);
+          if (globalFactionIndex !== -1) {
+            type = "inf";
+          } else {
+            // If not infantry, try cavalry.
+            globalFactionIndex = cavClasses.indexOf(dmgClass);
+            if (globalFactionIndex !== -1) {
+              type = "cav";
+            } else {
+              // Lastly, try archers.
+              globalFactionIndex = arcClasses.indexOf(dmgClass);
+              if (globalFactionIndex !== -1) {
+                type = "arc";
+              }
+            }
+          }
+
+          if (type !== null && globalFactionIndex !== -1) {
+            // Use the index in the global arrays to get the corresponding faction.
+            const killerFaction = factions[globalFactionIndex];
+            // Now, if the found faction equals one of the match's factions,
+            // increment the appropriate kill count.
+            if (killerFaction === faction_1) {
+              dmgCounts1[type]+= value;
+            } else if (killerFaction === faction_2) {
+              dmgCounts2[type]+= value;
+            }
+          }
+        });
+      }
+      if (
+        Array.isArray(round.kills) &&
+        Array.isArray(round.players) &&
+        Array.isArray(round.classes)
+      ) {
+        round.kills.forEach(killerName => {
+          // Get the index of the killer in the players list.
+          const playerIdx = round.players.indexOf(killerName);
+          if (playerIdx === -1) return; // Not found; skip.
+          // Get killer's class using the same index.
+          const killerClass = round.classes[playerIdx];
+
+          // Determine the type and faction via global arrays:
+          let type = null;
+          let globalFactionIndex = -1;
+
+          // Try to find the killerClass in the infantry classes.
+          globalFactionIndex = infClasses.indexOf(killerClass);
+          if (globalFactionIndex !== -1) {
+            type = "inf";
+          } else {
+            // If not infantry, try cavalry.
+            globalFactionIndex = cavClasses.indexOf(killerClass);
+            if (globalFactionIndex !== -1) {
+              type = "cav";
+            } else {
+              // Lastly, try archers.
+              globalFactionIndex = arcClasses.indexOf(killerClass);
+              if (globalFactionIndex !== -1) {
+                type = "arc";
+              }
+            }
+          }
+
+          if (type !== null && globalFactionIndex !== -1) {
+            // Use the index in the global arrays to get the corresponding faction.
+            const killerFaction = factions[globalFactionIndex];
+            // Now, if the found faction equals one of the match's factions,
+            // increment the appropriate kill count.
+            if (killerFaction === faction_1) {
+              killCounts1[type]++;
+            } else if (killerFaction === faction_2) {
+              killCounts2[type]++;
+            }
+          }
+        });
+      }
+    });
+  }
+});
+
+console.log("DmgCounts:", factionDmgCounts)
+
+// --- Compute additional statistics ---
+const spawn1Rate = totalPlays ? ((spawnWins.spawn1 / totalPlays) * 100).toFixed(0) : 0;
+const spawn2Rate = totalPlays ? ((spawnWins.spawn2 / totalPlays) * 100).toFixed(0) : 0;
+
+  //faction class totals 
+  let totalInf = 0;
+  let totalCav = 0;
+  let totalArc = 0;
+
+  factionClassCounts.forEach((counts, faction) => {
+    totalInf += counts.inf;
+    totalCav += counts.cav;
+    totalArc += counts.arc;
+  });
+
+// Now, calculate the grand total of all class counts.
+const grandTotal = totalInf + totalCav + totalArc;
+
+// Calculate percentages for each class; for example, round to 0 decimal places.
+const percentInf = grandTotal ? ((totalInf / grandTotal) * 100).toFixed(0) : 0;
+const percentCav = grandTotal ? ((totalCav / grandTotal) * 100).toFixed(0) : 0;
+const percentArc = grandTotal ? ((totalArc / grandTotal) * 100).toFixed(0) : 0;
+
+// --- For example, log the aggregated results for the current map:
+// console.log("Current Map:", currentMap);
+// console.log("Total Plays:", totalPlays);
+// console.log("Spawn Wins:", spawnWins);
+// console.log("Spawn Rates:", { spawn1Rate, spawn2Rate });
+// console.log("Faction Appearances:", Array.from(factionCounts.entries()));
+// console.log("Faction Wins:", Array.from(factionWins.entries()));
+// console.log("Faction Class Counts:", Array.from(factionClassCounts.entries()));
+// console.log("Spawn Faction Counts:", spawnFactionCounts);
+// Initialize totals.
+let totalInfKills = 0;
+let totalCavKills = 0;
+let totalArcKills = 0;
+
+// Iterate over each faction's kill counts.
+factionKillCounts.forEach((killObj, faction) => {
+  totalInfKills += killObj.inf;
+  totalCavKills += killObj.cav;
+  totalArcKills += killObj.arc;
+});
+
+const grandKillTotal = totalInfKills + totalCavKills + totalArcKills;
+
+// Compute percentage per class; using 0 if no kills were recorded.
+const percentInfKills = grandKillTotal ? ((totalInfKills / grandKillTotal) * 100).toFixed(0) : 0;
+const percentCavKills = grandKillTotal ? ((totalCavKills / grandKillTotal) * 100).toFixed(0) : 0;
+const percentArcKills = grandKillTotal ? ((totalArcKills / grandKillTotal) * 100).toFixed(0) : 0;
+
+// Example: Log the percentages.
+console.log("Infantry Kills: " + percentInfKills + "%");
+console.log("Cavalry Kills: " + percentCavKills + "%");
+console.log("Archer Kills: " + percentArcKills + "%");
+
+//damage
+
+let totalInfDmg = 0;
+let totalCavDmg = 0;
+let totalArcDmg = 0;
+
+// Iterate over each faction's kill counts.
+factionDmgCounts.forEach((killObj, faction) => {
+  totalInfDmg += killObj.inf;
+  totalCavDmg += killObj.cav;
+  totalArcDmg += killObj.arc;
+});
+
+const grandDmgTotal = totalInfDmg + totalCavDmg + totalArcDmg;
+
+// Compute percentage per class; using 0 if no kills were recorded.
+const percentInfDmg = grandDmgTotal ? ((totalInfDmg / grandDmgTotal) * 100).toFixed(0) : 0;
+const percentCavDmg = grandDmgTotal ? ((totalCavDmg / grandDmgTotal) * 100).toFixed(0) : 0;
+const percentArcDmg = grandDmgTotal ? ((totalArcDmg / grandDmgTotal) * 100).toFixed(0) : 0;
+
+// Example: Log the percentages.
+console.log("Infantry Dmg: " + percentInfDmg + "%");
+console.log("Cavalry Dmg: " + percentCavDmg + "%");
+console.log("Archer Dmg: " + percentArcDmg + "%");
+
+
+// Create the flex container that will hold all three boxes
+      var statsContainer = document.createElement("div");
+      statsContainer.style.display = "flex";
+      statsContainer.style.flexDirection = "row";
+      statsContainer.style.margin = "0px";
+
+      // ---------- Box 1: Total Plays ----------
+      var box1 = document.createElement("div");
+      box1.style.flex = "1";
+      box1.style.textAlign = "center";
+
+      var box1Header = document.createElement("p");
+      box1Header.style.margin = "0";
+      box1Header.textContent = "Matches Played:";
+      box1.appendChild(box1Header);
+
+      var totalPlaysP = document.createElement("p");
+      totalPlaysP.id = "totalPlays";
+      totalPlaysP.textContent = totalPlays + ' (' + totalRounds + ' Rounds)';  // Default value (can be updated with your logic)
+      box1.appendChild(totalPlaysP);
+
+      statsContainer.appendChild(box1);
+
+      // ---------- Box 2: Spawn Win Rates ----------
+      var box2 = document.createElement("div");
+      box2.style.flex = "1";
+      box2.style.textAlign = "center";
+
+      var box2Header = document.createElement("p");
+      box2Header.style.margin = "0";
+      box2Header.style.marginBottom = "5px";
+      box2Header.textContent = "Spawn Win Rates:";
+      box2.appendChild(box2Header);
+
+      var spawn1P = document.createElement("p");
+      spawn1P.style.margin = "0";
+      // Use innerHTML so we can inject a span with an id for easy updating.
+      spawn1P.innerHTML = `  Top : <span id='spawn1Rate'>${spawn1Rate}</span>%`;
+      box2.appendChild(spawn1P);
+
+      var spawn2P = document.createElement("p");
+      spawn2P.style.margin = "0";
+      spawn2P.innerHTML = `Bottom: <span id='spawn2Rate'>${spawn2Rate}</span>%`;
+      box2.appendChild(spawn2P);
+
+      statsContainer.appendChild(box2);
+
+      // ---------- Box 3: Faction Class Breakdown ----------
+      var box3 = document.createElement("div");
+      box3.style.flex = "1";
+      box3.style.textAlign = "center";
+
+      var box3Header = document.createElement("p");
+      box3Header.style.margin = "0";
+      box3Header.textContent = "Class Breakdown:";
+      box3.appendChild(box3Header);
+
+      var infP = document.createElement("p");
+      infP.style.margin = "0";
+      infP.innerHTML = `Inf: <span id='infPct'>${percentInf}</span>%`;
+      box3.appendChild(infP);
+
+      var cavP = document.createElement("p");
+      cavP.style.margin = "0";
+      cavP.innerHTML = `Cav: <span id='cavPct'>${percentCav}</span>%`;
+      box3.appendChild(cavP);
+
+      var arcP = document.createElement("p");
+      arcP.style.margin = "0";
+      arcP.innerHTML = `Arc: <span id='arcPct'>${percentArc}</span>%`;
+      box3.appendChild(arcP);
+
+      statsContainer.appendChild(box3);
+
+      
+    tabContentContainer.appendChild(infoContainer);
+    tabContentContainer.appendChild(statsContainer);
+    contentDiv.appendChild(tabContentContainer);
 };
 
 
@@ -2022,6 +2408,27 @@ function renderMapList() {
   const container = document.getElementById("tab-content");
   container.innerHTML = ""; // Clear previous content
 
+
+  //console.log("RANDOM FIXTURE", allMaps[Math.floor(Math.random() * allMaps.length)], factions[Math.floor(Math.random() * factions.length)], factions[Math.floor(Math.random() * factions.length)]);
+
+  const genFixture = document.createElement("div");
+  
+  const dice = document.createElement("img");
+  dice.src = "assets/img/random.png";
+  dice.alt = "dice";
+  dice.style.cursor = "pointer";
+
+
+  const randomTitle = document.createElement("div");
+  randomTitle.innerHTML = "Click to generate fixture"
+
+  dice.onclick = () => {
+    randomTitle.innerHTML = allMaps[Math.floor(Math.random() * allMaps.length)] + ' - ' + factions[Math.floor(Math.random() * factions.length)] + ' - ' + factions[Math.floor(Math.random() * factions.length)]
+  }
+  genFixture.appendChild(dice)
+  genFixture.appendChild(randomTitle)
+  container.appendChild(genFixture)
+
   // Aggregation data structures
   const mapCounts = new Map();              // map => total number of matches on that map
   const mapFactionCounts = new Map();         // map => Map(faction => appearances) [as before]
@@ -2133,7 +2540,7 @@ function renderMapList() {
     const spawnWins = mapSpawnWins.get(mapName) || { spawn1: 0, spawn2: 0 };
     const spawn1Rate = totalPlays ? ((spawnWins.spawn1 / totalPlays) * 100).toFixed(0) : 0;
     const spawn2Rate = totalPlays ? ((spawnWins.spawn2 / totalPlays) * 100).toFixed(0) : 0;
-    console.log(mapName, spawn1Rate,"%", spawn2Rate, "%")
+    //console.log(mapName, spawn1Rate,"%", spawn2Rate, "%")
 
     // Create the banner container as an inline-block so it sizes to the image’s natural dimensions.
     const banner = document.createElement("div");
@@ -2316,7 +2723,7 @@ function renderMapList() {
     // OPTIONAL: Make the entire banner clickable.
     banner.style.cursor = "pointer";
     banner.addEventListener("click", () => {
-      console.log("Banner clicked:", mapName);
+      //console.log("Banner clicked:", mapName);
       updateURLToMap(mapName);
     });
 
@@ -4083,6 +4490,13 @@ function handleURLChange() {
 
 
 // Handle "player" parameter
+const mapStr = params.get("map");
+if (mapStr !== null) {
+    renderMapDetails(mapStr);
+    return;
+}
+
+// Handle "player" parameter
 const playerStr = params.get("player");
 if (playerStr !== null) {
   //const playerId = parseInt(playerStr, 10);
@@ -4196,18 +4610,18 @@ function updateURLToBracket(tournID) {
 
   // Update the URL to show a match view (with optional round view).
   function updateURLToMap(mapName) {
+    const link = mapName.toLowerCase().replaceAll(" ", "_").replaceAll("'","");
     const url = new URL(window.location.href);
     // Remove scrim and half parameters if present.
     url.searchParams.delete("scrim");
     url.searchParams.delete("half");
-    url.searchParams.set("map", mapName);
+    url.searchParams.set("map", link);
     
     const baseUrl = window.location.origin + window.location.pathname;
-
       //if (!window.history.state || window.history.state.player !== playerID) {
-        window.history.pushState({ map: mapName }, "", `${baseUrl}?map=${mapName}`);
+        window.history.pushState({ map: link }, "", `${baseUrl}?map=${link}`);
     //}
-    renderMapDetails(mapName);
+    renderMapDetails(link);
   }
 
   // Update the URL to show a match view (with optional round view).
