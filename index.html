@@ -2423,7 +2423,14 @@ function renderMapList() {
   randomTitle.innerHTML = "Click to generate fixture"
 
   dice.onclick = () => {
-    randomTitle.innerHTML = allMaps[Math.floor(Math.random() * allMaps.length)] + ' - ' + factions[Math.floor(Math.random() * factions.length)] + ' - ' + factions[Math.floor(Math.random() * factions.length)]
+    const rMap = allMaps[Math.floor(Math.random() * allMaps.length)];
+    const rFac1 = factions[Math.floor(Math.random() * factions.length)];
+    const rFac2 = factions[Math.floor(Math.random() * factions.length)];
+    let prev = 0;
+    matches.forEach(match => {
+      if(match.map === rMap && match.faction_1 === rFac1 && match.faction_2 === rFac2) prev++
+    })
+    randomTitle.innerHTML = rMap + ' - ' + rFac1 + ' - ' + rFac2 + ` (played ${prev} times)`
   }
   genFixture.appendChild(dice)
   genFixture.appendChild(randomTitle)
