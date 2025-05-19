@@ -188,9 +188,11 @@
         "1982546",
         "4122740",
         "3657022",
-        "3218353"
+        "3218353",
+        "4411072",
+        "1821604"
     ],
-    "number_of_players": 189,
+    "number_of_players": 191,
     "player_names": [
         [
             "SERVER"
@@ -276,7 +278,8 @@
             "KROCK",
             "damgubbermint",
             "[XBLive]damgubbermint~0463",
-            "carlosgamer2011Youtube"
+            "carlosgamer2011Youtube",
+            "ol"
         ],
         [
             "chicken",
@@ -512,7 +515,8 @@
             "Merchant_of_Sargoth",
             "KoA_OldyMcOldpants_John",
             "BiggyBigBoyInf_KoA_John",
-            "KoA_TiredOldPants_John"
+            "KoA_TiredOldPants_John",
+            "KoA_SuperSundayFunday_John"
         ],
         [
             "[GF]Pichurin",
@@ -1091,6 +1095,12 @@
         ],
         [
             "HG_Kdabra"
+        ],
+        [
+            "peperino_pomoro"
+        ],
+        [
+            "I_LOVE_BANNERLORD"
         ]
     ]
 }
