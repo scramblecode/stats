@@ -588,14 +588,45 @@ function renderPlayerDetails(playerID) {
     // Calculate Kills and Deaths
     let totalKills = 0;
     let totalDeaths = 0;
+    const iconCounts = {};
+    const weaponCounts = {};
 
     // Assuming `rounds` is an array of round data that contains kills and deaths
     matches.forEach((match) => {
       match.rounds.forEach((round) => {
+
+        const teamkillIndexes = round.teamkilled ? round.teamkilled
+              .map(teamName => round.deaths.indexOf(teamName))
+              .filter(idx => idx !== -1)
+          : [];
+
+        // Filter out the weapons at those indexes.
+        const filteredWeapons = round.weapons.filter((_, idx) => !teamkillIndexes.includes(idx));
+
         // Count kills for all associated names
-        round.kills.forEach((killerName) => {
+        round.kills.forEach((killerName, index) => {
             if (associatedNames.includes(killerName.toLowerCase())) {
                 totalKills++;
+              // Get the icon at the same index, if available.
+              const icon = round.icons && round.icons[index];
+              // const weapon = round.weapons && round.weapons[index + tkid];
+              if (icon) {
+                // Increment the counter for this icon
+                if (iconCounts[icon]) {
+                  iconCounts[icon]++;
+                } else {
+                  iconCounts[icon] = 1;
+                }
+              }    
+                const weapon = filteredWeapons[index];
+                if (weapon) {
+                  // Tally the weapon.
+                  if (weaponCounts[weapon]) {
+                    weaponCounts[weapon]++;
+                  } else {
+                    weaponCounts[weapon] = 1;
+                  }
+                }
             }
         });
 
@@ -609,6 +640,11 @@ function renderPlayerDetails(playerID) {
 
     })
 
+  console.log("Icon Tally:");
+  for (const icon in iconCounts) {
+    console.log(`${icon}: ${iconCounts[icon]}`);
+  }
+  console.log(weaponCounts)
     // Display Kills and Deaths
     const statsContainer = document.createElement("div");
     statsContainer.className = "player-stats";
