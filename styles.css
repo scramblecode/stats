@@ -19,6 +19,10 @@
          0.75px  0.75px 0 #20201e;
       background-image: url('https://scramblecode.github.io/stats/assets/img/mb1.png');
       background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center center;
+      background-attachment: fixed;
+      background-size: cover;
       transition: background 1.5s ease-in-out;
     }
     h1, p {
