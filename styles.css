@@ -110,6 +110,25 @@
         /* Hide scrollbar for Firefox */
         scrollbar-width: none; 
       }
+
+@keyframes spinDice {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(960deg);
+  }
+}
+
+.dice {
+  cursor: pointer;
+  transition: transform 1s ease-in-out;
+}
+
+.dice.spin {
+  animation: spinDice 1s ease-in-out forwards;
+}
+
       /* Hide default heading margin in landing view */
       #content.landing h2 {
         text-align: left;
