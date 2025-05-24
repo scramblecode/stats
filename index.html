@@ -2146,7 +2146,7 @@ const tabs = [
   { label: "PICKUPS", id: "matches" },
   { label: "PLAYERS", id: "players" },
   { label: "MAPS", id: "maps" },
-  // { label: "FACTIONS", id: "factions" },
+  { label: "FACTIONS", id: "factions" },
   // { label: "MISC", id: "halfs" },
 ];
 let scrollPositions = {};
@@ -2582,69 +2582,224 @@ function renderFactionList() {
   }
 
   // Loop through each faction and render results to the page
-  factions.forEach(faction => {
+  factions.forEach((faction, idx) => {
 
     // Create an outer div for the faction.
     const factionContainer = document.createElement("div");
     factionContainer.style.marginBottom = "15px";
     factionContainer.style.border = "1px solid #ccc";
     factionContainer.style.padding = "10px";
+    factionContainer.style.display = "flex";
+    factionContainer.style.flexDirection = "column";
+    // factionContainer.style.gap = "10px";
+
+    const topRowContainer = document.createElement("div");
+    topRowContainer.style.display = "flex";
+    topRowContainer.style.flexDirection = "row";
+    factionContainer.style.paddingRight = "100px";
+    topRowContainer.style.alignItems = "center";
+    topRowContainer.style.justifyContent = "space-between";
+    // topRowContainer.style.gap = "100px";
+    topRowContainer.style.flexWrap = "wrap";
 
     // Create a header (e.g., already your class info might be above)
-    const header = document.createElement("h3");
-    header.textContent = faction;
-    factionContainer.appendChild(header);
+    const headerCont = document.createElement("div");
+    headerCont.style.display = "flex";
+    headerCont.style.alignItems = "center";
 
-    // Get the tallies for this faction
-    const infKillCount = results[faction].kills.inf;
-    const cavKillCount = results[faction].kills.cav;
-    const arcKillCount = results[faction].kills.arc;
-    const infWeapon = getMostCommonWeapon(results[faction].weapons.inf);
-    const cavWeapon = getMostCommonWeapon(results[faction].weapons.cav);
-    const arcWeapon = getMostCommonWeapon(results[faction].weapons.arc);
+    const facIconCont = document.createElement("div");
+    const facIcon = document.createElement("img");
+    facIcon.src = `assets/img/${facIcons[idx]}.png`;
+    facIcon.alt = "icon";
+    facIconCont.appendChild(facIcon);
+    headerCont.appendChild(facIconCont);
 
-    // Create a div for this faction.
-    const facDiv = document.createElement("div");
-    facDiv.textContent =
-      `${faction} - ` +
-      `Inf Kills: ${infKillCount} (Weapon: ${infWeapon}), ` +
-      `Arc Kills: ${arcKillCount} (Weapon: ${arcWeapon}), ` +
-      `Cav Kills: ${cavKillCount} (Weapon: ${cavWeapon})`;
+    const headerName = document.createElement("h2");
+    headerName.textContent = faction;
+    headerName.style.marginLeft = "10px";
+    headerCont.appendChild(headerName);
 
-    // Create a second div for win/loss (matchup) info:
-    const matchupDiv = document.createElement("div");
-    matchupDiv.style.fontSize = "0.9rem";
-    matchupDiv.style.marginLeft = "10px";
-    matchupDiv.style.marginTop = "5px";
+    topRowContainer.appendChild(headerCont);
 
-    const totalWR = document.createElement("div");
-    facDiv.appendChild(totalWR);
-
-    let totalWs = 0;
-    let totalLs = 0;
-    // Loop over every opponent (including itself) and display the stats.
-    factions.forEach(opponent => {
-      const stats = matchupStats[faction][opponent];
-      totalWs += stats.wins;
-      totalLs += stats.losses;
-      if (stats.wins == 0 && stats.losses == 0) return;
-      // Format the match record and the rounds record.
-      const matchRecord = `W: ${stats.wins} / L: ${stats.losses}`;
-      const roundRecord = `Rounds: ${stats.roundsWon} - ${stats.roundsLost}`;
-      const oppRecordDiv = document.createElement("div");
-      oppRecordDiv.textContent = `vs ${opponent}: ${matchRecord} | ${roundRecord}`;
-      matchupDiv.appendChild(oppRecordDiv);
+    // -------------------
+    // 3. Class Stats Row
+    // -------------------
+    // We assume you have three class roles: "inf", "arc", and "cav"
+    const classStatsRow = document.createElement("div");
+    classStatsRow.style.display = "flex";
+    classStatsRow.style.justifyContent = "space-around";
+    classStatsRow.style.alignItems = "center";
+    classStatsRow.style.flexWrap = "wrap";
+    
+    const roles = ["inf", "arc", "cav"];
+    // For image source purposes we use arrays like infClasses, arcClasses, cavClasses.
+    // Here, classLabels holds the class‐name for the current faction.
+    const classLabels = [ infClasses[idx], arcClasses[idx], cavClasses[idx] ];
+    
+    roles.forEach((role, i) => {
+      // Container for each class stat
+      const classCont = document.createElement("div");
+      classCont.style.position = "relative";
+      classCont.style.display = "flex";
+      classCont.style.flexDirection = "column";
+      classCont.style.alignItems = "center";
+      classCont.style.margin = "5px";
+      classCont.style.paddingRight = "40px";
       
-
+      // Append the class icon (setClassImage is responsible for appending an IMG)
+      setClassImage(classLabels[i], classCont, 0, 1);
+      
+      // Create a span for kill count; overlay it on the bottom of the class image
+      const killSpan = document.createElement("span");
+      killSpan.textContent = results[faction].kills[role] + " Kills";
+      killSpan.style.textWrap = "nowrap";
+      killSpan.style.position = "absolute";
+      killSpan.style.bottom = "0";
+      killSpan.style.left = "40%";
+      killSpan.style.transform = "translate(-50%, 50%)";
+      // killSpan.style.backgroundColor = "rgba(0,0,0,0.7)";
+      killSpan.style.color = "white";
+      killSpan.style.fontSize = "0.8em";
+      killSpan.style.padding = "2px 4px";
+      // killSpan.style.borderRadius = "3px";
+      classCont.appendChild(killSpan);
+      
+      // Underneath the image, show the top weapon used.
+      const weaponDiv = document.createElement("div");
+      weaponDiv.textContent = getMostCommonWeapon(results[faction].weapons[role]);
+      weaponDiv.style.marginTop = "5px";
+      weaponDiv.style.fontSize = "0.8em";
+      //classCont.appendChild(weaponDiv);
+      
+      classStatsRow.appendChild(classCont);
     });
     
-    totalWR.textContent = "W/L Ratio: " + (totalWs / totalLs).toFixed(2);
+    topRowContainer.appendChild(classStatsRow);
+    factionContainer.appendChild(topRowContainer);
     
 
-    factionContainer.appendChild(facDiv);
-    factionContainer.appendChild(matchupDiv);
-    container.appendChild(factionContainer);
+    // -------------------
+    // 2. Summary Row: WinRate | Matches Played | Rounds Played
+    // -------------------
+    const summaryRow = document.createElement("div");
+    summaryRow.style.display = "flex";
+    summaryRow.style.flexDirection = "column";
+    summaryRow.style.justifyContent = "space-around";
+    summaryRow.style.flexWrap = "wrap";
+    
+    let totalWins = 0, totalLosses = 0, totalMatches = 0, totalRounds = 0;
+    factions.forEach(opponent => {
+      const stats = matchupStats[faction][opponent];
+      totalWins += stats.wins;
+      totalLosses += stats.losses;
+      totalMatches += (stats.wins + stats.losses);
+      totalRounds += (stats.roundsWon + stats.roundsLost);
+    });
+    const winRate = totalMatches > 0 ? ((totalWins/totalMatches)*100).toFixed(2) + "%" : "N/A";
+    //const winRate = (totalWins/totalLosses).toFixed(2);
+    
+    const winRateDiv = document.createElement("div");
+    winRateDiv.textContent = "Win Rate: " + winRate;
+    winRateDiv.style.marginBottom = "10px";
+    summaryRow.appendChild(winRateDiv);
+    
+    const matchesDiv = document.createElement("div");
+    matchesDiv.textContent = "Matches Played: " + totalMatches;
+    matchesDiv.style.marginBottom = "10px";
+    summaryRow.appendChild(matchesDiv);
+    
+    const roundsDiv = document.createElement("div");
+    roundsDiv.textContent = "Rounds Played: " + totalRounds;
+    // roundsDiv.style.marginBottom = "5px";
+    summaryRow.appendChild(roundsDiv);
+    
+    topRowContainer.appendChild(summaryRow);
+    
 
+    // -------------------
+    // 4. Divider with "VS"
+    // -------------------
+    const vsContainer = document.createElement("div");
+    vsContainer.style.display = "flex";
+    vsContainer.style.alignItems = "center";
+    vsContainer.style.margin = "10px 0";
+    
+    const hrLeft = document.createElement("hr");
+    hrLeft.style.flexGrow = "1";
+    hrLeft.style.border = "none";
+    hrLeft.style.height = "1px";
+    hrLeft.style.backgroundColor = "#ccc";
+    vsContainer.appendChild(hrLeft);
+    
+    const vsText = document.createElement("span");
+    vsText.textContent = " VS ";
+    vsText.style.margin = "0 10px";
+    vsContainer.appendChild(vsText);
+    
+    const hrRight = document.createElement("hr");
+    hrRight.style.flexGrow = "1";
+    hrRight.style.border = "none";
+    hrRight.style.height = "1px";
+    hrRight.style.backgroundColor = "#ccc";
+    vsContainer.appendChild(hrRight);
+    
+    factionContainer.appendChild(vsContainer);
+    
+    // -------------------
+    // 5. Opponent Matchup Row
+    // -------------------
+    // Instead of listing opponents vertically, we display them horizontally.
+    // For each opponent (if matchup data is recorded) we show the faction image and overlay the W/L ratio.
+    const opponentRow = document.createElement("div");
+    opponentRow.style.display = "flex";
+    opponentRow.style.justifyContent = "space-around";
+    opponentRow.style.flexWrap = "wrap";
+    
+    factions.forEach((opponent, opIdx) => {
+      const stats = matchupStats[faction][opponent];
+      // Skip if there is no record (both wins and losses are zero). (Optional: you might wish to display all.)
+      if (stats.wins === 0 && stats.losses === 0) return;
+      
+      const oppCont = document.createElement("div");
+      oppCont.style.position = "relative";
+      oppCont.style.display = "flex";
+      oppCont.style.flexDirection = "column";
+      oppCont.style.alignItems = "center";
+      oppCont.style.margin = "5px";
+      
+      // Append opponent faction image
+      //setFactionImage(opponent, oppCont, opIdx);
+      const facIcon = document.createElement("img");
+      facIcon.src = `assets/img/${facIcons[opIdx]}.png`;
+      facIcon.height = facIcon.naturalHeight * 0.6;
+      facIcon.onload = () => {
+        facIcon.height = facIcon.naturalHeight * 0.6;
+      }
+      facIcon.alt = "icon";
+      oppCont.appendChild(facIcon);
+      
+      // Add overlay span for W/L record over the bottom of the image
+      const wlSpan = document.createElement("span");
+      wlSpan.textContent = `W ${stats.wins} : ${stats.losses} L`;
+      wlSpan.style.textWrap = "nowrap";
+      wlSpan.style.position = "absolute";
+      wlSpan.style.bottom = "0";
+      wlSpan.style.left = "50%";
+      wlSpan.style.transform = "translate(-50%, 50%)";
+      // wlSpan.style.backgroundColor = "rgba(0,0,0,0.7)";
+      wlSpan.style.color = "white";
+      wlSpan.style.fontSize = "0.8em";
+      wlSpan.style.padding = "2px 4px";
+      wlSpan.style.borderRadius = "3px";
+      oppCont.appendChild(wlSpan);
+      
+      opponentRow.appendChild(oppCont);
+    });
+    
+    factionContainer.appendChild(opponentRow);
+
+    // Finally, append the entire faction container to the main container.
+    container.appendChild(factionContainer);
 
     factionContainer.style.cursor = "pointer";
     factionContainer.addEventListener("click", () => {
@@ -3272,7 +3427,7 @@ const filterFac = [false,false,false,false,false,false]
     console.log(`Most Early Deaths: ${mostEarlyDeaths.id}`, mostEarlyDeaths);
     
   }
-       // console.log("Alyss", playerStats[1085169]);
+       console.log("Alyss", playerStats[1085169]);
 
   // Process each match and round.
   matches.forEach((match, matchID) => {
@@ -4117,7 +4272,7 @@ function renderMatchList() {
       team0Classes.style.justifyContent = "center";
       team0Classes.style.alignItems = "flex-end";
       teamClasses.team0.forEach((className) => {
-        setClassImage(className, team0Classes); // Use the reusable function
+        setClassImage(className, team0Classes, 0, 0.5); // Use the reusable function
       });
       team0Div.appendChild(team0Classes);
 
@@ -4168,7 +4323,7 @@ function renderMatchList() {
       team1Classes.style.justifyContent = "center";
       team1Classes.style.alignItems = "flex-end";
       teamClasses.team1.forEach((className) => {
-        setClassImage(className, team1Classes, 1); // Use the reusable function
+        setClassImage(className, team1Classes, 1, 0.5); // Use the reusable function
       });
       team1Div.appendChild(team1Classes);
 
@@ -4492,7 +4647,7 @@ function renderHalfList(halves) {
         classContainer.style.display = "inline-block"; // Keeps both elements together
 
         // Append the class image
-        setClassImage(className, classContainer); // Assuming setClassImage returns an image element
+        setClassImage(className, classContainer, 0, 0.5); // Assuming setClassImage returns an image element
 
         // Check if this player is the MVP
         if (i === match0.rounds[match0.rounds.length - 1].players.indexOf(topPlayers.team0.name)) {
@@ -4568,7 +4723,7 @@ function renderHalfList(halves) {
         classContainer.style.display = "inline-block"; // Keeps both elements together
 
         // Append the class image
-        setClassImage(className, classContainer, 1); // Assuming setClassImage returns an image element
+        setClassImage(className, classContainer, 1, 0.5); // Assuming setClassImage returns an image element
 
         // Check if this player is the MVP
         if (i === match0.rounds[match0.rounds.length - 1].players.indexOf(topPlayers.team1.name)) {
@@ -4712,7 +4867,7 @@ function renderHalfList(halves) {
   }
 }
 
-function setClassImage(usedclass, targetElement, flip) {
+function setClassImage(usedclass, targetElement, flip, s) {
   let type = null;
 
   if (infClasses.some(className => usedclass.includes(className))) {
@@ -4726,9 +4881,9 @@ function setClassImage(usedclass, targetElement, flip) {
   if (type) {
     const classImage = document.createElement("img");
     classImage.src = `assets/img/class_${type}.png`;
-    classImage.height = classImage.naturalHeight * 0.5;
+    classImage.height = classImage.naturalHeight * s;
     classImage.onload = () => {
-      classImage.height = classImage.naturalHeight * 0.5;
+      classImage.height = classImage.naturalHeight * s;
     }
     if (flip) classImage.style.transform = "scaleX(-1)";
     classImage.style.paddingLeft = "8px";
