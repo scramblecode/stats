@@ -2783,8 +2783,8 @@ function renderFactionList() {
       wlSpan.textContent = `W ${stats.wins} : ${stats.losses} L`;
       wlSpan.style.textWrap = "nowrap";
       wlSpan.style.position = "absolute";
-      wlSpan.style.bottom = "0";
-      wlSpan.style.left = "50%";
+      wlSpan.style.bottom = "10%";
+      wlSpan.style.left = "45%";
       wlSpan.style.transform = "translate(-50%, 50%)";
       // wlSpan.style.backgroundColor = "rgba(0,0,0,0.7)";
       wlSpan.style.color = "white";
@@ -3205,7 +3205,7 @@ function renderTournamentList() {
 
   currentTournamentDiv.appendChild(currentTitle);
   currentTournamentDiv.appendChild(currentInfo);
-  container.appendChild(currentTournamentDiv);
+  //container.appendChild(currentTournamentDiv);
 
   // Create Previous Tournaments Section
   const previousTournamentsDiv = document.createElement("div");
@@ -3217,9 +3217,9 @@ function renderTournamentList() {
   completedTitle.textContent = "COMPLETED TOURNAMENTS:";
 
   // Create List of Previous Tournaments
-  const previousTournaments = ["Roberta's 2025 Scramble League"];
+  const previousTournaments = ["Mountless Mayhem 2v2", "Roberta's 2025 Scramble League"];
   const previousList = document.createElement("ul");
-  previousTournaments.forEach((tournament) => {
+  previousTournaments.forEach((tournament, idx) => {
     const listItem = document.createElement("li");
     listItem.textContent = tournament;
     listItem.style.margin = "0px";
@@ -3227,7 +3227,7 @@ function renderTournamentList() {
 
     // Add onClick to each previous tournament
     listItem.onclick = () => {
-      updateURLToBracket(0);
+      updateURLToBracket(previousTournaments.length - (idx + 1));
       body.style.backgroundImage = "url('assets/img/mb3.png')";
     };
 
@@ -3362,6 +3362,8 @@ const filterFac = [false,false,false,false,false,false]
       kills: 0,
       earlyKills: 0,
       earlyDeaths: 0,
+      firstDeaths: 0,
+      lastDeaths: 0,
       classes: [],
       deaths: 0,
       assists: 0,
@@ -3378,6 +3380,21 @@ const filterFac = [false,false,false,false,false,false]
     match.rounds.forEach((round, roundID) => {
       const { kills, deaths, teamkilled, death_times, flag_time, players } = round;
 
+
+      //handle first-to-die and last-to-die stat 
+      if(deaths.length > 0){
+        const ftd = deaths[0];
+        const ltd = deaths[deaths.length-1];
+        const ftdId = nameToIdMap.get(ftd.toLowerCase());
+        const ltdId = nameToIdMap.get(ltd.toLowerCase());
+
+        if(ftdId) {
+          playerStats[ftdId].firstDeaths += 1;
+        }
+        if(ltdId) {
+          playerStats[ltdId].lastDeaths += 1;
+        }
+      }
       if(flag_time === undefined || flag_time[0] === undefined) return;
       // Convert flag_time to seconds
       const flagSeconds = timeToSeconds(flag_time[0]);
@@ -3404,30 +3421,14 @@ const filterFac = [false,false,false,false,false,false]
         if (playerId) {
           playerStats[playerId].earlyDeaths += 1;
 
-          // If this player also had a kill at this index, count it as an early kill
           if (killerId) {
             playerStats[killerId].earlyKills += 1;
           }
         }
+          
       }
     });
   });
-
-  // Find the players with the most early kills & deaths
-  const mostEarlyKills = Object.entries(playerStats).reduce((best, [id, stats]) =>
-  stats.earlyKills > (best.stats?.earlyKills || 0) ? { id, stats } : best, {});
-
-  const mostEarlyDeaths = Object.entries(playerStats).reduce((best, [id, stats]) =>
-    stats.earlyDeaths > (best.stats?.earlyDeaths || 0) ? { id, stats } : best, {});
-
-  if(mostEarlyKills.id && mostEarlyDeaths.id){  
-    console.log(`Most Early Kills: ${playerNames[playerIds.indexOf(mostEarlyKills.id)][0]} (${mostEarlyKills.stats.earlyKills})`);
-    console.log(`Most Early Deaths: ${playerNames[playerIds.indexOf(mostEarlyDeaths.id)][0]} (${mostEarlyDeaths.stats.earlyDeaths})`);
-    console.log(`Most Early Kills: ${mostEarlyKills.id}`, mostEarlyKills);
-    console.log(`Most Early Deaths: ${mostEarlyDeaths.id}`, mostEarlyDeaths);
-    
-  }
-       console.log("Alyss", playerStats[1085169]);
 
   // Process each match and round.
   matches.forEach((match, matchID) => {
@@ -3544,6 +3545,33 @@ const filterFac = [false,false,false,false,false,false]
     });
   });
 
+
+  // // Find the players with the most early kills & deaths
+  // const mostEarlyKills = Object.entries(playerStats).reduce((best, [id, stats]) =>
+  // stats.earlyKills > (best.stats?.earlyKills || 0) ? { id, stats } : best, {});
+
+  // const mostEarlyDeaths = Object.entries(playerStats).reduce((best, [id, stats]) =>
+  //   stats.earlyDeaths > (best.stats?.earlyDeaths || 0) ? { id, stats } : best, {});
+
+  // const mostFirstDeaths = Object.entries(playerStats).reduce((best, [id, stats]) =>
+  //   stats.firstDeaths > (best.stats?.firstDeaths || 0) ? { id, stats } : best, {});
+
+  // const mostLastDeaths = Object.entries(playerStats).reduce((best, [id, stats]) =>
+  //   stats.lastDeaths > (best.stats?.lastDeaths || 0) ? { id, stats } : best, {});
+
+  // if(mostEarlyKills.id && mostEarlyDeaths.id){  
+  //   console.log(`Most Early Kills: ${playerNames[playerIds.indexOf(mostEarlyKills.id)][0]} (${mostEarlyKills.stats.earlyKills})`);
+  //   console.log(`Most Early Deaths: ${playerNames[playerIds.indexOf(mostEarlyDeaths.id)][0]} (${mostEarlyDeaths.stats.earlyDeaths})`);
+    
+  //   console.log(`Most First Deaths: ${playerNames[playerIds.indexOf(mostFirstDeaths.id)][0]} (${mostFirstDeaths.stats.firstDeaths})`);
+  //   console.log(`Most Last Deaths: ${playerNames[playerIds.indexOf(mostLastDeaths.id)][0]} (${mostLastDeaths.stats.lastDeaths})`);
+  //   // console.log(`Most Early Kills: ${mostEarlyKills.id}`, mostEarlyKills);
+  //   // console.log(`Most Early Deaths: ${mostEarlyDeaths.id}`, mostEarlyDeaths);
+    
+  // }
+       //console.log("Alyss", playerStats[1085169]);
+
+
   // Convert stats object into an array for sorting or display.
   let statsArray = playerIds.map(id => ({
     id,
@@ -3619,6 +3647,7 @@ function renderPlayersList(s1, s2, title="All Player Stats") {
 
             //filters 
             const filterContainer = document.createElement("div");
+
             const filterH = document.createElement("div");
             filterH.textContent = "Filters";
             filterH.style.marginTop = "0";

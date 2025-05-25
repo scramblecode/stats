@@ -192,9 +192,12 @@
         "4411072",
         "1821604",
         "3648886",
-        "3847473"
+        "3847473",
+        "1982963",
+        "413921",
+        "4513665"
     ],
-    "number_of_players": 193,
+    "number_of_players": 196,
     "player_names": [
         [
             "SERVER"
@@ -270,7 +273,8 @@
             "Tangawizi",
             "Wandering_Minstrel",
             "Merchants_Brother",
-            "Merchant_of_Jelkala"
+            "Merchant_of_Jelkala",
+            "Drunk_Roach"
         ],
         [
             "Nasa",
@@ -529,7 +533,8 @@
             "KoA_MacaroniMonday_John",
             "KoA_TacosauceTuesday_John",
             "KoA_TacodipThursday_John",
-            "KoA_FritoFriday_John"
+            "KoA_FritoFriday_John",
+            "KoA_Sopapilla_Saturday_John"
         ],
         [
             "[GF]Pichurin",
@@ -782,7 +787,8 @@
             "bourbon_street_chicken",
             "fiesta_lime_chicken",
             "bourbon_street_shrimp",
-            "spinach_n_artichoke_dip"
+            "spinach_n_artichoke_dip",
+            "triple_dipper"
         ],
         [
             "vampyrum"
@@ -1122,6 +1128,15 @@
         ],
         [
             "IAmDairy"
+        ],
+        [
+            "[swann]mech"
+        ],
+        [
+            "Pirate_Software"
+        ],
+        [
+            "liendre777"
         ]
     ]
 }
