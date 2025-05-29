@@ -342,7 +342,8 @@
             "Saddle_Horse",
             "[tHS]Window_Licker",
             "Khanos",
-            "[tHS]Bunions_the_Bunyip"
+            "[tHS]Bunions_the_Bunyip",
+            "[tHS]Cheesenos"
         ],
         [
             "Hemp",
@@ -545,7 +546,9 @@
             "KoA_FritoFriday_John",
             "KoA_Sopapilla_Saturday_John",
             "KoA_SomedaySundaeSunday_John",
-            "KoA_TippityTopTuesday_John"
+            "KoA_TippityTopTuesday_John",
+            "KoA_WoollyWednesday_John",
+            "KoA_WoollyKhanWednesday_John"
         ],
         [
             "[GF]Pichurin",
@@ -693,7 +696,8 @@
             "Ghost_of_Christmas_Past",
             "War_in_Moon",
             "Knight_Pomerania",
-            "George_of_Clinton"
+            "George_of_Clinton",
+            "Crypt_Keeper"
         ],
         [
             "Artimenner",
