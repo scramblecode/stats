@@ -1287,20 +1287,20 @@ function getWinner(result){
     document.body.appendChild(messageContainer);
 
 
-    // Function to convert a timestamp to seconds
-    function timestampToSeconds(timestamp) {
-      const timeParts = timestamp.split(":").map(Number); // Split and parse the timestamp
-      return timeParts[0] * 3600 + timeParts[1] * 60 + timeParts[2]; // Convert to seconds
-    }
+    // // Function to convert a timestamp to seconds
+    // function timestampToSeconds(timestamp) {
+    //   const timeParts = timestamp.split(":").map(Number); // Split and parse the timestamp
+    //   return timeParts[0] * 3600 + timeParts[1] * 60 + timeParts[2]; // Convert to seconds
+    // }
 
     // Determine the earlier time between flag_time and first death time
-    const flagInSeconds = round.flag_time.length > 0 ? timestampToSeconds(round.flag_time[0]) : 999999999;
-    const firstDeathInSeconds = timestampToSeconds(round.death_times[0]);
+    const flagInSeconds = round.flag_time.length > 0 ? getElapsedTime(round.flag_time[0], round.start_time) : 999999999;
+    const firstDeathInSeconds = getElapsedTime(round.death_times[0], round.start_time);
     const earliestTimeInSeconds = Math.min(flagInSeconds, firstDeathInSeconds); // Use the earlier time
 
     // Function to calculate the delay from the earliest time
-    function calculateDelay(timestamp) {
-      const timestampInSeconds = timestampToSeconds(timestamp); // Convert to seconds
+    function calculateDelay(timestamp, start) {
+      const timestampInSeconds = getElapsedTime(timestamp, start); // Convert to seconds
       return (timestampInSeconds - earliestTimeInSeconds) * 333; // Delay in milliseconds / 5
     }
 
@@ -1321,6 +1321,7 @@ function getWinner(result){
         message.style.opacity = "1"; // Initially fully visible
 
         groups = content.split(" ");
+        if (groups[1] === "") groups.splice(1,1);
         if(groups[1]?.includes("ico")){
           // Add killer text
           const killer = document.createElement("span");
@@ -2196,7 +2197,61 @@ function trackScrollPosition(tabId) {
     });
   }
 }
-  // --- The rest of your functions handling URL updates, landing page, etc.
+
+
+const subTabs = [
+  { label: "HISTORY", id: "history" },
+  { label: "VERSUS", id: "versus" },
+  // { label: "MISC", id: "halfs" },
+];
+
+function renderSubTabBar(contentDiv, activeTabId){
+  
+      // Create the tab bar.
+      const tabsContainer = document.createElement("div");
+      //tabsContainer.className = "tabs-container";
+      const tabBar = document.createElement("div");
+      tabBar.className = "tabs";
+      tabs.forEach((tabInfo) => {
+            const tab = document.createElement("div");
+            tab.className = "tab";
+            tab.textContent = tabInfo.label;
+            tab.dataset.tab = tabInfo.id;
+            // if (tabInfo.id === "bracket") {
+            //   tab.classList.add("active");
+            // }
+            if (tabInfo.id === activeTabId) {
+              tab.classList.add("active");
+            }
+            tab.addEventListener("click", () => {
+              const tabContentContainer = document.getElementById("tab-content");
+              if (tabContentContainer) {
+                //console.log(activeTabId, tabContentContainer.scrollTop)
+                scrollPositions[activeTabId] = tabContentContainer.scrollTop; // Save the scroll position for the current tab
+              }
+              // Remove active class from all tabs.
+              document.querySelectorAll(".tabs .tab").forEach((t) => t.classList.remove("active"));
+              tab.classList.add("active");
+              
+              // Render content for the selected tab.
+              renderLandingPage(tabInfo.id)
+              //renderTabContent(tabInfo.id);
+            });
+            tabBar.appendChild(tab);
+          });
+        tabsContainer.appendChild(tabBar)
+        contentDiv.appendChild(tabsContainer)
+      }
+      
+function trackScrollPosition(tabId) {
+  const tabContentContainer = document.getElementById("tab-content");
+  if (tabContentContainer) {
+    tabContentContainer.addEventListener("scroll", () => {
+      scrollPositions[tabId] = tabContentContainer.scrollTop; // Save the current scroll position for the tab
+    });
+  }
+}
+
   // (They remain largely the same as your existing code.)
   function renderLandingPage(tab) {
       const contentDiv = document.getElementById("content");
@@ -3327,6 +3382,18 @@ function timeToSeconds(time) {
   return hours * 3600 + minutes * 60 + seconds;
 }
 
+// Returns elapsed seconds since start_time, handling midnight rollover.
+function getElapsedTime(time, start_time) {
+  const timeSec = timeToSeconds(time);
+  const startSec = timeToSeconds(start_time);
+  let elapsed = timeSec - startSec;
+  // If negative, it passed midnight so add 24 hours (86400 seconds)
+  if (elapsed < 0) {
+    elapsed += 24 * 3600;
+  }
+  return elapsed;
+}
+
 let filterArc = false;
 let filterCav = false;
 let filterInf = false;
@@ -3378,7 +3445,7 @@ const filterFac = [false,false,false,false,false,false]
 
   matches.forEach((match, MID) => {
     match.rounds.forEach((round, roundID) => {
-      const { kills, deaths, teamkilled, death_times, flag_time, players } = round;
+      const { kills, deaths, teamkilled, death_times, flag_time, start_time, players } = round;
 
 
       //handle first-to-die and last-to-die stat 
@@ -3397,12 +3464,12 @@ const filterFac = [false,false,false,false,false,false]
       }
       if(flag_time === undefined || flag_time[0] === undefined) return;
       // Convert flag_time to seconds
-      const flagSeconds = timeToSeconds(flag_time[0]);
+      const flagSeconds = getElapsedTime(flag_time[0], start_time);
 
       let tkid = 0; // Counter for teamkills
 
       for (let i = 0; i < death_times.length; i++) {
-        const deathSeconds = timeToSeconds(death_times[i]);
+        const deathSeconds = getElapsedTime(death_times[i], start_time);
 
         if (deathSeconds > flagSeconds) break; // Stop if first death is after flag time
 
@@ -3546,29 +3613,29 @@ const filterFac = [false,false,false,false,false,false]
   });
 
 
-  // // Find the players with the most early kills & deaths
-  // const mostEarlyKills = Object.entries(playerStats).reduce((best, [id, stats]) =>
-  // stats.earlyKills > (best.stats?.earlyKills || 0) ? { id, stats } : best, {});
+  // Find the players with the most early kills & deaths
+  const mostEarlyKills = Object.entries(playerStats).reduce((best, [id, stats]) =>
+  stats.earlyKills > (best.stats?.earlyKills || 0) ? { id, stats } : best, {});
 
-  // const mostEarlyDeaths = Object.entries(playerStats).reduce((best, [id, stats]) =>
-  //   stats.earlyDeaths > (best.stats?.earlyDeaths || 0) ? { id, stats } : best, {});
+  const mostEarlyDeaths = Object.entries(playerStats).reduce((best, [id, stats]) =>
+    stats.earlyDeaths > (best.stats?.earlyDeaths || 0) ? { id, stats } : best, {});
 
-  // const mostFirstDeaths = Object.entries(playerStats).reduce((best, [id, stats]) =>
-  //   stats.firstDeaths > (best.stats?.firstDeaths || 0) ? { id, stats } : best, {});
+  const mostFirstDeaths = Object.entries(playerStats).reduce((best, [id, stats]) =>
+    stats.firstDeaths > (best.stats?.firstDeaths || 0) ? { id, stats } : best, {});
 
-  // const mostLastDeaths = Object.entries(playerStats).reduce((best, [id, stats]) =>
-  //   stats.lastDeaths > (best.stats?.lastDeaths || 0) ? { id, stats } : best, {});
+  const mostLastDeaths = Object.entries(playerStats).reduce((best, [id, stats]) =>
+    stats.lastDeaths > (best.stats?.lastDeaths || 0) ? { id, stats } : best, {});
 
-  // if(mostEarlyKills.id && mostEarlyDeaths.id){  
-  //   console.log(`Most Early Kills: ${playerNames[playerIds.indexOf(mostEarlyKills.id)][0]} (${mostEarlyKills.stats.earlyKills})`);
-  //   console.log(`Most Early Deaths: ${playerNames[playerIds.indexOf(mostEarlyDeaths.id)][0]} (${mostEarlyDeaths.stats.earlyDeaths})`);
+  if(mostEarlyKills.id && mostEarlyDeaths.id){  
+    console.log(`Most Early Kills: ${playerNames[playerIds.indexOf(mostEarlyKills.id)][0]} (${mostEarlyKills.stats.earlyKills})`);
+    console.log(`Most Early Deaths: ${playerNames[playerIds.indexOf(mostEarlyDeaths.id)][0]} (${mostEarlyDeaths.stats.earlyDeaths})`);
     
-  //   console.log(`Most First Deaths: ${playerNames[playerIds.indexOf(mostFirstDeaths.id)][0]} (${mostFirstDeaths.stats.firstDeaths})`);
-  //   console.log(`Most Last Deaths: ${playerNames[playerIds.indexOf(mostLastDeaths.id)][0]} (${mostLastDeaths.stats.lastDeaths})`);
-  //   // console.log(`Most Early Kills: ${mostEarlyKills.id}`, mostEarlyKills);
-  //   // console.log(`Most Early Deaths: ${mostEarlyDeaths.id}`, mostEarlyDeaths);
+    console.log(`Most First Deaths: ${playerNames[playerIds.indexOf(mostFirstDeaths.id)][0]} (${mostFirstDeaths.stats.firstDeaths})`);
+    console.log(`Most Last Deaths: ${playerNames[playerIds.indexOf(mostLastDeaths.id)][0]} (${mostLastDeaths.stats.lastDeaths})`);
+    console.log(`Most Early Kills: ${mostEarlyKills.id}`, mostEarlyKills);
+    console.log(`Most Early Deaths: ${mostEarlyDeaths.id}`, mostEarlyDeaths);
     
-  // }
+  }
        //console.log("Alyss", playerStats[1085169]);
 
 
