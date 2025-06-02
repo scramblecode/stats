@@ -2134,11 +2134,13 @@ const pickupSeason1 = [44, 73, "MARCH"];
 //April 2025
 const pickupSeason2 = [74, 348, "APRIL"];
 
+const pickupSeason3 = [349, 709, "MAY"];
+
 //ongoing season -- move to the fetch response to automate
-const currentSeason = [349, 394, "MAY"];
+const currentSeason = [710, 709, "JUNE"];
 
 //pickup "seasons" (monthly aggregate)
-const pickupSeasons = [pickupSeason1, pickupSeason2, currentSeason];
+const pickupSeasons = [pickupSeason1, pickupSeason2, pickupSeason3, currentSeason];
 
 // Define the tabs. By default "scrims" is active.
 const tabs = [
@@ -4597,7 +4599,7 @@ function renderHalfList(halves) {
             snwrapUp.style.borderBottom = "1px solid #ccc";
             snwrapUp.addEventListener("click", () => {
               renderLandingPage("players");
-              renderPlayersList(pickupSeasons[i][0], pickupSeasons[i][1], `${pickupSeasons[i][2]} WRAP UP`)
+              renderPlayersList(pickupSeasons[i][0], pickupSeasons[i][1]+1, `${pickupSeasons[i][2]} WRAP UP`)
             });
             container.appendChild(snwrapUp);
       }
