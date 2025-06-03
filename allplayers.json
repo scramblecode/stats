@@ -348,7 +348,12 @@
             "[tHS]Bunions_the_Bunyip",
             "[tHS]Cheesenos",
             "[tHS]Hempnos",
-            "[tHS]ByuByu"
+            "[tHS]ByuByu",
+            "Nignos",
+            "TemplarAdmin",
+            "BR_Byunos",
+            "[BR]Byunos",
+            "[BR]Ratnos"
         ],
         [
             "Hemp",
@@ -362,7 +367,8 @@
             "Hemp_The_Archererest",
             "[tHS]Hemp",
             "DoF_SangraeI_Erminas",
-            "DoF_SangraeIPrince_Erminas"
+            "DoF_SangraeIPrince_Erminas",
+            "[BR]Hemp"
         ],
         [
             "Chinngis_Qahan"
@@ -392,7 +398,8 @@
             "Ringhis_Khan",
             "I_REALLY_NEED_RELIEF",
             "I_NEED_SOME_RELIEF",
-            "Cow_Are_You_Playing"
+            "Cow_Are_You_Playing",
+            "Ratwin_Rommel"
         ],
         [
             "Cow",
@@ -406,7 +413,8 @@
         [
             "Wrisq",
             "Quintannia",
-            "Bean_Fondler"
+            "Bean_Fondler",
+            "[BR]Racist_Wrisq"
         ],
         [
             "Fail_BEANSACKS",
@@ -459,7 +467,8 @@
             "Rolo",
             "Duck_Drinker",
             "Sink_Sniffer",
-            "Khanros"
+            "Khanros",
+            "[BR]Kairos"
         ],
         [
             "EbdanianAdmiral",
@@ -562,7 +571,8 @@
             "KoA_WoollyKhanWednesday_John",
             "KoA_TacoThursday_John",
             "KoA_SillySalamiSaturday_John",
-            "KoA_SuperSunday_John"
+            "KoA_SuperSunday_John",
+            "KoA_MeatloafMonday_John"
         ],
         [
             "[GF]Pichurin",
@@ -683,7 +693,8 @@
         ],
         [
             "Xearian",
-            "Mutt_Maimer_X"
+            "Mutt_Maimer_X",
+            "Rat_Hitler"
         ],
         [
             "Hey_Vordiac"
@@ -831,7 +842,8 @@
             "Beaner"
         ],
         [
-            "ser_aporta"
+            "ser_aporta",
+            "last_pick"
         ],
         [
             "logman-alt"
