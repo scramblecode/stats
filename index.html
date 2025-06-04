@@ -78,7 +78,8 @@ const closedMaps = [
   "Winterburg",
   "Beairteas",
   "Aldea Dumar",
-  "Village"
+  "Village",
+  "Cheesetown"
 ];
 
 const allMaps = [...openMaps, ...closedMaps];
@@ -87,6 +88,36 @@ const allMaps = [...openMaps, ...closedMaps];
 const fullStats = ["Player", "Kills", "Deaths", "Assists", "DMG", "TKs", "TDMG"];
 const smolStats = ["Plyr", "K", "D", "A", "Dm", "TK", "TDm"];
 const colNames = [...fullStats];
+
+const imageCache = {};
+const imageSources = ["class_arc", "class_cav", "class_inf", 
+"flag_swadia", "flag_vaegir", "flag_khergit", "flag_nord", "flag_rhodok", "flag_sarranid",];
+
+function preloadImages() {
+  imageSources.forEach(src => {
+    const img = new Image();
+    img.src = `assets/img/${src}.png`;
+    imageCache[src] = img;
+  });
+}
+
+
+preloadImages();
+
+// Now, when you need a new image element somewhere,
+// simply clone the preloaded image.
+function getCachedImage(src) {
+  // Ensure the image is already loaded!
+  if (imageCache[src]) {
+    // Use cloneNode(true) to get a deep copy if needed.
+    return imageCache[src].cloneNode();
+  }
+  // if not preloaded, fallback to creating a new one (or trigger a preload)
+  const newImg = new Image();
+  newImg.src = `assets/img/${src}`;
+  return newImg;
+}
+
 if (window.innerWidth < window.innerHeight) {
         for (let i = 0; i < colNames.length; i++) {
             colNames[i] = smolStats[i]; // Replace values
@@ -1041,8 +1072,9 @@ function getWinner(result){
             infContainer.style.display = "inline-block";
             infContainer.style.marginLeft = "8px";
 
-            const infclass = document.createElement("img");
-            infclass.src = "assets/img/class_inf.png";
+            // const infclass = document.createElement("img");
+            // infclass.src = "assets/img/class_inf.png";
+            const infclass = getCachedImage("class_inf");
             infclass.alt = "inf";
             if (flip) infclass.style.transform = "scaleX(-1)";
             //infclass.style.filter = `grayscale(${+dead})`;
@@ -1073,8 +1105,9 @@ function getWinner(result){
             cavContainer.style.display = "inline-block";
             cavContainer.style.marginLeft = "8px";
 
-            const cavclass = document.createElement("img");
-            cavclass.src = "assets/img/class_cav.png";
+            // const cavclass = document.createElement("img");
+            // cavclass.src = "assets/img/class_cav.png";
+            const cavclass = getCachedImage("class_cav");
             cavclass.alt = "cav";
             if (flip) cavclass.style.transform = "scaleX(-1)";
             //cavclass.style.filter = `grayscale(${+dead})`;
@@ -1105,8 +1138,9 @@ function getWinner(result){
             arcContainer.style.display = "inline-block";
             arcContainer.style.marginLeft = "8px";
 
-            const arcclass = document.createElement("img");
-            arcclass.src = "assets/img/class_arc.png";
+            // const arcclass = document.createElement("img");
+            // arcclass.src = "assets/img/class_arc.png";
+            const arcclass = getCachedImage("class_arc");
             arcclass.alt = "arc";
             if (flip) arcclass.style.transform = "scaleX(-1)";
             //arcclass.style.filter = `grayscale(${+dead})`;
@@ -1210,9 +1244,10 @@ function getWinner(result){
 
     const half1Faction1Div = document.createElement("h2");
     for(let i = 0; i < team0Score; i++){
-      const fac11Img = document.createElement("img");
+      // const fac11Img = document.createElement("img");
+      // fac11Img.src = `assets/img/${flag11}.png`;
       const flag11 = facIcons[factions.indexOf(match.faction_1)];
-      fac11Img.src = `assets/img/${flag11}.png`;
+      const fac11Img = getCachedImage(flag11);
       fac11Img.style.padding = "10px";
       half1Faction1Div.appendChild(fac11Img);
     }
@@ -1222,10 +1257,11 @@ function getWinner(result){
 
     const half1Faction2Div = document.createElement("h2");
     for(let i = 0; i < team1Score; i++){
-      const fac12Img = document.createElement("img");
+      // const fac12Img = document.createElement("img");
+      // fac12Img.src = `assets/img/${flag12}.png`;
       const flag12 = facIcons[factions.indexOf(match.faction_2)];
+      const fac12Img = getCachedImage(flag12);
       fac12Img.style.padding = "10px";
-      fac12Img.src = `assets/img/${flag12}.png`;
       half1Faction2Div.appendChild(fac12Img);
     }
     half1Faction2Div.style.flex = "1";
@@ -1547,9 +1583,10 @@ if (roundIndex === 0) {
     }
     const half1Faction1Div = document.createElement("h2");
     for(let i = 0; i < cumulativeTeam0 + currentChangeTeam0; i++){
-      const fac11Img = document.createElement("img");
+      // const fac11Img = document.createElement("img");
+      // fac11Img.src = `assets/img/${flag11}.png`;
       const flag11 = facIcons[factions.indexOf(match.faction_1)];
-      fac11Img.src = `assets/img/${flag11}.png`;
+      const fac11Img = getCachedImage(flag11);
       fac11Img.style.padding = "10px";
       half1Faction1Div.appendChild(fac11Img);
     }
@@ -1559,10 +1596,12 @@ if (roundIndex === 0) {
 
     const half1Faction2Div = document.createElement("h2");
     for(let i = 0; i <  cumulativeTeam1 + currentChangeTeam1; i++){
-      const fac12Img = document.createElement("img");
+      // const fac12Img = document.createElement("img");
+      // fac12Img.src = `assets/img/${flag12}.png`;
+      
       const flag12 = facIcons[factions.indexOf(match.faction_2)];
+      const fac12Img = getCachedImage(flag12);
       fac12Img.style.padding = "10px";
-      fac12Img.src = `assets/img/${flag12}.png`;
       half1Faction2Div.appendChild(fac12Img);
     }
     half1Faction2Div.style.flex = "1";
@@ -1908,9 +1947,10 @@ half1Team0ScoreDiv.style.textAlign = "right";
 half1Team0ScoreDiv.textContent = halfAgg1.team0Score;
 
 const half1Faction1Div = document.createElement("h2");
-const fac11Img = document.createElement("img");
+// const fac11Img = document.createElement("img");
+// fac11Img.src = `assets/img/${flag11}.png`;
 const flag11 = facIcons[factions.indexOf(half1Info.faction_1)];
-fac11Img.src = `assets/img/${flag11}.png`;
+const fac11Img = getCachedImage(flag11);
 half1Faction1Div.appendChild(fac11Img);
 half1Faction1Div.style.flex = "1";
 half1Faction1Div.style.textAlign = "center";
@@ -1922,9 +1962,10 @@ half1MapDiv.style.textAlign = "center";
 half1MapDiv.textContent = half1Info.map;
 
 const half1Faction2Div = document.createElement("h2");
-const fac12Img = document.createElement("img");
+// const fac12Img = document.createElement("img");
+// fac12Img.src = `assets/img/${flag12}.png`;
 const flag12 = facIcons[factions.indexOf(half1Info.faction_2)];
-fac12Img.src = `assets/img/${flag12}.png`;
+const fac12Img = getCachedImage(flag12);
 half1Faction2Div.appendChild(fac12Img);
 half1Faction2Div.style.flex = "1";
 half1Faction2Div.style.textAlign = "center";
@@ -1960,9 +2001,10 @@ half2Team0ScoreDiv.style.textAlign = "right";
 half2Team0ScoreDiv.textContent = halfAgg2.team0Score;
 
 const half2Faction1Div = document.createElement("h2");
-const fac21Img = document.createElement("img");
+// const fac21Img = document.createElement("img");
+// fac21Img.src = `assets/img/${flag21}.png`;
 const flag21 = facIcons[factions.indexOf(half2Info.faction_1)];
-fac21Img.src = `assets/img/${flag21}.png`;
+const fac21Img = getCachedImage(flag21);
 half2Faction1Div.appendChild(fac21Img);
 half2Faction1Div.style.flex = "1";
 half2Faction1Div.style.textAlign = "center";
@@ -1974,9 +2016,10 @@ half2MapDiv.style.textAlign = "center";
 half2MapDiv.textContent = half2Info.map;
 
 const half2Faction2Div = document.createElement("h2");
-const fac22Img = document.createElement("img");
+// const fac22Img = document.createElement("img");
+// fac22Img.src = `assets/img/${flag22}.png`;
 const flag22 = facIcons[factions.indexOf(half2Info.faction_2)];
-fac22Img.src = `assets/img/${flag22}.png`;
+  const fac22Img = getCachedImage(flag22);
 half2Faction2Div.appendChild(fac22Img);
 half2Faction2Div.style.flex = "1";
 half2Faction2Div.style.textAlign = "center";
@@ -2665,8 +2708,9 @@ function renderFactionList() {
     headerCont.style.alignItems = "center";
 
     const facIconCont = document.createElement("div");
-    const facIcon = document.createElement("img");
-    facIcon.src = `assets/img/${facIcons[idx]}.png`;
+    // const facIcon = document.createElement("img");
+    // facIcon.src = `assets/img/${facIcons[idx]}.png`;
+    const facIcon = getCachedImage(facIcons[idx]);
     facIcon.alt = "icon";
     facIconCont.appendChild(facIcon);
     headerCont.appendChild(facIconCont);
@@ -2826,8 +2870,9 @@ function renderFactionList() {
       
       // Append opponent faction image
       //setFactionImage(opponent, oppCont, opIdx);
-      const facIcon = document.createElement("img");
-      facIcon.src = `assets/img/${facIcons[opIdx]}.png`;
+      // const facIcon = document.createElement("img");
+      // facIcon.src = `assets/img/${facIcons[opIdx]}.png`;
+      const facIcon = getCachedImage(facIcons[opIdx])
       facIcon.height = facIcon.naturalHeight * 0.6;
       facIcon.onload = () => {
         facIcon.height = facIcon.naturalHeight * 0.6;
@@ -3046,6 +3091,7 @@ const extraRotations = [1080, 960, 840];
     // Create an image element for the thumbnail.
     const bannerImg = document.createElement("img");
     bannerImg.src = `assets/img/tbn_${mapName.toLowerCase().replaceAll(" ", "_").replaceAll("'", "")}.png`;
+    bannerImg.loading = "lazy";
     bannerImg.style.display = "block";
     bannerImg.style.margin = "0 auto"; // center the image within the banner
     banner.appendChild(bannerImg);
@@ -3118,9 +3164,10 @@ const extraRotations = [1080, 960, 840];
       factionDiv.style.textAlign = "center";
 
       // Faction flag image.
-      const flagImg = document.createElement("img");
-      // Use the provided path and arrays: facIcons (for filename) and factions (for index)
-      flagImg.src = `assets/img/${facIcons[factions.indexOf(faction)]}.png`;
+      // const flagImg = document.createElement("img");
+      // // Use the provided path and arrays: facIcons (for filename) and factions (for index)
+      // flagImg.src = `assets/img/${facIcons[factions.indexOf(faction)]}.png`;
+      const flagImg = getCachedImage(facIcons[factions.indexOf(faction)]);
       flagImg.style.display = "block";
       // Once the flag loads, resize it to 25% of its natural size.
       flagImg.onload = function() {
@@ -3741,12 +3788,13 @@ function renderPlayersList(s1, s2, title="All Player Stats") {
                 // Loop through the factions array to generate icons
                 factions.forEach((faction, index) => {
                   // Create an icon for each faction
-                  const factionIcon = document.createElement("img");
+                  // const factionIcon = document.createElement("img");
+                  // factionIcon.src = `assets/img/${facIcons[index]}.png`; // Set the image source dynamically
+                  const factionIcon = getCachedImage(facIcons[index]);
                   factionIcon.style.cursor = "pointer";
                   factionIcon.style.width = "30px"; // Adjust size as needed
                   factionIcon.style.height = "30px"; // Adjust size as needed
                   factionIcon.style.objectFit = "contain"; // Ensure the icon fits well within its boundaries
-                  factionIcon.src = `assets/img/${facIcons[index]}.png`; // Set the image source dynamically
                   factionIcon.alt = faction; // Set an alt attribute for accessibility
                   factionIcon.style.filter = `grayscale(${+filterFac[index]})`;
 
@@ -3768,7 +3816,9 @@ function renderPlayersList(s1, s2, title="All Player Stats") {
                   factionContainer.appendChild(factionIcon);
                 });
                 
-                const infclass = document.createElement("img");
+                // const infclass = document.createElement("img");
+                // infclass.src = "assets/img/class_inf.png";
+                const infclass = getCachedImage("class_inf");
                 infclass.style.cursor = "pointer";
                 infclass.onclick = () => {
                   filterInf = !filterInf;
@@ -3782,7 +3832,6 @@ function renderPlayersList(s1, s2, title="All Player Stats") {
                   //console.log("Inf filter:", filterInf)
                 }
                 infclass.style.filter = `grayscale(${+filterInf})`;
-                infclass.src = "assets/img/class_inf.png";
                 infclass.alt = "inf";
                 infclass.height = infclass.naturalHeight * 0.5;
                 infclass.onload = () => {
@@ -3793,7 +3842,9 @@ function renderPlayersList(s1, s2, title="All Player Stats") {
                 //infclass.style.borderBottom = "1px solid #ccc"
                 filterContainer.appendChild(infclass);
 
-                const cavclass = document.createElement("img");
+                // const cavclass = document.createElement("img");
+                // cavclass.src = "assets/img/class_cav.png";
+                const cavclass = getCachedImage("class_cav");
                 cavclass.style.cursor = "pointer";
                 cavclass.onclick = () => {
                   filterCav = !filterCav;
@@ -3807,7 +3858,6 @@ function renderPlayersList(s1, s2, title="All Player Stats") {
                   //console.log("Cav filter:", filterCav)
                 }
                 cavclass.style.filter = `grayscale(${+filterCav})`;
-                cavclass.src = "assets/img/class_cav.png";
                 cavclass.alt = "cav";
                 cavclass.height = cavclass.naturalHeight * 0.5;
                 cavclass.onload = () => {
@@ -3818,7 +3868,9 @@ function renderPlayersList(s1, s2, title="All Player Stats") {
                 //cavclass.style.borderBottom = "1px solid #ccc"
                 filterContainer.appendChild(cavclass);
 
-                const arcclass = document.createElement("img");
+                // const arcclass = document.createElement("img");
+                // arcclass.src = "assets/img/class_arc.png";
+                const arcclass = getCachedImage("class_arc");
                 arcclass.style.cursor = "pointer";
                 arcclass.onclick = () => {
                   filterArc = !filterArc;
@@ -3832,7 +3884,6 @@ function renderPlayersList(s1, s2, title="All Player Stats") {
                   //console.log("Archer filter:", filterArc)
                 }
                 arcclass.style.filter = `grayscale(${+filterArc})`;
-                arcclass.src = "assets/img/class_arc.png";
                 arcclass.alt = "arc";
                 arcclass.height = arcclass.naturalHeight * 0.5;
                 arcclass.onload = () => {
@@ -4106,8 +4157,9 @@ function renderPlayersList(s1, s2, title="All Player Stats") {
                         infContainer.style.display = "inline-block";
                         infContainer.style.marginLeft = "5px";
 
-                        const infclass = document.createElement("img");
-                        infclass.src = "assets/img/class_inf.png";
+                        // const infclass = document.createElement("img");
+                        // infclass.src = "assets/img/class_inf.png";
+                        const infclass = getCachedImage("class_inf");
                         infclass.alt = "inf";
                         infclass.height = infclass.naturalHeight * 0.5;
                         infclass.onload = () => {
@@ -4136,8 +4188,9 @@ function renderPlayersList(s1, s2, title="All Player Stats") {
                         cavContainer.style.display = "inline-block";
                         cavContainer.style.marginLeft = "5px";
 
-                        const cavclass = document.createElement("img");
-                        cavclass.src = "assets/img/class_cav.png";
+                        // const cavclass = document.createElement("img");
+                        // cavclass.src = "assets/img/class_cav.png";
+                        const cavclass = getCachedImage("class_cav");
                         cavclass.alt = "cav";
                         cavclass.height = cavclass.naturalHeight * 0.5;
                         cavclass.onload = () => {
@@ -4166,8 +4219,10 @@ function renderPlayersList(s1, s2, title="All Player Stats") {
                         arcContainer.style.display = "inline-block";
                         arcContainer.style.marginLeft = "5px";
 
-                        const arcclass = document.createElement("img");
-                        arcclass.src = "assets/img/class_arc.png";
+                        // const arcclass = document.createElement("img");
+                        // arcclass.src = "assets/img/class_arc.png";
+
+                        const arcclass = getCachedImage("class_arc");
                         arcclass.alt = "arc";
                         arcclass.height = arcclass.naturalHeight * 0.5;
                         arcclass.onload = () => {
@@ -4339,9 +4394,10 @@ function renderMatchList() {
       team0Image.style.flexDirection = "row";
       team0Image.style.flexWrap = "wrap";
       for(let i = 0; i < team0Score; i++){
-        const fac1Img = document.createElement("img");
+        // const fac1Img = document.createElement("img");
+        // fac1Img.src = `assets/img/${flag1}.png`;
         const flag1 = facIcons[factions.indexOf(match.faction_1)];
-        fac1Img.src = `assets/img/${flag1}.png`;
+        const fac1Img = getCachedImage(flag1);
         fac1Img.height = fac1Img.naturalHeight * 0.5;
         fac1Img.onload = () => {
           fac1Img.height = fac1Img.naturalHeight * 0.5;
@@ -4390,9 +4446,10 @@ function renderMatchList() {
       team1Image.style.flexDirection = "row";
       team1Image.style.flexWrap = "wrap";
       for(let i = 0; i < team1Score; i++){
-        const fac2Img = document.createElement("img");
+        // const fac2Img = document.createElement("img");
+        // fac2Img.src = `assets/img/${flag2}.png`;
         const flag2 = facIcons[factions.indexOf(match.faction_2)];
-        fac2Img.src = `assets/img/${flag2}.png`;
+        const fac2Img = getCachedImage(flag2);
         fac2Img.height = fac2Img.naturalHeight * 0.5;
         fac2Img.onload = () => {
           fac2Img.height = fac2Img.naturalHeight * 0.5;
@@ -4442,6 +4499,7 @@ function renderMatchList() {
       const thmbSrc = match.map.toLowerCase().replaceAll(" ", "_").replaceAll("'","");
 
       mapThumbn.src = `assets/img/tbn_${thmbSrc}.png`
+      mapThumbn.loading = "lazy";
       mapThumbn.alt = "";
       
       // mapThumbn.style.width = "400px"; // Adjust width as needed
@@ -4474,9 +4532,10 @@ function renderMatchList() {
       scoreContainer.style.gap = "10px"; // Space between elements
 
       // Flag 1 (Team 0)
-      const fac1Img = document.createElement("img");
+      // const fac1Img = document.createElement("img");
+      // fac1Img.src = `assets/img/${flag1}.png`;
       const flag1 = facIcons[factions.indexOf(match.faction_1)];
-      fac1Img.src = `assets/img/${flag1}.png`;
+      const fac1Img = getCachedImage(flag1);
       fac1Img.height = fac1Img.naturalHeight * 0.35;
       fac1Img.onload = () => {
         fac1Img.height = fac1Img.naturalHeight * 0.35;
@@ -4493,9 +4552,10 @@ function renderMatchList() {
       scoreContainer.appendChild(scoreDiv);
 
       // Flag 2 (Team 1)
-      const fac2Img = document.createElement("img");
+      // const fac2Img = document.createElement("img");
+      // fac2Img.src = `assets/img/${flag2}.png`;
       const flag2 = facIcons[factions.indexOf(match.faction_2)];
-      fac2Img.src = `assets/img/${flag2}.png`;
+      const fac2Img = getCachedImage(flag2);
       fac2Img.height = fac2Img.naturalHeight * 0.35;
       fac2Img.onload = () => {
         fac2Img.height = fac2Img.naturalHeight * 0.35;
@@ -4712,11 +4772,14 @@ function renderHalfList(halves) {
       team0Image.style.flexDirection = "row";
       team0Image.style.flexWrap = "wrap";
       for(let i = 0; i < team0Score; i++){
-        const fac1Img = document.createElement("img");
-        const flag1 = facIcons[factions.indexOf(match0.faction_1)];
-        const flag2 = facIcons[factions.indexOf(match0.faction_2)];
-        fac1Img.src = `assets/img/${flag1}.png`;
-        if (i > parseInt(match0.score.split("-")[0]-1)) fac1Img.src = `assets/img/${flag2}.png`;
+        // const fac1Img = document.createElement("img");
+        // const flag1 = facIcons[factions.indexOf(match0.faction_1)];
+        // const flag2 = facIcons[factions.indexOf(match0.faction_2)];
+        const flagImg = i > parseInt(match0.score.split("-")[0]-1) ? facIcons[factions.indexOf(match0.faction_2)] : facIcons[factions.indexOf(match0.faction_1)];
+        
+      const fac1Img = getCachedImage(flagImg);
+        // fac1Img.src = `assets/img/${flag1}.png`;
+        // if (i > parseInt(match0.score.split("-")[0]-1)) fac1Img.src = `assets/img/${flag2}.png`;
         fac1Img.height = fac1Img.naturalHeight * 0.5;
         fac1Img.onload = () => {
           fac1Img.height = fac1Img.naturalHeight * 0.5;
@@ -4788,11 +4851,12 @@ function renderHalfList(halves) {
     team1Image.style.flexDirection = "row";
     team1Image.style.flexWrap = "wrap";
     for (let i = 0; i < team1Score; i++) {
-      const facImg = document.createElement("img");
-      const flagImg = facIcons[factions.indexOf(match0.faction_2)];
-      const flag2 = facIcons[factions.indexOf(match0.faction_1)];
-      facImg.src = `assets/img/${flagImg}.png`;
-      if (i > parseInt(match0.score.split(" - ")[1])-1) facImg.src = `assets/img/${flag2}.png`;
+      // const facImg = document.createElement("img");
+      const flagImg = i > parseInt(match0.score.split(" - ")[1])-1 ? facIcons[factions.indexOf(match0.faction_1)] : facIcons[factions.indexOf(match0.faction_2)];
+      // const flag2 = ;
+      // facImg.src = `assets/img/${flagImg}.png`;
+      const facImg = getCachedImage(flagImg);
+      // if (i > parseInt(match0.score.split(" - ")[1])-1) facImg.src = `assets/img/${flag2}.png`;
       facImg.height = facImg.naturalHeight * 0.5;
       facImg.onload = () => {
         facImg.height = facImg.naturalHeight * 0.5;
@@ -4866,6 +4930,7 @@ function renderHalfList(halves) {
 
       mapThumbn.style.objectFit = "cover";
       mapThumbn.style.objectPosition = "center";
+      mapThumbn.loading = "lazy";
       mapThumbn.src = `assets/img/tbn_${thmbSrc}.png`
       mapThumbn.alt = "";
       
@@ -4899,9 +4964,10 @@ function renderHalfList(halves) {
       scoreContainer.style.gap = "10px"; // Space between elements
 
       // Flag 1 (Team 0)
-      const fac1Img = document.createElement("img");
+      // const fac1Img = document.createElement("img");
+      // fac1Img.src = `assets/img/${flag1}.png`;
       const flag1 = facIcons[factions.indexOf(match0.faction_1)];
-      fac1Img.src = `assets/img/${flag1}.png`;
+      const fac1Img = getCachedImage(flag1);
       fac1Img.height = fac1Img.naturalHeight * 0.35;
       fac1Img.onload = () => {
         fac1Img.height = fac1Img.naturalHeight * 0.35;
@@ -4918,9 +4984,10 @@ function renderHalfList(halves) {
       scoreContainer.appendChild(scoreDiv);
 
       // Flag 2 (Team 1)
-      const fac2Img = document.createElement("img");
+      // const fac2Img = document.createElement("img");
+      // fac2Img.src = `assets/img/${flag2}.png`;
       const flag2 = facIcons[factions.indexOf(match0.faction_2)];
-      fac2Img.src = `assets/img/${flag2}.png`;
+      const fac2Img = getCachedImage(flag2);
       fac2Img.height = fac2Img.naturalHeight * 0.35;
       fac2Img.onload = () => {
         fac2Img.height = fac2Img.naturalHeight * 0.35;
@@ -5559,9 +5626,10 @@ function calculateTotalStats(match) {
     half1Team0ScoreDiv.textContent = m1team0Score;
 
     const half1Faction1Div = document.createElement("h2");
-    const fac11Img = document.createElement("img");
+    // const fac11Img = document.createElement("img");
+    // fac11Img.src = `assets/img/${flag11}.png`;
     const flag11 = facIcons[factions.indexOf(match1Info.faction_1)];
-    fac11Img.src = `assets/img/${flag11}.png`;
+    const fac11Img = getCachedImage(flag11);
     fac11Img.style.margin = "0px";
     half1Faction1Div.appendChild(fac11Img);
     half1Faction1Div.style.flex = "1";
@@ -5574,9 +5642,10 @@ function calculateTotalStats(match) {
     half1MapDiv.textContent = match1Info.map + " Set 1";
 
     const half1Faction2Div = document.createElement("h2");
-    const fac12Img = document.createElement("img");
+    // const fac12Img = document.createElement("img");
+    // fac12Img.src = `assets/img/${flag12}.png`;
     const flag12 = facIcons[factions.indexOf(match1Info.faction_2)];
-    fac12Img.src = `assets/img/${flag12}.png`;
+    const fac12Img = getCachedImage(flag12);
     fac12Img.style.margin = "0px";
     half1Faction2Div.appendChild(fac12Img);
     half1Faction2Div.style.flex = "1";
@@ -5613,9 +5682,10 @@ half2Team0ScoreDiv.style.textAlign = "right";
 half2Team0ScoreDiv.textContent = m2team0Score;
 
 const half2Faction1Div = document.createElement("h2");
-const fac21Img = document.createElement("img");
+// const fac21Img = document.createElement("img");
+// fac21Img.src = `assets/img/${flag21}.png`;
 const flag21 = facIcons[factions.indexOf(match2Info.faction_2)];
-fac21Img.src = `assets/img/${flag21}.png`;
+const fac21Img = getCachedImage(flag21);
 fac21Img.style.margin = "0px";
 half2Faction1Div.appendChild(fac21Img);
 half2Faction1Div.style.flex = "1";
@@ -5628,9 +5698,10 @@ half2MapDiv.style.textAlign = "center";
 half2MapDiv.textContent = match2Info.map + " Set 2";
 
 const half2Faction2Div = document.createElement("h2");
-const fac22Img = document.createElement("img");
+// const fac22Img = document.createElement("img");
+// fac22Img.src = `assets/img/${flag22}.png`;
 const flag22 = facIcons[factions.indexOf(match2Info.faction_1)];
-fac22Img.src = `assets/img/${flag22}.png`;
+const fac22Img = getCachedImage(flag22);
 fac22Img.style.margin = "0px";
 half2Faction2Div.appendChild(fac22Img);
 half2Faction2Div.style.flex = "1";
