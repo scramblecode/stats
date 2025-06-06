@@ -79,7 +79,8 @@ const closedMaps = [
   "Beairteas",
   "Aldea Dumar",
   "Village",
-  "Cheesetown"
+  "Cheesetown",
+  "Cheese Canal"
 ];
 
 const allMaps = [...openMaps, ...closedMaps];
@@ -1313,6 +1314,7 @@ function getWinner(result){
 
     // Create a container for the messages in the bottom-left corner
     const messageContainer = document.createElement("div");
+    messageContainer.style.pointerEvents = "none";
     messageContainer.style.position = "fixed";
     messageContainer.style.bottom = "10px";
     messageContainer.style.left = "10px";
