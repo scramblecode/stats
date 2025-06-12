@@ -209,9 +209,12 @@
         "19846",
         "5133229",
         "1215150",
-        "2401620"
+        "2401620",
+        "3718928",
+        "1232925",
+        "1273788"
     ],
-    "number_of_players": 210,
+    "number_of_players": 213,
     "player_names": [
         [
             "SERVER"
@@ -601,7 +604,9 @@
             "KoA_MeatloafMonday_John",
             "KoA_TacoTimeTuesday_John",
             "KoA_ThunderThursday_John",
-            "KoA_FreddyFriday_John"
+            "KoA_FreddyFriday_John",
+            "KoA_WendyNuggzWednesday_John",
+            "KoA_WarcryKhanWednesday_John"
         ],
         [
             "[GF]Pichurin",
@@ -701,7 +706,8 @@
             "ape43",
             "KOOL-AID_KHAN",
             "spectator4",
-            "spectator3"
+            "spectator3",
+            "mango_man"
         ],
         [
             "marxd",
@@ -1238,7 +1244,8 @@
             "Dodge"
         ],
         [
-            "Nigerian"
+            "Nigerian",
+            "KoA_Nigerian_Knightmare"
         ],
         [
             "GreenKnight"
@@ -1257,6 +1264,16 @@
         ],
         [
             "Orka"
+        ],
+        [
+            "SteelYr"
+        ],
+        [
+            "Flaca"
+        ],
+        [
+            "Sir_Doof",
+            "Wappaw_Spainhower"
         ]
     ]
 }
