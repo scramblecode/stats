@@ -62,11 +62,29 @@
     height: calc(100vh - 160px);
     overflow: hidden; 
 }
+
+#subcontent {
+  width: 100%;
+  margin: 0px;
+  padding: 20px;
+  border: 2px solid #E7E7C6;
+  border-radius: 10px;
+    box-sizing: border-box;
+    position: relative;
+    height: calc(75vh - 160px);
+    overflow: hidden; 
+}
 /* Hide scrollbar for Chrome, Safari and Opera */
 #content::-webkit-scrollbar {
   display: none;
 }
 .tabs-container {
+    position: absolute; /* Ensures `.tabs` stays anchored inside */
+    width: 100%; /* Ensures it spans full width */
+    top: -5px;
+    left: -2px;
+}
+.subtabs-container {
     position: absolute; /* Ensures `.tabs` stays anchored inside */
     width: 100%; /* Ensures it spans full width */
     top: -5px;
