@@ -213,9 +213,10 @@
         "3718928",
         "1232925",
         "1273788",
-        "2633493"
+        "2633493",
+        "1036465"
     ],
-    "number_of_players": 214,
+    "number_of_players": 215,
     "player_names": [
         [
             "SERVER"
@@ -445,7 +446,8 @@
             "Wrisq",
             "Quintannia",
             "Bean_Fondler",
-            "[BR]Racist_Wrisq"
+            "[BR]Racist_Wrisq",
+            "Is_Wrisq_Playing"
         ],
         [
             "Fail_BEANSACKS",
@@ -614,7 +616,8 @@
             "KoA_WarcryKhanWednesday_John",
             "KoA_TortelliniThursday_John",
             "KoA_ByunosColdRightFoot_John",
-            "KoA_SaturnSaturday_John"
+            "KoA_SaturnSaturday_John",
+            "KoA_TacoTuesday_John"
         ],
         [
             "[GF]Pichurin",
@@ -841,7 +844,8 @@
         [
             "Son_of_Blarbus",
             "Benevolent_Son_of_Blarbus",
-            "Blessed_Son_of_Blarbus"
+            "Blessed_Son_of_Blarbus",
+            "Fils_de_Blarbus"
         ],
         [
             "SquishyWater5501"
@@ -1286,6 +1290,9 @@
         ],
         [
             "yosh"
+        ],
+        [
+            "Tr3y"
         ]
     ]
 }
