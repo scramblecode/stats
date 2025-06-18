@@ -604,6 +604,10 @@ console.log("Archer Dmg: " + percentArcDmg + "%");
       
     tabContentContainer.appendChild(infoContainer);
     tabContentContainer.appendChild(statsContainer);
+    // const subContent = document.createElement("div");
+    // subContent.id = "subcontent";
+    // renderSubTabBar(subContent, "history");
+    // tabContentContainer.appendChild(subContent);
     contentDiv.appendChild(tabContentContainer);
 };
 
@@ -2159,6 +2163,40 @@ function fillHalfsList() {
     }
   }
 }
+
+
+let pickups = [];
+let selectedPickup;
+
+function fillPickupsList(startingIndex) {
+  let groupStart = startingIndex; // index in halfs array where the current group begins
+
+  // Helper to convert a time string to seconds.
+  const parseTime = timeStr => {
+    const parts = timeStr.split(":").map(Number);
+    return parts[0] * 3600 + parts[1] * 60 + parts[2];
+  };
+
+  for (let i = startingIndex + 1; i < halfs.length; i++) {
+    const prevMatchId = halfs[i - 1][0];
+    const currMatchId = halfs[i][0];
+    const prevSec = parseTime(matches[prevMatchId].start_time);
+    let currSec = parseTime(matches[currMatchId].start_time);
+    // Handle midnight rollover: if the current time appears “earlier,” add one day.
+    if (currSec < prevSec) currSec += 86400;
+
+    const diff = currSec - prevSec;
+    if (diff > 6 * 3600) {
+      // End the current group at the previous element.
+      pickups.push([groupStart, i - 1]);
+      groupStart = i; // start a new group at the current index.
+    }
+  }
+  // Add the final group.
+  pickups.push([groupStart, halfs.length - 1]);
+  return pickups;
+}
+
 //half1, half2, bSwap
 const scrims = [
   [0,1,0],[2,3,0],[4,5,1],
@@ -2191,10 +2229,11 @@ const pickupSeasons = [pickupSeason1, pickupSeason2, pickupSeason3, currentSeaso
 const tabs = [
   // { label: "DISCORD", id: "home" },
   { label: "TOURNAMENTS", id: "tournaments" },
-  { label: "PICKUPS", id: "matches" },
+  { label: "PICKUPS", id: "pickups" },
   { label: "PLAYERS", id: "players" },
   { label: "MAPS", id: "maps" },
   { label: "FACTIONS", id: "factions" },
+  // { label: "MATCHES", id: "matches" },
   // { label: "MISC", id: "halfs" },
 ];
 let scrollPositions = {};
@@ -2248,6 +2287,8 @@ function trackScrollPosition(tabId) {
 
 const subTabs = [
   { label: "HISTORY", id: "history" },
+  { label: "PLAYERS", id: "players" },
+  { label: "FACTIONS", id: "factions" },
   { label: "VERSUS", id: "versus" },
   // { label: "MISC", id: "halfs" },
 ];
@@ -2256,10 +2297,10 @@ function renderSubTabBar(contentDiv, activeTabId){
   
       // Create the tab bar.
       const tabsContainer = document.createElement("div");
-      //tabsContainer.className = "tabs-container";
+      tabsContainer.className = "subtabs-container";
       const tabBar = document.createElement("div");
       tabBar.className = "tabs";
-      tabs.forEach((tabInfo) => {
+      subTabs.forEach((tabInfo) => {
             const tab = document.createElement("div");
             tab.className = "tab";
             tab.textContent = tabInfo.label;
@@ -2281,7 +2322,7 @@ function renderSubTabBar(contentDiv, activeTabId){
               tab.classList.add("active");
               
               // Render content for the selected tab.
-              renderLandingPage(tabInfo.id)
+              //renderLandingPage(tabInfo.id)
               //renderTabContent(tabInfo.id);
             });
             tabBar.appendChild(tab);
@@ -2346,7 +2387,11 @@ function trackScrollPosition(tabId) {
       } else if (tabId === "matches") {
         body.style.backgroundImage = "url('assets/img/mb2.png')";
         //renderMatchList();
-        renderHalfList(halfs);
+        renderHalfList(halfs.slice(24));
+      } else if (tabId === "pickups") {
+        body.style.backgroundImage = "url('assets/img/mb2.png')";
+        //renderMatchList();
+        renderPickupList();
       } else if (tabId === "halfs") {
         renderMatchList();
       } else if (tabId === "tournaments") {
@@ -2731,7 +2776,7 @@ function renderFactionList() {
     const classStatsRow = document.createElement("div");
     classStatsRow.style.display = "flex";
     classStatsRow.style.justifyContent = "space-around";
-    classStatsRow.style.alignItems = "center";
+    classStatsRow.style.alignItems = "flex-end";
     classStatsRow.style.flexWrap = "wrap";
     
     const roles = ["inf", "arc", "cav"];
@@ -2745,7 +2790,7 @@ function renderFactionList() {
       classCont.style.position = "relative";
       classCont.style.display = "flex";
       classCont.style.flexDirection = "column";
-      classCont.style.alignItems = "center";
+      classCont.style.alignItems = "flex-end";
       classCont.style.margin = "5px";
       classCont.style.paddingRight = "40px";
       
@@ -3184,9 +3229,10 @@ const extraRotations = [1080, 960, 840];
 
       // Overlay win rate text on the flag.
       const winRateDiv = document.createElement("div");
-      winRateDiv.textContent = `${wins}:${appearances - wins}`;
+      winRateDiv.textContent = `W ${wins} : ${appearances - wins} L`;
       // winRateDiv.textContent = `${winRate}%`;
       winRateDiv.style.position = "absolute";
+      winRateDiv.style.textWrap = "nowrap";
       winRateDiv.style.top = "85%";
       winRateDiv.style.left = "50%";
       winRateDiv.style.transform = "translate(-50%, -50%)";
@@ -4602,106 +4648,147 @@ function renderMatchList() {
     container.textContent = "No matches available.";
   }
 }
-//
-function renderHalfList(halves) {
+
+//fill pickups list 
+
+
+function renderPickupList() {
   const container = document.getElementById("tab-content");
   container.innerHTML = ""; // Clear existing content
 
+  // Optional: Render a season aggregate header at the top (as in your original code).
+  const currentSeason = pickupSeasons[pickupSeasons.length - 1];
+  const wrapUp = document.createElement("h1");
+  wrapUp.textContent = `${currentSeason[2]} (CURRENT)`;
+  wrapUp.style.cursor = "pointer";
+  wrapUp.style.paddingBottom = "20px";
+  wrapUp.style.borderBottom = "1px solid #ccc";
+  wrapUp.addEventListener("click", () => {
+    renderLandingPage("players");
+    renderPlayersList(currentSeason[0], matches.length, `${currentSeason[2]} WRAP UP`);
+  });
+  container.appendChild(wrapUp);
 
+  // Render all pickup tiles.
+  // Assume that pickups has been compiled in forward (chronological) order.
+  // To list the most recent first, iterate in reverse order.
+  for (let i = pickups.length - 1; i >= 0; i--) {
+    const pickup = pickups[i]; // pickup is [firstMatch, lastMatch] (lastMatch is inclusive)
+    const tile = document.createElement("h1");
+    tile.textContent = `PICKUP PARTY #${i + 1}`;
+    tile.style.cursor = "pointer";
+    tile.style.paddingBottom = "20px";
+    tile.style.borderBottom = "1px solid #ccc";
+    container.appendChild(tile);
+//past seasons 
+ for(let j=0; j<pickupSeasons.length-1; j++) { 
+  if (halfs[pickup[1]][1] === pickupSeasons[j][1]) 
+  { 
+    const snwrapUp = document.createElement("h1"); 
+    snwrapUp.textContent = `${pickupSeasons[j][2]} WRAP UP`; 
+    snwrapUp.style.cursor = "pointer"; 
+    snwrapUp.style.paddingBottom = "20px"; 
+    snwrapUp.style.borderBottom = "1px solid #ccc"; 
+    snwrapUp.addEventListener("click", () => { 
+      renderLandingPage("players"); 
+      renderPlayersList(pickupSeasons[j][0], pickupSeasons[j][1]+1, `${pickupSeasons[j][2]} WRAP UP`) }); 
+      container.appendChild(snwrapUp); 
+    } 
+  }
+
+  if (selectedPickup == i) {
+    
+      // Create a container for the halfList.
+      const halfListContainer = document.createElement("div");
+      halfListContainer.id = "active-halfList";
+      halfListContainer.style.overflow = "hidden";
+      halfListContainer.style.opacity = 1; // start hidden for our fade-in
+
+      // Insert the halfList container directly after the clicked tile.
+      tile.insertAdjacentElement("afterend", halfListContainer);
+
+      // Render the halfList for this pickup.
+      // Because our boundaries are inclusive we call slice with pickup[1] + 1.
+      // console.log(halfs.slice(pickup[0], pickup[1] + 1))
+      const summary = document.createElement("h2");
+      summary.textContent = `SUMMARY`;
+      summary.style.cursor = "pointer";
+      summary.style.textAlign = "center";
+      summary.style.paddingBottom = "20px";
+      summary.style.borderBottom = "1px solid #ccc";
+      halfListContainer.appendChild(summary);
+      renderHalfList(halfs.slice(pickup[0], pickup[1] + 1), halfListContainer);
+
+      summary.addEventListener("click", function () {
+        renderLandingPage("players")
+        renderPlayersList(halfs[pickup[0]][0], halfs[pickup[1]][1] + 1, `PICKUP PARTY #${selectedPickup + 1}`)
+      });
+  }
+    // Attach click listener to the tile.
+    tile.addEventListener("click", function () {
+      // Check if an active halfList already exists.
+      const activeHalfList = document.getElementById("active-halfList");
+      if (activeHalfList) {
+        // If the active halfList belongs to this tile, toggle it off.
+        if (tile.nextElementSibling && tile.nextElementSibling.id === "active-halfList") {
+          activeHalfList.remove();
+          return;
+        }
+        // Otherwise remove any active halfList.
+        activeHalfList.remove();
+      }
+
+      selectedPickup = i;
+
+      // Create a container for the halfList.
+      const halfListContainer = document.createElement("div");
+      halfListContainer.id = "active-halfList";
+      halfListContainer.style.overflow = "hidden";
+      halfListContainer.style.opacity = 0; // start hidden for our fade-in
+
+      // Insert the halfList container directly after the clicked tile.
+      tile.insertAdjacentElement("afterend", halfListContainer);
+
+      // Render the halfList for this pickup.
+      // Because our boundaries are inclusive we call slice with pickup[1] + 1.
+      // console.log(halfs.slice(pickup[0], pickup[1] + 1))
+      const summary = document.createElement("h2");
+      summary.textContent = `PLAYER STATS`;
+      summary.style.cursor = "pointer";
+      summary.style.textAlign = "center";
+      summary.style.paddingBottom = "20px";
+      summary.style.borderBottom = "1px solid #ccc";
+      halfListContainer.appendChild(summary);
+      renderHalfList(halfs.slice(pickup[0], pickup[1] + 1), halfListContainer);
+
+      summary.addEventListener("click", function () {
+        renderLandingPage("players")
+        renderPlayersList(halfs[pickup[0]][0], halfs[pickup[1]][1] + 1, `PICKUP PARTY #${selectedPickup + 1}`)
+      });
+      // Animate the halfList container (simple fade-in).
+      halfListContainer.animate(
+        [{ opacity: 0 }, { opacity: 1 }],
+        { duration: 300, fill: "forwards" }
+      );
+    });
+  }
+}
+
+//
+function renderHalfList(halves, container) {
+  //const container = document.getElementById("tab-content");
+  //container.innerHTML = ""; // Clear existing content
+
+
+  //NEW: We pre-slice the halfs array (array of IDs) on call
   // Reverse the halves array and skip the first 23 in the original order
-  const startingIndex = 23+1; // Number of halves to skip in original order
-  const halvesToRender = halves.slice(startingIndex); // Adjust for skipping
-  const reversedHalves = halvesToRender.slice().reverse(); // Reverse the halves array
-
-  let lastTimestamp = null;
-  let pickupParties = 1;
-  let partyFirstMatch = reversedHalves[0][0]+1;
-  let pickupMatches = [];
-
-    
-    //Season aggregate
-    //hardcoding this for the moment - this will be the ongoing season aggregate once another match is played
-    //if (halfs[ogindex][1] === pickupSeasons[1][1]) {
-          const wrapUp = document.createElement("h1");
-          wrapUp.textContent = `${pickupSeasons[pickupSeasons.length-1][2]} (ONGOING)`;
-          wrapUp.style.cursor = "pointer";
-          wrapUp.style.paddingBottom = "20px";
-          wrapUp.style.borderBottom = "1px solid #ccc";
-          wrapUp.addEventListener("click", () => {
-            renderLandingPage("players");
-            //for current aggregate we use to the end of matches 
-            renderPlayersList(pickupSeasons[pickupSeasons.length-1][0], matches.length, `${pickupSeasons[pickupSeasons.length-1][2]} WRAP UP`)
-          });
-          container.appendChild(wrapUp);
-    //}
-    
-  const lastPickup = document.createElement("h1");
-  lastPickup.id = "pickup-0"
-  lastPickup.textContent = `PICKUP PARTY #${pickupParties + 1}`;
-  lastPickup.style.cursor = "pointer";
-  lastPickup.style.paddingBottom = "20px";
-  lastPickup.style.borderBottom = "1px solid #ccc";
-  container.appendChild(lastPickup);
-  //console.log("LASTPICKUP", halfs[startingIndex][0], partyFirstMatch);
+  //const startingIndex = 23+1; // Number of halves to skip in original order
+  //const halvesToRender = halves.slice(startingIndex); // Adjust for skipping
+  const reversedHalves = halves.slice().reverse(); // Reverse the halves array
 
   reversedHalves.forEach((half, reversedIndex) => {
-
-    const ogindex = halfs.length - 1 - reversedIndex;
-    const curTimestamp = matches[half[0]].start_time;
-    //let hr = "0px";
-
-    //past seasons
-    //console.log(halfs[ogindex][1], pickupSeasons[0][1])
-    for(let i=0; i<pickupSeasons.length-1; i++){
-      if (halfs[ogindex][1] === pickupSeasons[i][1]) {
-        const snwrapUp = document.createElement("h1");
-            snwrapUp.textContent = `${pickupSeasons[i][2]} WRAP UP`;
-            snwrapUp.style.cursor = "pointer";
-            snwrapUp.style.paddingBottom = "20px";
-            snwrapUp.style.borderBottom = "1px solid #ccc";
-            snwrapUp.addEventListener("click", () => {
-              renderLandingPage("players");
-              renderPlayersList(pickupSeasons[i][0], pickupSeasons[i][1]+1, `${pickupSeasons[i][2]} WRAP UP`)
-            });
-            container.appendChild(snwrapUp);
-      }
-    }
-
-    //Daily aggregate
-    if (lastTimestamp) {
-            // Calculate the time difference in seconds
-            const lastTimeParts = lastTimestamp.split(":").map(Number); // Convert hh:mm:ss to [hh, mm, ss]
-            const currentTimeParts = curTimestamp.split(":").map(Number);
-
-            const lastSeconds = lastTimeParts[0] * 3600 + lastTimeParts[1] * 60 + lastTimeParts[2];
-            const currentSeconds = currentTimeParts[0] * 3600 + currentTimeParts[1] * 60 + currentTimeParts[2];
-
-            // Handle midnight rollover
-            const timeDifference = lastSeconds >= currentSeconds
-                ? lastSeconds - currentSeconds // Normal difference
-                : lastSeconds + (86400 - currentSeconds); // Crossing midnight
-
-            if (timeDifference > 6 * 3600) { // More than 6 hours
-                // const lineBreak = document.createElement("hr"); // Create a visual separator (line break)
-                //lineBreak.style.border = "1px solid #ccc";
-                // container.appendChild(lineBreak);
-                //hr = "1px solid #ccc";
-                const pickupParty = document.createElement("h1");
-                pickupParty.textContent = `PICKUP PARTY`;
-                pickupParty.id = `pickup-${pickupParties}`;
-                pickupParty.style.cursor = "pointer";
-                pickupParty.style.paddingBottom = "20px";
-                pickupParty.style.borderBottom = "1px solid #ccc";
-                pickupParties++
-                container.appendChild(pickupParty);
-
-                //console.log(`MATCHES FOR PICKUP ${pickupParties}:`, reversedHalves[reversedIndex-1][0], partyFirstMatch)
-                pickupMatches.push([reversedHalves[reversedIndex-1][0], partyFirstMatch+1]);
-                partyFirstMatch = reversedHalves[reversedIndex][0]+1;
-            }
-        }
-    lastTimestamp = curTimestamp;
-
+    const ogindex = halfs.indexOf(half);
+    // console.log(half, ogindex);
 
     // Extract matches for the half
     const match0 = matches[half[0]]; // First match in the half
@@ -5002,7 +5089,7 @@ function renderHalfList(halves) {
       //numbering half list to help orient a bit 
       const pickupName = document.createElement("div");
       pickupName.style.marginBottom = "10px";
-      pickupName.textContent = `#${halves.length - 24 - reversedIndex}`;
+      pickupName.textContent = `#${halves.length - reversedIndex}`;
       centerDiv.appendChild(pickupName);
 
       // Append the container to the center div
@@ -5021,17 +5108,6 @@ function renderHalfList(halves) {
     container.appendChild(halfDiv);
   });
   
-  //console.log("FIRSTPICKUP", halfs[startingIndex][0], partyFirstMatch);
-  pickupMatches.push([halfs[startingIndex][0], partyFirstMatch]);
-  //pickupParties++
-  for(let i=0; i<pickupParties; i++){
-    const pickupTile = document.getElementById(`pickup-${i}`);
-    pickupTile.textContent = `PICKUP PARTY #${pickupParties - i}`;
-    pickupTile.addEventListener("click", () => {
-        renderLandingPage("players")
-        renderPlayersList(pickupMatches[i][0], pickupMatches[i][1], `PICKUP PARTY #${pickupParties - i}`)
-      });
-  }
 }
 
 function setClassImage(usedclass, targetElement, flip, s) {
@@ -5369,7 +5445,8 @@ function updateURLToBracket(tournID) {
   let groupfights = []; // Global storage for matches data
   let teams = [];
   let playerIds = [];
-  let playerNames = [];Promise.all([
+  let playerNames = [];
+  Promise.all([
     fetch('allplayers.json').then(response => {
         if (!response.ok) {
             throw new Error("Failed to load allplayers.json");
@@ -5402,6 +5479,9 @@ function updateURLToBracket(tournID) {
         // Process allmatches.json
         matches = allMatchesData.matches;
         fillHalfsList();
+        
+        fillPickupsList(24);
+        selectedPickup = pickups.length-1;
 
         // Process groupfights.json
         groupfights = groupFightsData.matches;
