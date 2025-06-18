@@ -1208,7 +1208,7 @@ function getWinner(result){
 
     }
 
-    renderTabBar(contentDiv, "matches");
+    renderTabBar(contentDiv, "pickups");
     const tabContentContainer = document.createElement("div");
     tabContentContainer.id = "tab-content";
     tabContentContainer.style.marginTop = "20px";
@@ -1468,7 +1468,7 @@ function getWinner(result){
       showMessage(`${result}`, endDelay);
     }
 
-    renderTabBar(contentDiv, "matches");
+    renderTabBar(contentDiv, "pickups");
     const tabContentContainer = document.createElement("div");
     tabContentContainer.id = "tab-content";
     tabContentContainer.style.marginTop = "20px";
@@ -2387,7 +2387,8 @@ function trackScrollPosition(tabId) {
       } else if (tabId === "matches") {
         body.style.backgroundImage = "url('assets/img/mb2.png')";
         //renderMatchList();
-        renderHalfList(halfs.slice(24));
+        // renderHalfList(halfs.slice(24));
+        renderPickupList();
       } else if (tabId === "pickups") {
         body.style.backgroundImage = "url('assets/img/mb2.png')";
         //renderMatchList();
@@ -5673,7 +5674,7 @@ function calculateTotalStats(match) {
     contentDiv.classList.remove("landing");
     contentDiv.classList.add("match-detail");
     contentDiv.innerHTML = ""; // Clear previous content
-    renderTabBar(contentDiv, "matches");
+    renderTabBar(contentDiv, "pickups");
     const tabContentContainer = document.createElement("div");
     tabContentContainer.id = "tab-content";
     tabContentContainer.style.marginTop = "20px";
