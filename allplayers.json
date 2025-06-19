@@ -214,9 +214,17 @@
         "1232925",
         "1273788",
         "2633493",
-        "1036465"
+        "1036465",
+        "5223460",
+        "5597597",
+        "3514625",
+        "3606936",
+        "3318914",
+        "2867801",
+        "6132821",
+        "1413592"
     ],
-    "number_of_players": 215,
+    "number_of_players": 223,
     "player_names": [
         [
             "SERVER"
@@ -231,7 +239,9 @@
             "spectator03",
             "padawan",
             "van",
-            "naV"
+            "naV",
+            "rave",
+            "Groupfight_Gary"
         ],
         [
             "ruthven",
@@ -617,7 +627,8 @@
             "KoA_TortelliniThursday_John",
             "KoA_ByunosColdRightFoot_John",
             "KoA_SaturnSaturday_John",
-            "KoA_TacoTuesday_John"
+            "KoA_TacoTuesday_John",
+            "KoA_NuggyWuggyWednesday_John"
         ],
         [
             "[GF]Pichurin",
@@ -1293,6 +1304,30 @@
         ],
         [
             "Tr3y"
+        ],
+        [
+            "[Loyalists]CTG"
+        ],
+        [
+            "New_Playerr"
+        ],
+        [
+            "[Loyalist*Taoiseach]Gustav"
+        ],
+        [
+            "Patrick_Harper"
+        ],
+        [
+            "Jeb_Bush"
+        ],
+        [
+            "[Loyalist]Margret_Thatcher"
+        ],
+        [
+            "Adolf_Hitler"
+        ],
+        [
+            "Emerald_Weapon"
         ]
     ]
 }
