@@ -62,7 +62,8 @@ const openMaps = [
   "River Village",
   "Creekside",
   "Waterfall",
-  "Legacy Plains"
+  "Legacy Plains",
+  "Reveran Town"
 ];
 const closedMaps = [
   "Khergit Village",
@@ -80,7 +81,8 @@ const closedMaps = [
   "Aldea Dumar",
   "Village",
   "Cheesetown",
-  "Cheese Canal"
+  "Cheese Canal",
+  "Sollenden"
 ];
 
 const allMaps = [...openMaps, ...closedMaps];
@@ -222,7 +224,9 @@ function renderMapDetails(mapStr) {
   renderTabBar(contentDiv, "maps");
   const tabContentContainer = document.createElement("div");
   tabContentContainer.id = "tab-content";
-  tabContentContainer.style.marginTop = "20px";
+  tabContentContainer.style.padding = "0px";
+  tabContentContainer.style.margin = "0px";
+  tabContentContainer.style.marginTop = "10px";
 
     const infoContainer = document.createElement("h1")
     infoContainer.textContent = `${mapName}`;
@@ -531,6 +535,7 @@ console.log("Archer Dmg: " + percentArcDmg + "%");
       var statsContainer = document.createElement("div");
       statsContainer.style.display = "flex";
       statsContainer.style.flexDirection = "row";
+      statsContainer.style.padding = "0px";
       statsContainer.style.margin = "0px";
 
       // ---------- Box 1: Total Plays ----------
@@ -540,6 +545,7 @@ console.log("Archer Dmg: " + percentArcDmg + "%");
 
       var box1Header = document.createElement("p");
       box1Header.style.margin = "0";
+      box1Header.style.padding = "0";
       box1Header.textContent = "Matches Played:";
       box1.appendChild(box1Header);
 
@@ -557,17 +563,18 @@ console.log("Archer Dmg: " + percentArcDmg + "%");
 
       var box2Header = document.createElement("p");
       box2Header.style.margin = "0";
-      box2Header.style.marginBottom = "5px";
       box2Header.textContent = "Spawn Win Rates:";
       box2.appendChild(box2Header);
 
       var spawn1P = document.createElement("p");
+      spawn1P.style.padding = "0";
       spawn1P.style.margin = "0";
       // Use innerHTML so we can inject a span with an id for easy updating.
       spawn1P.innerHTML = `  Top : <span id='spawn1Rate'>${spawn1Rate}</span>%`;
       box2.appendChild(spawn1P);
 
       var spawn2P = document.createElement("p");
+      spawn2P.style.padding = "0";
       spawn2P.style.margin = "0";
       spawn2P.innerHTML = `Bottom: <span id='spawn2Rate'>${spawn2Rate}</span>%`;
       box2.appendChild(spawn2P);
@@ -585,16 +592,19 @@ console.log("Archer Dmg: " + percentArcDmg + "%");
       box3.appendChild(box3Header);
 
       var infP = document.createElement("p");
+      infP.style.padding = "0";
       infP.style.margin = "0";
       infP.innerHTML = `Inf: <span id='infPct'>${percentInf}</span>%`;
       box3.appendChild(infP);
 
       var cavP = document.createElement("p");
+      cavP.style.padding = "0";
       cavP.style.margin = "0";
       cavP.innerHTML = `Cav: <span id='cavPct'>${percentCav}</span>%`;
       box3.appendChild(cavP);
 
       var arcP = document.createElement("p");
+      arcP.style.padding = "0";
       arcP.style.margin = "0";
       arcP.innerHTML = `Arc: <span id='arcPct'>${percentArc}</span>%`;
       box3.appendChild(arcP);
@@ -604,10 +614,10 @@ console.log("Archer Dmg: " + percentArcDmg + "%");
       
     tabContentContainer.appendChild(infoContainer);
     tabContentContainer.appendChild(statsContainer);
-    // const subContent = document.createElement("div");
-    // subContent.id = "subcontent";
-    // renderSubTabBar(subContent, "history");
-    // tabContentContainer.appendChild(subContent);
+    const subContent = document.createElement("div");
+    subContent.id = "subcontent";
+    renderSubTabBar(subContent, "history");
+    tabContentContainer.appendChild(subContent);
     contentDiv.appendChild(tabContentContainer);
 };
 
@@ -878,6 +888,7 @@ function renderPlayerDetails(playerID) {
         playerCell.textContent = playerNames[playerIds.indexOf(stat.id)][0];
         playerCell.style.border = "1px solid #ddd";
         playerCell.style.padding = "10px";
+        playerCell.className = "selectable";
         playerCell.style.textAlign = "center";
         playerCell.style.cursor = "pointer";
         playerCell.onclick = () => {
@@ -1058,6 +1069,7 @@ function getWinner(result){
           td.style.overflow = "visible";
           td.style.cursor = "pointer";
           
+          td.className = "selectable";
           td.onclick = () => {
             // console.log("Player..!", playerIds.indexOf(index))
             updateURLToPlayer(nameToIdMap.get(value.toLowerCase()))
@@ -1172,7 +1184,7 @@ function getWinner(result){
         //   td.style.textAlign = "right";
         } else {
           if (!Number.isInteger(stats.deaths) && stats.deaths.includes("+1")) {td.style.color = "red"}
-          else if (!Number.isInteger(value) && value.includes("+")) td.style.color = "green"
+          else if (value && !Number.isInteger(value) && value.includes("+")) td.style.color = "green"
           td.style.textAlign = "right";
         }
         td.style.padding = "5px";
@@ -1279,6 +1291,7 @@ function getWinner(result){
     // half1Team1ScoreDiv.textContent = m1team1Score;
 
     // Make the entire row clickable:
+    half1Row.className = "selectable";
     half1Row.style.cursor = "pointer";
     half1Row.onclick = () => {
       if (gf) updateURLToGFMatch(matchID, 0);
@@ -1576,6 +1589,7 @@ if (roundIndex === 0) {
     half1Row.style.width = "100%";
     half1Row.style.justifyContent = "space-between";
     half1Row.style.alignItems = "center";
+    half1Row.className = "selectable";
 
     half1Row.style.cursor = "pointer";
     half1Row.onclick = () => {
@@ -1983,6 +1997,7 @@ half1Team1ScoreDiv.style.textAlign = "left";
 half1Team1ScoreDiv.textContent = halfAgg1.team1Score;
 
 // Make the entire row clickable:
+half1Row.className = "selectable";
 half1Row.style.cursor = "pointer";
 half1Row.onclick = () => {
   updateURLToHalf(halfId1);
@@ -2037,6 +2052,7 @@ half2Team1ScoreDiv.style.flex = "1";
 half2Team1ScoreDiv.style.textAlign = "left";
 half2Team1ScoreDiv.textContent = halfAgg2.team1Score;
 
+half2Row.className = "selectable";
 half2Row.style.cursor = "pointer";
 half2Row.onclick = () => {
   updateURLToHalf(halfId2);
@@ -2139,9 +2155,9 @@ const halfs = [
   [0,1],[2,3],[4,5],[6,7],[8,9],
   [10,11],[12,13],[14,15],[16,17],
   [18,19],[20,21],[22,23],[24,25],
-  [26,27],[28,29],[30,-1],[31,32],
-  [33,-1],[34,35],[36,37],[38,39],
-  [40,41],[42,-1],[43,43], //23
+  [26,27],[28,29],[30,43],[31,32],
+  [33,43],[34,35],[36,37],[38,39],
+  [40,41],[42,43],[43,43], //23
 ];
 //43 is an empty match with 0-0 score 
 function fillHalfsList() {
@@ -2288,8 +2304,8 @@ function trackScrollPosition(tabId) {
 const subTabs = [
   { label: "HISTORY", id: "history" },
   { label: "PLAYERS", id: "players" },
-  { label: "FACTIONS", id: "factions" },
-  { label: "VERSUS", id: "versus" },
+  // { label: "FACTIONS", id: "factions" },
+  // { label: "ACHIEVEMENTS", id: "versus" },
   // { label: "MISC", id: "halfs" },
 ];
 
@@ -2308,11 +2324,15 @@ function renderSubTabBar(contentDiv, activeTabId){
             // if (tabInfo.id === "bracket") {
             //   tab.classList.add("active");
             // }
+            document.querySelectorAll(".tabs .tab").forEach((t) => t.classList.remove("active"));
             if (tabInfo.id === activeTabId) {
               tab.classList.add("active");
             }
+          
+
             tab.addEventListener("click", () => {
-              const tabContentContainer = document.getElementById("tab-content");
+              const tabContentContainer = document.getElementById("subtab-content");
+              tabContentContainer.innerHTML = "";
               if (tabContentContainer) {
                 //console.log(activeTabId, tabContentContainer.scrollTop)
                 scrollPositions[activeTabId] = tabContentContainer.scrollTop; // Save the scroll position for the current tab
@@ -2322,17 +2342,23 @@ function renderSubTabBar(contentDiv, activeTabId){
               tab.classList.add("active");
               
               // Render content for the selected tab.
-              //renderLandingPage(tabInfo.id)
-              //renderTabContent(tabInfo.id);
+                renderSubTabContent(tabInfo.id, tabContentContainer);
             });
             tabBar.appendChild(tab);
           });
+        // Render content for the selected tab.
+        const tabContentContainer = document.createElement("div");
+        tabContentContainer.id = "subtab-content";
+        tabContentContainer.style.marginTop = "20px";
+        renderSubTabContent(activeTabId, tabContentContainer);
+
         tabsContainer.appendChild(tabBar)
         contentDiv.appendChild(tabsContainer)
+        contentDiv.appendChild(tabContentContainer)
       }
       
 function trackScrollPosition(tabId) {
-  const tabContentContainer = document.getElementById("tab-content");
+  const tabContentContainer = document.getElementById("subtab-content");
   if (tabContentContainer) {
     tabContentContainer.addEventListener("scroll", () => {
       scrollPositions[tabId] = tabContentContainer.scrollTop; // Save the current scroll position for the tab
@@ -2340,7 +2366,17 @@ function trackScrollPosition(tabId) {
   }
 }
 
-  // (They remain largely the same as your existing code.)
+function renderSubTabContent(tabId, container) {
+        container.innerHTML = "";
+        if (tabId === "history") {
+          renderHalfList(halfs.filter((idx) => matches[idx[0]].map.toLowerCase().replaceAll(" ", "_").replaceAll("'","") === window.history.state.map), container);
+        } else if (tabId === "players") {
+          container.innerHTML = "";
+          renderPlayersList(0, matches.length, ``, container);
+        }
+
+}
+
   function renderLandingPage(tab) {
       const contentDiv = document.getElementById("content");
       //contentDiv.classList.add("landing");
@@ -2737,6 +2773,7 @@ function renderFactionList() {
     factionContainer.style.marginBottom = "15px";
     factionContainer.style.border = "1px solid #ccc";
     factionContainer.style.padding = "10px";
+    factionContainer.className = "selectable";
     factionContainer.style.display = "flex";
     factionContainer.style.flexDirection = "column";
     // factionContainer.style.gap = "10px";
@@ -2773,7 +2810,6 @@ function renderFactionList() {
     // -------------------
     // 3. Class Stats Row
     // -------------------
-    // We assume you have three class roles: "inf", "arc", and "cav"
     const classStatsRow = document.createElement("div");
     classStatsRow.style.display = "flex";
     classStatsRow.style.justifyContent = "space-around";
@@ -2993,7 +3029,10 @@ const extraRotations = [1080, 960, 840];
 
     const rMap = allMaps[Math.floor(Math.random() * allMaps.length)];
     const rFac1 = factions[Math.floor(Math.random() * factions.length)];
-    const rFac2 = factions[Math.floor(Math.random() * factions.length)];
+    let rFac2 = factions[Math.floor(Math.random() * factions.length)];
+    //it doesn't get any lazier than this 
+    if(rFac1 === rFac2) rFac2 = factions[Math.floor(Math.random() * factions.length)];
+    if(rFac1 === rFac2) rFac2 = factions[Math.floor(Math.random() * factions.length)];
     let prev = 0;
     let cont = false;
     matches.forEach((match, idx) => {
@@ -3542,6 +3581,7 @@ const filterFac = [false,false,false,false,false,false]
   });
 
   matches.forEach((match, MID) => {
+    if(filterMap && filterMap !== match.map.toLowerCase().replaceAll(" ", "_").replaceAll("'","")) return; //skip map filter 
     match.rounds.forEach((round, roundID) => {
       const { kills, deaths, teamkilled, death_times, flag_time, start_time, players } = round;
 
@@ -3597,6 +3637,7 @@ const filterFac = [false,false,false,false,false,false]
 
   // Process each match and round.
   matches.forEach((match, matchID) => {
+      if(filterMap && filterMap !== match.map.toLowerCase().replaceAll(" ", "_").replaceAll("'","")) return; //skip map filter 
       //console.log("MATCH:", matchID)
     match.rounds.forEach((round, roundID) => {
       const { kills, deaths, teamkills, teamkilled, assists, dmg, tdmg, players, classes, teams } = round;
@@ -3779,9 +3820,14 @@ function getGradientColor(value, min, max, inv=false) {
   return `hsl(${hue}, 100%, 40%)`;
 }
 
-function renderPlayersList(s1, s2, title="All Player Stats") {
-    const container = document.getElementById("tab-content");
+let filterMap;
+
+function renderPlayersList(s1, s2, title="All Player Stats", container=document.getElementById("tab-content")) {
+    //const container = document.getElementById("tab-content");
     container.innerHTML = "";  // Clear previous content
+    
+    // console.log(window.history.state.map)
+    filterMap = window.history.state.map;
 
     const statsTitle = document.createElement("h2");
     statsTitle.textContent = title;
@@ -3846,7 +3892,6 @@ function renderPlayersList(s1, s2, title="All Player Stats") {
                   factionIcon.style.objectFit = "contain"; // Ensure the icon fits well within its boundaries
                   factionIcon.alt = faction; // Set an alt attribute for accessibility
                   factionIcon.style.filter = `grayscale(${+filterFac[index]})`;
-
 
                   // Add click event for toggling the filter
                   factionIcon.onclick = () => {
@@ -4184,9 +4229,14 @@ function renderPlayersList(s1, s2, title="All Player Stats") {
                 ].forEach((value, valueIndex) => {
                     const td = document.createElement("td");
                     if (value === player.name){
+                      const numSpan = document.createElement("span");
+                      numSpan.textContent = `${index + 1}. `;
+                      
+                      td.appendChild(numSpan);
                       const nameSpan = document.createElement("span");
-                      nameSpan.textContent = `${index + 1}. ` + value;
+                      nameSpan.textContent = value;
                       nameSpan.style.cursor = "pointer";
+                      nameSpan.className = "selectable";
                       nameSpan.onclick = () => {
                         // console.log("Player..!", playerIds.indexOf(index))
                         updateURLToPlayer(nameToIdMap.get(value.toLowerCase()))
@@ -4660,9 +4710,11 @@ function renderPickupList() {
   // Optional: Render a season aggregate header at the top (as in your original code).
   const currentSeason = pickupSeasons[pickupSeasons.length - 1];
   const wrapUp = document.createElement("h1");
+  wrapUp.className = "selectable";
   wrapUp.textContent = `${currentSeason[2]} (CURRENT)`;
   wrapUp.style.cursor = "pointer";
-  wrapUp.style.paddingBottom = "20px";
+  wrapUp.style.margin = "0px";
+  wrapUp.style.padding = "20px 5px";
   wrapUp.style.borderBottom = "1px solid #ccc";
   wrapUp.addEventListener("click", () => {
     renderLandingPage("players");
@@ -4677,8 +4729,10 @@ function renderPickupList() {
     const pickup = pickups[i]; // pickup is [firstMatch, lastMatch] (lastMatch is inclusive)
     const tile = document.createElement("h1");
     tile.textContent = `PICKUP PARTY #${i + 1}`;
+    tile.className = "selectable";
     tile.style.cursor = "pointer";
-    tile.style.paddingBottom = "20px";
+    tile.style.margin = "0px";
+    tile.style.padding = "20px 5px";
     tile.style.borderBottom = "1px solid #ccc";
     container.appendChild(tile);
 //past seasons 
@@ -4688,7 +4742,9 @@ function renderPickupList() {
     const snwrapUp = document.createElement("h1"); 
     snwrapUp.textContent = `${pickupSeasons[j][2]} WRAP UP`; 
     snwrapUp.style.cursor = "pointer"; 
-    snwrapUp.style.paddingBottom = "20px"; 
+    snwrapUp.style.margin = "0px"; 
+    snwrapUp.style.padding = "20px 5px"; 
+    snwrapUp.className = "selectable";
     snwrapUp.style.borderBottom = "1px solid #ccc"; 
     snwrapUp.addEventListener("click", () => { 
       renderLandingPage("players"); 
@@ -4715,7 +4771,9 @@ function renderPickupList() {
       summary.textContent = `PLAYER STATS`;
       summary.style.cursor = "pointer";
       summary.style.textAlign = "center";
-      summary.style.paddingBottom = "20px";
+      summary.style.margin = "0px";
+      summary.style.padding = "20px 5px";
+      summary.className = "selectable";
       summary.style.borderBottom = "1px solid #ccc";
       halfListContainer.appendChild(summary);
       renderHalfList(halfs.slice(pickup[0], pickup[1] + 1), halfListContainer);
@@ -4757,7 +4815,9 @@ function renderPickupList() {
       summary.textContent = `PLAYER STATS`;
       summary.style.cursor = "pointer";
       summary.style.textAlign = "center";
-      summary.style.paddingBottom = "20px";
+      summary.style.margin = "0px";
+      summary.style.padding = "20px 5px";
+      summary.className = "selectable";
       summary.style.borderBottom = "1px solid #ccc";
       halfListContainer.appendChild(summary);
       renderHalfList(halfs.slice(pickup[0], pickup[1] + 1), halfListContainer);
@@ -4778,7 +4838,7 @@ function renderPickupList() {
 //
 function renderHalfList(halves, container) {
   //const container = document.getElementById("tab-content");
-  //container.innerHTML = ""; // Clear existing content
+  // container.innerHTML = ""; // Clear existing content
 
 
   //NEW: We pre-slice the halfs array (array of IDs) on call
@@ -4799,8 +4859,9 @@ function renderHalfList(halves, container) {
     const halfDiv = document.createElement("div");
     halfDiv.style.borderBottom = "1px solid #ccc";
     //halfDiv.style.borderTop = `${hr}`;
-    halfDiv.style.marginTop = "40px";
-    halfDiv.style.padding = "10px";
+    halfDiv.style.marginTop = "0px";
+    halfDiv.style.padding = "20px 5px";
+    halfDiv.className = "selectable";
     halfDiv.style.cursor = "pointer";
     halfDiv.style.display = "flex";
     halfDiv.style.justifyContent = "space-between"; // Align teams on either side
@@ -5742,6 +5803,7 @@ function calculateTotalStats(match) {
 
     // Make the entire row clickable:
     half1Row.style.cursor = "pointer";
+    half1Row.className = "selectable";
     half1Row.onclick = () => {
         updateURLToMatch(halfIndices[0])
     };
@@ -5798,6 +5860,7 @@ half2Team1ScoreDiv.style.textAlign = "left";
 half2Team1ScoreDiv.textContent = m2team1Score;
 
 half2Row.style.cursor = "pointer";
+half2Row.className = "selectable";
 half2Row.onclick = () => {
    updateURLToMatch(halfIndices[1])
 };
