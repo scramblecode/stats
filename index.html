@@ -195,6 +195,10 @@ function renderFactionDetails(facStr) {
 
   tabContentContainer.appendChild(infoContainer);
   
+    const subContent = document.createElement("div");
+    subContent.id = "subcontent";
+    renderSubTabBar(subContent, "history");
+    tabContentContainer.appendChild(subContent);
   contentDiv.appendChild(tabContentContainer);
     
 }
@@ -2370,9 +2374,16 @@ function trackScrollPosition(tabId) {
 function renderSubTabContent(tabId, container) {
         container.innerHTML = "";
         if (tabId === "history") {
-          renderHalfList(halfs.filter((idx) => matches[idx[0]].map.toLowerCase().replaceAll(" ", "_").replaceAll("'","") === window.history.state.map), container);
+          if(window.history.state.map) renderHalfList(halfs.filter((idx) => matches[idx[0]].map.toLowerCase().replaceAll(" ", "_").replaceAll("'","") === window.history.state.map), container);
+          if(window.history.state.faction) renderHalfList(halfs.filter((idx) => matches[idx[0]].faction_1.toLowerCase().replaceAll(" ", "_").replaceAll("'","") === window.history.state.faction || matches[idx[0]].faction_2.toLowerCase().replaceAll(" ", "_").replaceAll("'","") === window.history.state.faction), container);
         } else if (tabId === "players") {
           container.innerHTML = "";
+          if (window.history.state.faction) {
+            factions.forEach((faction, index) => {
+              filterFac[index] = true;
+              if(window.history.state.faction == faction.toLowerCase().replaceAll(" ", "_")) filterFac[index] = false;
+            });
+          }
           renderPlayersList(0, matches.length, ``, container);
         }
 
@@ -2448,6 +2459,10 @@ function renderSubTabContent(tabId, container) {
         renderTeamList();
       } else if (tabId === "players") {
         body.style.backgroundImage = "url('assets/img/mb4.png')";
+        filterFac.forEach((x, i) => filterFac[i] = false)
+        filterInf = false;
+        filterCav = false;
+        filterArc = false;
         renderPlayersList();
       } else {
         //container.textContent = "Unknown tab.";
@@ -3869,9 +3884,10 @@ function renderPlayersList(s1, s2, title="All Player Stats", container=document.
             filterH.style.maxWidth = "120px";
             filterH.style.borderBottom = "1px solid #ccc"
             filterContainer.appendChild(filterH)
-
+            
+            const factionContainer = document.createElement("div");
+            if(!window.history.state.faction){
                 // Create the container for the faction icons
-                const factionContainer = document.createElement("div");
                 factionContainer.style.display = "flex";
                 factionContainer.style.flexWrap = "wrap"; // Allow wrapping to stack icons
                 factionContainer.style.justifyContent = "center"; // Center the icons
@@ -3910,7 +3926,7 @@ function renderPlayersList(s1, s2, title="All Player Stats", container=document.
                   // Append the icon to the container
                   factionContainer.appendChild(factionIcon);
                 });
-                
+              }
                 // const infclass = document.createElement("img");
                 // infclass.src = "assets/img/class_inf.png";
                 const infclass = getCachedImage("class_inf");

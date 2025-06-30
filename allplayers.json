@@ -228,9 +228,11 @@
         "2354323",
         "3952387",
         "385374",
-        "996512"
+        "996512",
+        "1521243",
+        "365239"
     ],
-    "number_of_players": 229,
+    "number_of_players": 231,
     "player_names": [
         [
             "SERVER"
@@ -249,7 +251,9 @@
             "rave",
             "Groupfight_Gary",
             "Knight-Van",
-            "Knight_Van"
+            "Knight_Van",
+            "knight-van",
+            "knight-Van"
         ],
         [
             "ruthven",
@@ -263,7 +267,8 @@
             "Ruthven",
             "ruethvin",
             "roothven",
-            "self-learning-bot"
+            "self-learning-bot",
+            "schoenberg"
         ],
         [
             "RobloxGamerMan",
@@ -322,7 +327,9 @@
             "rOACH",
             "[XBDead]Roach",
             "Cheeze_One_Eyed",
-            "KOOL-CHEEZE_MAN"
+            "KOOL-CHEEZE_MAN",
+            "Flute_Player",
+            "CheeZeninja"
         ],
         [
             "Nasa",
@@ -453,7 +460,8 @@
             "I_NEED_SOME_RELIEF",
             "Cow_Are_You_Playing",
             "Ratwin_Rommel",
-            "Slug_Slinger"
+            "Slug_Slinger",
+            "NewKings_Rip"
         ],
         [
             "Cow",
@@ -494,7 +502,8 @@
             "VushLAMA_the_Insatiable",
             "New_Player",
             "VushLAMA_the_Blood_Hungry",
-            "Ringless_Rob"
+            "Ringless_Rob",
+            "knight-Danate"
         ],
         [
             "Nasa-Alt"
@@ -531,7 +540,8 @@
             "Duck_Drinker",
             "Sink_Sniffer",
             "Khanros",
-            "[BR]Kairos"
+            "[BR]Kairos",
+            "NewKings_Kairos"
         ],
         [
             "EbdanianAdmiral",
@@ -580,7 +590,8 @@
             "ThatIsStrikeTwoRIP",
             "ThatIsStrikeTwoBeansacks",
             "Sign_Up_For_The_Tournament",
-            "LagIyss"
+            "LagIyss",
+            "Is_Cow_Playing"
         ],
         [
             "Daemon"
@@ -710,7 +721,8 @@
             "pineven",
             "KOOL-PINE_MAN",
             "wK_PinePineK157",
-            "Pinecone_of_Cheezecove"
+            "Pinecone_of_Cheezecove",
+            "NewKings_Pinecone"
         ],
         [
             "Leoandrex"
@@ -729,7 +741,8 @@
             "[HB]Aura",
             "wK_Salty_Clan",
             "wK_Salty_Player",
-            "RaTs_Aporta"
+            "RaTs_Aporta",
+            "knight-Roberta"
         ],
         [
             "TheCrusader5"
@@ -784,7 +797,9 @@
             "aadofdwbalionwappawtkF_mar",
             "TNK_mar",
             "wappawFaadofdw_mar",
-            "Knight_mar"
+            "Knight_mar",
+            "knight_mar",
+            "knight-mar"
         ],
         [
             "GK_Srg_Goddess_Zealots",
@@ -795,12 +810,14 @@
             "Muppet",
             "Goddess_Zealots",
             "Left_Testicle",
-            "tK_Goddess_Zealots"
+            "tK_Goddess_Zealots",
+            "Knight_Goddess_Zealots"
         ],
         [
             "Xearian",
             "Mutt_Maimer_X",
-            "Rat_Hitler"
+            "Rat_Hitler",
+            "NewKings_Xearian"
         ],
         [
             "Hey_Vordiac"
@@ -957,10 +974,12 @@
         ],
         [
             "ser_aporta",
-            "last_pick"
+            "last_pick",
+            "knight-aporta"
         ],
         [
-            "logman-alt"
+            "logman-alt",
+            "logman"
         ],
         [
             "BlackTide"
@@ -987,7 +1006,8 @@
             "xionger"
         ],
         [
-            "POM_Jesus"
+            "POM_Jesus",
+            "POM_Frodo"
         ],
         [
             "CdJrcxx_"
@@ -1051,7 +1071,9 @@
             "lifetimeofalzheimers",
             "JubJub",
             "Knight_Tito",
-            "TKGUY"
+            "TKGUY",
+            "kN_iG-Ht___O-ld",
+            "_K_N_I_G_H_T_T_K_G_U_Y_"
         ],
         [
             "PoopyButtMcGee"
@@ -1083,7 +1105,8 @@
             "EveryCrime"
         ],
         [
-            "TSB_OG_ummmmmmmidk"
+            "TSB_OG_ummmmmmmidk",
+            "NewKingz_ummmmmmmidk"
         ],
         [
             "[mm]philip"
@@ -1289,7 +1312,8 @@
             "[E]Ra"
         ],
         [
-            "IAmDairy"
+            "IAmDairy",
+            "QuoteUnquoteKnightDairy"
         ],
         [
             "[swann]mech"
@@ -1349,7 +1373,8 @@
             "SteelYr"
         ],
         [
-            "Flaca"
+            "Flaca",
+            "NewKings_Flaca"
         ],
         [
             "Sir_Doof",
@@ -1387,7 +1412,8 @@
             "Emerald_Weapon"
         ],
         [
-            "alien2k"
+            "alien2k",
+            "NewKings_alien2k"
         ],
         [
             "Dragonborn"
@@ -1403,6 +1429,12 @@
         ],
         [
             "Azrael"
+        ],
+        [
+            "Magic"
+        ],
+        [
+            "[GF]Pichurin"
         ]
     ]
 }
