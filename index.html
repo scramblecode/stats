@@ -1204,7 +1204,8 @@ function getWinner(result){
 
   // The original function to render full match details (aggregated over rounds).
   function renderMatchDetails(matchID, gf) {
-    const match = gf == 0 ? matches[matchID] : groupfights[matchID];
+    let match = gf == 0 ? matches[matchID] : groupfights[matchID];
+    match = gf == 2 ? practicescrims[matchID] : gf;
     const contentDiv = document.getElementById("content");
     contentDiv.classList.remove("landing");
     contentDiv.classList.add("match-detail");
@@ -2428,7 +2429,7 @@ function renderSubTabContent(tabId, container) {
       body.style.backgroundSize = "cover"; 
       
       if (tabId === "scrims") {
-        renderScrimList();
+        renderMatchList(practicescrims);
       } else if (tabId === "home") {
         body.style.backgroundImage = "url('assets/img/mb1.png')";
         renderHomeScreen();
@@ -4413,7 +4414,7 @@ function renderPlayersList(s1, s2, title="All Player Stats", container=document.
     }
 
 
-function renderMatchList() {
+function renderMatchList(matches, dir) {
   const container = document.getElementById("tab-content");
   container.innerHTML = ""; // Clear any existing content
 
@@ -5318,7 +5319,11 @@ if (scrimStr !== null) {
           return;
         }
       }
-      renderMatchDetails(matchId, 0); // Render the match details
+      if (window.history.tab = "scrims") {
+        renderMatchDetails(matchId, 2); // Render the match details
+      } else {
+        renderMatchDetails(matchId, 0);
+      }
       return;
     }
   }
@@ -5453,7 +5458,9 @@ function updateURLToBracket(tournID) {
       renderSingleRound(matchId, roundId, 0);
       //window.history.pushState({ match: matchId }, "", `${baseUrl}?match=${matchId}&round=${roundId}`);
     } else {
-      renderMatchDetails(matchId, 0);
+      if(window.history.tab = "scrims") {renderMatchDetails(matchId, 2);} else {
+        renderMatchDetails(matchId, 2);
+      }
       if (!window.history.state || window.history.state.match !== matchId) {
         window.history.pushState({ match: matchId }, "", `${baseUrl}?match=${matchId}`);
       }
@@ -5543,9 +5550,15 @@ function updateURLToBracket(tournID) {
             throw new Error("Failed to load groupfights.json");
         }
         return response.json();
+    }),
+    fetch('practice.json').then(response => {
+        if (!response.ok) {
+            throw new Error("Failed to load groupfights.json");
+        }
+        return response.json();
     })
 ])
-    .then(([allPlayersData, allMatchesData, groupFightsData]) => {
+    .then(([allPlayersData, allMatchesData, groupFightsData, practiceScrimsData]) => {
         // Process allPlayers.json
         playerIds = allPlayersData.player_ids;
         playerNames = allPlayersData.player_names;
@@ -5564,6 +5577,8 @@ function updateURLToBracket(tournID) {
 
         // Process groupfights.json
         groupfights = groupFightsData.matches;
+
+        practicescrims = practiceScrimsData.matches;
 
         // Call handleURLChange after all data is processed
         handleURLChange();
