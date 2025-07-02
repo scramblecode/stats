@@ -1300,7 +1300,7 @@ function getWinner(result){
     half1Row.className = "selectable";
     half1Row.style.cursor = "pointer";
     half1Row.onclick = () => {
-      if (gf) updateURLToGFMatch(matchID, 0);
+      if (gf == 1) updateURLToGFMatch(matchID, 0);
       else updateURLToMatch(matchID, 0);
     };
 
@@ -5319,11 +5319,12 @@ if (scrimStr !== null) {
           return;
         }
       }
-      if (window.history.tab = "scrims") {
-        renderMatchDetails(matchId, 2); // Render the match details
-      } else {
+      // if (window.history.tab = "scrims") {
+      //   console.log("HOLA", window.history)
+      //   renderMatchDetails(matchId, 2); // Render the match details
+      // } else {
         renderMatchDetails(matchId, 0);
-      }
+      // }
       return;
     }
   }
