@@ -1205,7 +1205,7 @@ function getWinner(result){
   // The original function to render full match details (aggregated over rounds).
   function renderMatchDetails(matchID, gf) {
     let match = gf == 0 ? matches[matchID] : groupfights[matchID];
-    match = gf == 2 ? practicescrims[matchID] : gf;
+    match = gf == 2 ? practicescrims[matchID] : match;
     const contentDiv = document.getElementById("content");
     contentDiv.classList.remove("landing");
     contentDiv.classList.add("match-detail");
@@ -5458,7 +5458,11 @@ function updateURLToBracket(tournID) {
       renderSingleRound(matchId, roundId, 0);
       //window.history.pushState({ match: matchId }, "", `${baseUrl}?match=${matchId}&round=${roundId}`);
     } else {
-        renderMatchDetails(matchId, 0);
+        if(window.history.state.tab === "scrims") {
+          renderMatchDetails(matchId, 2);
+        } else {
+          renderMatchDetails(matchId, 0);
+        }
       if (!window.history.state || window.history.state.match !== matchId) {
         window.history.pushState({ match: matchId }, "", `${baseUrl}?match=${matchId}`);
       }
@@ -5583,7 +5587,7 @@ function updateURLToBracket(tournID) {
         // Process groupfights.json
         groupfights = groupFightsData.matches;
 
-        // practicescrims = practiceScrimsData.matches;
+        practicescrims = practiceScrimsData.matches;
 
         // Call handleURLChange after all data is processed
         handleURLChange();
