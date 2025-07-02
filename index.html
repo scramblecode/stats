@@ -2428,7 +2428,7 @@ function renderSubTabContent(tabId, container) {
       body.style.backgroundSize = "cover"; 
       
       if (tabId === "scrims") {
-        renderScrimList();
+        renderMatchList(practicescrims);
       } else if (tabId === "home") {
         body.style.backgroundImage = "url('assets/img/mb1.png')";
         renderHomeScreen();
@@ -4413,7 +4413,7 @@ function renderPlayersList(s1, s2, title="All Player Stats", container=document.
     }
 
 
-function renderMatchList() {
+function renderMatchList(matches, dir) {
   const container = document.getElementById("tab-content");
   container.innerHTML = ""; // Clear any existing content
 
@@ -5453,7 +5453,7 @@ function updateURLToBracket(tournID) {
       renderSingleRound(matchId, roundId, 0);
       //window.history.pushState({ match: matchId }, "", `${baseUrl}?match=${matchId}&round=${roundId}`);
     } else {
-      renderMatchDetails(matchId, 0);
+        renderMatchDetails(matchId, 0);
       if (!window.history.state || window.history.state.match !== matchId) {
         window.history.pushState({ match: matchId }, "", `${baseUrl}?match=${matchId}`);
       }
@@ -5522,6 +5522,7 @@ function updateURLToBracket(tournID) {
   // Fetch matches data and initialize
   let matches = []; // Global storage for matches data
   let groupfights = []; // Global storage for matches data
+  let practicescrims = []; // Global storage for matches data
   let teams = [];
   let playerIds = [];
   let playerNames = [];
@@ -5539,13 +5540,19 @@ function updateURLToBracket(tournID) {
         return response.json();
     }),
     fetch('groupfights.json').then(response => {
+    //     if (!response.ok) {
+    //         throw new Error("Failed to load groupfights.json");
+    //     }
+    //     return response.json();
+    // }),
+    // fetch('practice.json').then(response => {
         if (!response.ok) {
             throw new Error("Failed to load groupfights.json");
         }
         return response.json();
     })
 ])
-    .then(([allPlayersData, allMatchesData, groupFightsData]) => {
+    .then(([allPlayersData, allMatchesData, groupFightsData, practiceScrimsData]) => {
         // Process allPlayers.json
         playerIds = allPlayersData.player_ids;
         playerNames = allPlayersData.player_names;
@@ -5564,6 +5571,8 @@ function updateURLToBracket(tournID) {
 
         // Process groupfights.json
         groupfights = groupFightsData.matches;
+
+        // practicescrims = practiceScrimsData.matches;
 
         // Call handleURLChange after all data is processed
         handleURLChange();
