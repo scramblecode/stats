@@ -198,6 +198,7 @@ function renderFactionDetails(facStr) {
     const subContent = document.createElement("div");
     subContent.id = "subcontent";
     renderSubTabBar(subContent, "history");
+    subContent.style.height = "85%";
     tabContentContainer.appendChild(subContent);
   contentDiv.appendChild(tabContentContainer);
     
@@ -2241,11 +2242,13 @@ const pickupSeason2 = [74, 348, "APRIL"];
 
 const pickupSeason3 = [349, 709, "MAY"];
 
+const pickupSeason4 = [710, 928, "JUNE"];
+
 //ongoing season -- move to the fetch response to automate
-const currentSeason = [710, 709, "JUNE"];
+const currentSeason = [929, 928, "JULY"];
 
 //pickup "seasons" (monthly aggregate)
-const pickupSeasons = [pickupSeason1, pickupSeason2, pickupSeason3, currentSeason];
+const pickupSeasons = [pickupSeason1, pickupSeason2, pickupSeason3, pickupSeason4, currentSeason];
 
 // Define the tabs. By default "scrims" is active.
 const tabs = [
@@ -2386,7 +2389,7 @@ function renderSubTabContent(tabId, container) {
             });
           }
           renderPlayersList(0, matches.length, ``, container);
-        }
+        } 
 
 }
 
@@ -4725,7 +4728,6 @@ function renderPickupList() {
   const container = document.getElementById("tab-content");
   container.innerHTML = ""; // Clear existing content
 
-  // Optional: Render a season aggregate header at the top (as in your original code).
   const currentSeason = pickupSeasons[pickupSeasons.length - 1];
   const wrapUp = document.createElement("h1");
   wrapUp.className = "selectable";
@@ -4752,7 +4754,6 @@ function renderPickupList() {
     tile.style.margin = "0px";
     tile.style.padding = "20px 5px";
     tile.style.borderBottom = "1px solid #ccc";
-    container.appendChild(tile);
 //past seasons 
  for(let j=0; j<pickupSeasons.length-1; j++) { 
   if (halfs[pickup[1]][1] === pickupSeasons[j][1]) 
@@ -4770,6 +4771,7 @@ function renderPickupList() {
       container.appendChild(snwrapUp); 
     } 
   }
+    container.appendChild(tile);
 
   if (selectedPickup == i) {
     
