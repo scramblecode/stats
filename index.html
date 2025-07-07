@@ -2154,7 +2154,17 @@ const RobAIbracket = [
       ["Alyss/Gibby", "Mav/Hemp", 10, 15, 16],
     ];
 
-    const tournaments = [RobAIbracket, Mayhembracket]
+const Fantasybracket = [
+      ["New Kings", "Blue Bloods", 8, 8, 12],
+      ["Tito's Knights", "Old", 11, 7, 13],
+
+      // ["Blue Bloods", "Tito's Knights", "?", "?", -1],
+      // ["Old", "New Kings", "?", "?", -1],
+
+      // ["Tito's Knights", "New Kings", "?", "?", -1],
+      // ["Old", "Blue Bloods", "?", "?", -1],
+      ]
+    const tournaments = [RobAIbracket, Mayhembracket, Fantasybracket]
 
 
 const halfs = [
@@ -2201,6 +2211,10 @@ function fillPickupsList(startingIndex) {
   };
 
   for (let i = startingIndex + 1; i < halfs.length; i++) {
+    if (scrims.some(scrim => scrim[0] === i || scrim[1] === i)) {
+      // console.log("SKIPPING:", i);
+      continue
+    };
     const prevMatchId = halfs[i - 1][0];
     const currMatchId = halfs[i][0];
     const prevSec = parseTime(matches[prevMatchId].start_time);
@@ -2226,10 +2240,13 @@ const scrims = [
   [6,7,0],[8,9,0],[10,11,0],
   [12,13,1],[14,15,0],[16,17,0],
   [18,19,0],[20,21,1],[22,-1,0],
+  //fantasy scrims begin 
+  [491, 492, 0], [493, 494, 0],
 ];
 
 //hardcoding in the tournament arrays start - end matches
 const robScramble = [0, 44];
+const fantasyStart = 12; // scrims ID of tourny start... eh
 
 //groupfight tourneys are excluded from global stats, so stored separately 
 
@@ -2314,7 +2331,7 @@ const subTabs = [
   { label: "HISTORY", id: "history" },
   { label: "PLAYERS", id: "players" },
   // { label: "FACTIONS", id: "factions" },
-  // { label: "ACHIEVEMENTS", id: "versus" },
+  // { label: "VERSUS", id: "versus" },
   // { label: "MISC", id: "halfs" },
 ];
 
@@ -2389,8 +2406,11 @@ function renderSubTabContent(tabId, container) {
             });
           }
           renderPlayersList(0, matches.length, ``, container);
-        } 
-
+        }  else if (tabId === "versus") {
+          container.innerHTML = "";
+          
+          renderPlayersList(0, matches.length, ``, container);
+        }
 }
 
   function renderLandingPage(tab) {
@@ -3396,9 +3416,14 @@ function renderTournamentList() {
 
   // Create Current Tournament Section
   const currentTournamentDiv = document.createElement("div");
-  currentTournamentDiv.className = "current-tournament";
+  // currentTournamentDiv.className = "current-tournament";
+  currentTournamentDiv.className = "selectable";
+  currentTournamentDiv.style.padding = "20px";
+  currentTournamentDiv.style.textAlign = "center";
+  currentTournamentDiv.style.width = "100%";
+  currentTournamentDiv.style.cursor = "pointer";
 
-  const currentTournament = { title: "Mountless Mayhem 2v2", info: "Ongoing" };
+  const currentTournament = { title: "Warband Fantasy League", info: "Group Stage" };
 
   // Create Current Tournament Title (as h1)
   const currentTitle = document.createElement("h1");
@@ -3411,13 +3436,13 @@ function renderTournamentList() {
 
   // Add onClick to the current tournament
   currentTournamentDiv.onclick = () => {
-    updateURLToBracket(1);
-    body.style.backgroundImage = "url('assets/img/mb5.png')";
+    updateURLToBracket(2);
+    body.style.backgroundImage = "url('assets/img/mb3.png')";
   };
 
   currentTournamentDiv.appendChild(currentTitle);
   currentTournamentDiv.appendChild(currentInfo);
-  //container.appendChild(currentTournamentDiv);
+  container.appendChild(currentTournamentDiv);
 
   // Create Previous Tournaments Section
   const previousTournamentsDiv = document.createElement("div");
@@ -4754,55 +4779,55 @@ function renderPickupList() {
     tile.style.margin = "0px";
     tile.style.padding = "20px 5px";
     tile.style.borderBottom = "1px solid #ccc";
-//past seasons 
- for(let j=0; j<pickupSeasons.length-1; j++) { 
-  if (halfs[pickup[1]][1] === pickupSeasons[j][1]) 
-  { 
-    const snwrapUp = document.createElement("h1"); 
-    snwrapUp.textContent = `${pickupSeasons[j][2]} WRAP UP`; 
-    snwrapUp.style.cursor = "pointer"; 
-    snwrapUp.style.margin = "0px"; 
-    snwrapUp.style.padding = "20px 5px"; 
-    snwrapUp.className = "selectable";
-    snwrapUp.style.borderBottom = "1px solid #ccc"; 
-    snwrapUp.addEventListener("click", () => { 
-      renderLandingPage("players"); 
-      renderPlayersList(pickupSeasons[j][0], pickupSeasons[j][1]+1, `${pickupSeasons[j][2]} WRAP UP`) }); 
-      container.appendChild(snwrapUp); 
-    } 
-  }
-    container.appendChild(tile);
+  //past seasons 
+  for(let j=0; j<pickupSeasons.length-1; j++) { 
+    if (halfs[pickup[1]][1] === pickupSeasons[j][1]) 
+    { 
+      const snwrapUp = document.createElement("h1"); 
+      snwrapUp.textContent = `${pickupSeasons[j][2]} WRAP UP`; 
+      snwrapUp.style.cursor = "pointer"; 
+      snwrapUp.style.margin = "0px"; 
+      snwrapUp.style.padding = "20px 5px"; 
+      snwrapUp.className = "selectable";
+      snwrapUp.style.borderBottom = "1px solid #ccc"; 
+      snwrapUp.addEventListener("click", () => { 
+        renderLandingPage("players"); 
+        renderPlayersList(pickupSeasons[j][0], pickupSeasons[j][1]+1, `${pickupSeasons[j][2]} WRAP UP`) }); 
+        container.appendChild(snwrapUp); 
+      } 
+    }
+      container.appendChild(tile);
 
-  if (selectedPickup == i) {
-    
-      // Create a container for the halfList.
-      const halfListContainer = document.createElement("div");
-      halfListContainer.id = "active-halfList";
-      halfListContainer.style.overflow = "hidden";
-      halfListContainer.style.opacity = 1; // start hidden for our fade-in
+    if (selectedPickup == i) {
+      
+        // Create a container for the halfList.
+        const halfListContainer = document.createElement("div");
+        halfListContainer.id = "active-halfList";
+        halfListContainer.style.overflow = "hidden";
+        halfListContainer.style.opacity = 1; // start hidden for our fade-in
 
-      // Insert the halfList container directly after the clicked tile.
-      tile.insertAdjacentElement("afterend", halfListContainer);
+        // Insert the halfList container directly after the clicked tile.
+        tile.insertAdjacentElement("afterend", halfListContainer);
 
-      // Render the halfList for this pickup.
-      // Because our boundaries are inclusive we call slice with pickup[1] + 1.
-      // console.log(halfs.slice(pickup[0], pickup[1] + 1))
-      const summary = document.createElement("h2");
-      summary.textContent = `PLAYER STATS`;
-      summary.style.cursor = "pointer";
-      summary.style.textAlign = "center";
-      summary.style.margin = "0px";
-      summary.style.padding = "20px 5px";
-      summary.className = "selectable";
-      summary.style.borderBottom = "1px solid #ccc";
-      halfListContainer.appendChild(summary);
-      renderHalfList(halfs.slice(pickup[0], pickup[1] + 1), halfListContainer);
+        // Render the halfList for this pickup.
+        // Because our boundaries are inclusive we call slice with pickup[1] + 1.
+        // console.log(halfs.slice(pickup[0], pickup[1] + 1))
+        const summary = document.createElement("h2");
+        summary.textContent = `PLAYER STATS`;
+        summary.style.cursor = "pointer";
+        summary.style.textAlign = "center";
+        summary.style.margin = "0px";
+        summary.style.padding = "20px 5px";
+        summary.className = "selectable";
+        summary.style.borderBottom = "1px solid #ccc";
+        halfListContainer.appendChild(summary);
+        renderHalfList(halfs.slice(pickup[0], pickup[1] + 1), halfListContainer);
 
-      summary.addEventListener("click", function () {
-        renderLandingPage("players")
-        renderPlayersList(halfs[pickup[0]][0], halfs[pickup[1]][1] + 1, `PICKUP PARTY #${selectedPickup + 1}`)
-      });
-  }
+        summary.addEventListener("click", function () {
+          renderLandingPage("players")
+          renderPlayersList(halfs[pickup[0]][0], halfs[pickup[1]][1] + 1, `PICKUP PARTY #${selectedPickup + 1}`)
+        });
+    }
     // Attach click listener to the tile.
     tile.addEventListener("click", function () {
       // Check if an active halfList already exists.
@@ -4869,6 +4894,7 @@ function renderHalfList(halves, container) {
 
   reversedHalves.forEach((half, reversedIndex) => {
     const ogindex = halfs.indexOf(half);
+    
     // console.log(half, ogindex);
 
     // Extract matches for the half
