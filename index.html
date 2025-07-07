@@ -2211,9 +2211,10 @@ function fillPickupsList(startingIndex) {
   };
 
   for (let i = startingIndex + 1; i < halfs.length; i++) {
-    if (scrims.some(scrim => scrim[0] === i || scrim[1] === i)) {
+    if (scrims.some(scrim => scrim[0] === i-1 || scrim[1] === i-1)) {
       // console.log("SKIPPING:", i);
-      continue
+      groupStart = i;
+      continue;
     };
     const prevMatchId = halfs[i - 1][0];
     const currMatchId = halfs[i][0];
@@ -2230,7 +2231,10 @@ function fillPickupsList(startingIndex) {
     }
   }
   // Add the final group.
-  pickups.push([groupStart, halfs.length - 1]);
+  if (!scrims.some(scrim => scrim[0] === groupStart || scrim[1] === groupStart)){
+    pickups.push([groupStart, halfs.length - 1]);
+  }
+  
   return pickups;
 }
 
