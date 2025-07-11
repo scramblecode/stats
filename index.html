@@ -4098,6 +4098,8 @@ function renderPlayersList(s1, s2, title="All Player Stats", container=document.
             const headerRow = document.createElement("tr");
             columns.forEach(column => {
                 const th = document.createElement("th");
+                th.style.position = "sticky";
+                th.style.top = "0";
                 th.textContent = column;
                 th.style.borderBottom = "1px solid #ccc";
                 th.style.padding = "8px";
