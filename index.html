@@ -2106,66 +2106,6 @@ tabContentContainer.appendChild(totalScoreDiv);
   contentDiv.appendChild(tabContentContainer);
   adjustTableLayout();
 }
-const RobAIbracket = [
-      // ["Cheezeninja", "Marquis", "X", "X", -1],
-      ["Ebdanian", "Hemp", 9, 6, 0],
-      // ["Marquis", "Ebdanian", "X", "X", -1],
-      ["Roberta", "Cheezeninja", 9, 6, 1],
-      ["Ebdanian", "Roberta", 4, 12, 2],
-      ["Hemp", "Marquis", 12, 6, 3],
-      ["Roberta", "Hemp", 2, 12, 5],
-      ["Cheezeninja", "Ebdanian", 9, 8, 6],
-      ["Hemp", "Cheezeninja", 9, 1, 7],
-      ["Marquis", "Roberta", 4, 9, 4],
-      ["Ebdanian", "Hemp", 9, 3, 8],
-      ["Roberta", "Cheezeninja", 8, 8, 10],
-      ["Roberta", "Cheezeninja", 0, 3, 11],
-      ["Ebdanian", "Cheezeninja", 9, 7, 9],
-    ];
-
-    const Mayhembracket = [
-      // ["team1", "team2", 1, 0, 0],//score1, score2, scrim #
-      ["Chowski/Roberta", "Crusader/Vampy", "x", "x", -1],
-      ["Potesty/Exmarius", "Les/MattTheLord", 15, 3, 0],
-      ["Beansacks/John", "Pichu/Thiago", 15, 7, 8],
-      ["Nasa/CheeseNinja", "BrownMilk/Kurm", 1, 15, 9],
-      ["Zealots/Van", "Konrad/Loki", 15, 1, 4],
-      ["Sitvek/Kman", "Argo/Ingemar", "x", "0", -1],
-      ["BestNAGTA/Chunky", "Powder/Lykia", "0", "x", -1],
-      ["Trox/Wert", "Ducreux/Philip", 15, 4, 1],
-      //round 2 
-      ["Mav/Hemp", "Chowski/Roberta", "0", "x", -1],
-      ["Hey/Daemon", "Potesty/Exmarius", 5, 15, 3],
-      ["Byunos/Chicken", "Beansacks/John", 15, 6, 11],
-      ["Danate/Aporta", "BrownMilk/Kurm",11, 15, 10],
-      ["Alyss/Gibby", "Zealots/Van", 15, 0, 5],
-      ["Kairos/Shovenio", "Argo/Ingemar", "0", "x", -1],
-      ["Cow/PPK157", "BestNAGTA/Chunky", 15, 5, 2],
-      ["Marquis/Ebdanian", "Trox/Wert", 15, 13, 6],
-      //round 3 
-      ["Mav/Hemp", "Potesty/Exmarius", "0", "x", -1],
-      ["Byunos/Chicken", "BrownMilk/Kurm", 7, 15, 14],
-      ["Alyss/Gibby", "Kairos/Shovenio", 15, 3, 12],
-      ["Cow/PPK157", "Marquis/Ebdanian", 15, 11, 7],
-      //semifinal
-      ["Mav/Hemp", "BrownMilk/Kurm", 15, 7, 15],
-      ["Alyss/Gibby", "Cow/PPK157", 15, 10, 13],
-      //finals
-      ["Alyss/Gibby", "Mav/Hemp", 10, 15, 16],
-    ];
-
-const Fantasybracket = [
-      ["New Kings", "Blue Bloods", 8, 8, 12],
-      ["Tito's Knights", "Old", 11, 7, 13],
-
-      // ["Blue Bloods", "Tito's Knights", "?", "?", -1],
-      // ["Old", "New Kings", "?", "?", -1],
-
-      // ["Tito's Knights", "New Kings", "?", "?", -1],
-      // ["Old", "Blue Bloods", "?", "?", -1],
-      ]
-    const tournaments = [RobAIbracket, Mayhembracket, Fantasybracket]
-
 
 const halfs = [
   //rob tournament
@@ -2238,6 +2178,64 @@ function fillPickupsList(startingIndex) {
   return pickups;
 }
 
+const RobAIbracket = [
+      // ["Cheezeninja", "Marquis", "X", "X", -1],
+      ["Ebdanian", "Hemp", 9, 6, 0],
+      // ["Marquis", "Ebdanian", "X", "X", -1],
+      ["Roberta", "Cheezeninja", 9, 6, 1],
+      ["Ebdanian", "Roberta", 4, 12, 2],
+      ["Hemp", "Marquis", 12, 6, 3],
+      ["Roberta", "Hemp", 2, 12, 5],
+      ["Cheezeninja", "Ebdanian", 9, 8, 6],
+      ["Hemp", "Cheezeninja", 9, 1, 7],
+      ["Marquis", "Roberta", 4, 9, 4],
+      ["Ebdanian", "Hemp", 9, 3, 8],
+      ["Roberta", "Cheezeninja", 8, 8, 10],
+      ["Roberta", "Cheezeninja", 0, 3, 11],
+      ["Ebdanian", "Cheezeninja", 9, 7, 9],
+    ];
+
+    const Mayhembracket = [
+      // ["team1", "team2", 1, 0, 0],//score1, score2, scrim #
+      ["Chowski/Roberta", "Crusader/Vampy", "x", "x", -1],
+      ["Potesty/Exmarius", "Les/MattTheLord", 15, 3, 0],
+      ["Beansacks/John", "Pichu/Thiago", 15, 7, 8],
+      ["Nasa/CheeseNinja", "BrownMilk/Kurm", 1, 15, 9],
+      ["Zealots/Van", "Konrad/Loki", 15, 1, 4],
+      ["Sitvek/Kman", "Argo/Ingemar", "x", "0", -1],
+      ["BestNAGTA/Chunky", "Powder/Lykia", "0", "x", -1],
+      ["Trox/Wert", "Ducreux/Philip", 15, 4, 1],
+      //round 2 
+      ["Mav/Hemp", "Chowski/Roberta", "0", "x", -1],
+      ["Hey/Daemon", "Potesty/Exmarius", 5, 15, 3],
+      ["Byunos/Chicken", "Beansacks/John", 15, 6, 11],
+      ["Danate/Aporta", "BrownMilk/Kurm",11, 15, 10],
+      ["Alyss/Gibby", "Zealots/Van", 15, 0, 5],
+      ["Kairos/Shovenio", "Argo/Ingemar", "0", "x", -1],
+      ["Cow/PPK157", "BestNAGTA/Chunky", 15, 5, 2],
+      ["Marquis/Ebdanian", "Trox/Wert", 15, 13, 6],
+      //round 3 
+      ["Mav/Hemp", "Potesty/Exmarius", "0", "x", -1],
+      ["Byunos/Chicken", "BrownMilk/Kurm", 7, 15, 14],
+      ["Alyss/Gibby", "Kairos/Shovenio", 15, 3, 12],
+      ["Cow/PPK157", "Marquis/Ebdanian", 15, 11, 7],
+      //semifinal
+      ["Mav/Hemp", "BrownMilk/Kurm", 15, 7, 15],
+      ["Alyss/Gibby", "Cow/PPK157", 15, 10, 13],
+      //finals
+      ["Alyss/Gibby", "Mav/Hemp", 10, 15, 16],
+    ];
+
+const Fantasybracket = [
+      ["New Kings", "Blue Bloods", 8, 8, 12],
+      ["Tito's Knights", "Old", 11, 7, 13],
+      ["New Kings", "Tito's Knights", 9, 10, 14],
+      ["Old", "Blue Bloods", "?", "?", -1],
+      // ["Blue Bloods", "Tito's Knights", "?", "?", -1],
+      // ["Old", "New Kings", "?", "?", -1],
+      ]
+    const tournaments = [RobAIbracket, Mayhembracket, Fantasybracket]
+
 //half1, half2, bSwap
 const scrims = [
   [0,1,0],[2,3,0],[4,5,1],
@@ -2246,6 +2244,7 @@ const scrims = [
   [18,19,0],[20,21,1],[22,-1,0],
   //fantasy scrims begin 
   [491, 492, 0], [493, 494, 0],
+  [514, 515, 0], 
 ];
 
 //hardcoding in the tournament arrays start - end matches
