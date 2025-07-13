@@ -437,7 +437,8 @@
             "DoF_SangraeI_Erminas",
             "DoF_SangraeIPrince_Erminas",
             "[BR]Hemp",
-            "iceman"
+            "iceman",
+            "ArcherOnlyHemp"
         ],
         [
             "Chinngis_Qahan"
@@ -558,7 +559,8 @@
             "Sink_Sniffer",
             "Khanros",
             "[BR]Kairos",
-            "NewKings_Kairos"
+            "NewKings_Kairos",
+            "Jug_Juggler"
         ],
         [
             "EbdanianAdmiral",
@@ -751,7 +753,8 @@
             "NewKings_Limestone",
             "Pinetwo",
             "Lobster_Boiler",
-            "[Akaria]Pinetwo"
+            "[Akaria]Pinetwo",
+            "CavOnlyPinecone"
         ],
         [
             "Leoandrex"
