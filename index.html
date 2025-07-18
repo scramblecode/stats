@@ -4830,7 +4830,8 @@ function renderPickupList() {
 
         summary.addEventListener("click", function () {
           renderLandingPage("players")
-          renderPlayersList(halfs[pickup[0]][0], halfs[pickup[1]][1] + 1, `PICKUP PARTY #${selectedPickup + 1}`)
+          const pickupEnd = halfs[pickup[1]][1] + 1 == 44 ? halfs[pickup[1]][0] : halfs[pickup[1]][1] + 1;
+          renderPlayersList(halfs[pickup[0]][0], pickupEnd, `PICKUP PARTY #${selectedPickup + 1}`)
         });
     }
     // Attach click listener to the tile.
@@ -4874,7 +4875,9 @@ function renderPickupList() {
 
       summary.addEventListener("click", function () {
         renderLandingPage("players")
-        renderPlayersList(halfs[pickup[0]][0], halfs[pickup[1]][1] + 1, `PICKUP PARTY #${selectedPickup + 1}`)
+        const pickupEnd = halfs[pickup[1]][1] + 1 == 44 ? halfs[pickup[1]][0] : halfs[pickup[1]][1] + 1;
+        //console.log("PICKUPEND", halfs[pickup[0]][0], halfs[pickup[1]][0])
+        renderPlayersList(halfs[pickup[0]][0], pickupEnd, `PICKUP PARTY #${selectedPickup + 1}`)
       });
       // Animate the halfList container (simple fade-in).
       halfListContainer.animate(
