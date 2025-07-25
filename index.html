@@ -174,7 +174,8 @@ function adjustTableLayout() {
 // Add event listener to handle screen resize
 window.addEventListener("resize", adjustTableLayout);
 
-
+//track mobile
+const isMobile = window.innerWidth <= 768;
 
 function renderFactionDetails(facStr) {
 
@@ -2609,7 +2610,6 @@ while (matchesInRound <= reversedBracket.length) {
 
 // Index tracker for matches
 let matchIndex = 0;
-const isMobile = window.innerWidth <= 768;
 
 // Render matches according to structure
 roundStructure.forEach((matchesInThisRound) => {
@@ -2825,7 +2825,7 @@ function renderFactionList() {
     const topRowContainer = document.createElement("div");
     topRowContainer.style.display = "flex";
     topRowContainer.style.flexDirection = "row";
-    factionContainer.style.paddingRight = "100px";
+    factionContainer.style.paddingRight = isMobile ? "10px" : "100px";
     topRowContainer.style.alignItems = "center";
     topRowContainer.style.justifyContent = "space-between";
     // topRowContainer.style.gap = "100px";
@@ -2873,7 +2873,7 @@ function renderFactionList() {
       classCont.style.flexDirection = "column";
       classCont.style.alignItems = "flex-end";
       classCont.style.margin = "5px";
-      classCont.style.paddingRight = "40px";
+      classCont.style.paddingRight = isMobile ? "5px" : "40px";
       
       // Append the class icon (setClassImage is responsible for appending an IMG)
       setClassImage(classLabels[i], classCont, 0, 1);
