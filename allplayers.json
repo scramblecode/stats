@@ -237,9 +237,10 @@
         "2910335",
         "1223241",
         "100028",
-        "1754668"
+        "1754668",
+        "5312806"
     ],
-    "number_of_players": 238,
+    "number_of_players": 239,
     "player_names": [
         [
             "SERVER"
@@ -729,7 +730,8 @@
             "BlueBloods_KhoA_BigKhan_Jahn",
             "KoA_PapiFuego_John",
             "KoA_FajitaFriday_John",
-            "SilverbackGorillaGopher"
+            "SilverbackGorillaGopher",
+            "Bluebloods_KoA_John"
         ],
         [
             "[GF]Pichurin",
@@ -1604,6 +1606,9 @@
         [
             "aURILILIUS",
             "aurilius"
+        ],
+        [
+            "ATATURKSIKICI_MOGOL_ASTRONOT"
         ]
     ]
 }
