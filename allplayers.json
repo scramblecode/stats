@@ -238,9 +238,10 @@
         "1223241",
         "100028",
         "1754668",
-        "5312806"
+        "5312806",
+        "1605769"
     ],
-    "number_of_players": 239,
+    "number_of_players": 240,
     "player_names": [
         [
             "SERVER"
@@ -903,7 +904,8 @@
             "wappawFaadofdw_mar",
             "Knight_mar",
             "knight_mar",
-            "knight-mar"
+            "knight-mar",
+            "USA_Mar"
         ],
         [
             "GK_Srg_Goddess_Zealots",
@@ -1030,7 +1032,7 @@
             "NewKings_Artorias"
         ],
         [
-            "tretzma_alt"
+            "koolaid_alt"
         ],
         [
             "Korradiken"
@@ -1087,7 +1089,8 @@
             "old_woman_disrespecter_valar",
             "blue_moon_enjoyer_valarr",
             "immigration_denier_valarr",
-            "hancock_enjoyer_valarr"
+            "hancock_enjoyer_valarr",
+            "woman_despiser_valarr"
         ],
         [
             "vampyrum"
@@ -1615,6 +1618,9 @@
         ],
         [
             "ATATURKSIKICI_MOGOL_ASTRONOT"
+        ],
+        [
+            "Babar"
         ]
     ]
 }
