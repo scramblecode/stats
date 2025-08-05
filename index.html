@@ -83,7 +83,8 @@ const closedMaps = [
   "Village",
   "Cheesetown",
   "Cheese Canal",
-  "Sollenden"
+  "Sollenden",
+  "Valhalla"
 ];
 
 const allMaps = [...openMaps, ...closedMaps];
@@ -95,7 +96,8 @@ const colNames = [...fullStats];
 
 const imageCache = {};
 const imageSources = ["class_arc", "class_cav", "class_inf", 
-"flag_swadia", "flag_vaegir", "flag_khergit", "flag_nord", "flag_rhodok", "flag_sarranid",];
+"flag_swadia", "flag_vaegir", "flag_khergit", "flag_nord", "flag_rhodok", "flag_sarranid",
+"trophy"];
 
 function preloadImages() {
   imageSources.forEach(src => {
@@ -2271,11 +2273,13 @@ const pickupSeason3 = [349, 709, "MAY"];
 
 const pickupSeason4 = [710, 928, "JUNE"];
 
+const pickupSeason5 = [929, 1183, "JULY"];
+
 //ongoing season -- move to the fetch response to automate
-const currentSeason = [929, 928, "JULY"];
+const currentSeason = [1188, 1189, "AUGUST"];
 
 //pickup "seasons" (monthly aggregate)
-const pickupSeasons = [pickupSeason1, pickupSeason2, pickupSeason3, pickupSeason4, currentSeason];
+const pickupSeasons = [pickupSeason1, pickupSeason2, pickupSeason3, pickupSeason4, pickupSeason5, currentSeason];
 
 // Define the tabs. By default "scrims" is active.
 const tabs = [
@@ -2497,7 +2501,7 @@ function renderSubTabContent(tabId, container) {
         filterInf = false;
         filterCav = false;
         filterArc = false;
-        renderPlayersList();
+        renderPlayersList(0);
       } else {
         //container.textContent = "Unknown tab.";
       }
@@ -3432,7 +3436,7 @@ function renderTournamentList() {
   currentTournamentDiv.style.width = "100%";
   currentTournamentDiv.style.cursor = "pointer";
 
-  const currentTournament = { title: "Warband Fantasy League", info: "Group Stage" };
+  const currentTournament = { title: "Warband Fantasy League", info: "Elimination Stage" };
 
   // Create Current Tournament Title (as h1)
   const currentTitle = document.createElement("h1");
@@ -3610,7 +3614,8 @@ const filterFac = [false,false,false,false,false,false]
   playerIds,
   matches,
   nameToIdMap,
-  playerNames
+  playerNames,
+  s1
 ) {
   // Initialize aggregation object.
   const playerStats = {};
@@ -3692,6 +3697,15 @@ const filterFac = [false,false,false,false,false,false]
   // Process each match and round.
   matches.forEach((match, matchID) => {
       if(filterMap && filterMap !== match.map.toLowerCase().replaceAll(" ", "_").replaceAll("'","")) return; //skip map filter 
+      if(filterMapKind == 2 && openMaps.includes(match.map)) return;
+      if(filterMapKind == 1 && closedMaps.includes(match.map)) return;
+      console.log(s1)
+      if(filterTourney == 1
+        && !scrims.some(([halfA, halfB]) => halfs[halfA].includes(matchID + s1) || halfs[halfB]?.includes(matchID + s1))
+      ) {return;}
+      if(filterTourney == 2
+        && scrims.some(([halfA, halfB]) => halfs[halfA].includes(matchID + s1) || halfs[halfB]?.includes(matchID + s1))
+      ) {return;}
       //console.log("MATCH:", matchID)
     match.rounds.forEach((round, roundID) => {
       const { kills, deaths, teamkills, teamkilled, assists, dmg, tdmg, players, classes, teams } = round;
@@ -3841,12 +3855,14 @@ const filterFac = [false,false,false,false,false,false]
 
   // Filter out players with all stats as 0.
   statsArray = statsArray.filter(player =>
-    player.kills > 0 ||
+    (player.kills > 0 ||
     player.deaths > 0 ||
     player.assists > 0 ||
     player.dmg > 0 ||
     player.tks > 0 ||
-    player.tkd > 0
+    player.tkd > 0)
+    //round min
+    && (!filterMin || player.rounds >= filterMin)
   );
   return { statsArray, playerStats };
 }
@@ -3875,13 +3891,20 @@ function getGradientColor(value, min, max, inv=false) {
 }
 
 let filterMap;
+let filterMapKind = 0;
+let filterTourney = 0;
+let filterMin = 0;
 
 function renderPlayersList(s1, s2, title="All Player Stats", container=document.getElementById("tab-content")) {
     //const container = document.getElementById("tab-content");
     container.innerHTML = "";  // Clear previous content
-    
+    console.log("playersList", s1)
+    filterMin = 0;
+    filterMapKind = 0;
+    filterTourney = 0;
     // console.log(window.history.state.map)
     filterMap = window.history.state.map;
+    if(title.includes("WRAP")) filterTourney = 2; //exclude tourney matches from wrap-ups
 
     const statsTitle = document.createElement("h2");
     statsTitle.textContent = title;
@@ -3895,7 +3918,7 @@ function renderPlayersList(s1, s2, title="All Player Stats", container=document.
             });
         });
 
-        let { statsArray, playerStats } = generatePlayerStats(playerIds, matches.slice(s1, s2), nameToIdMap, playerNames);
+        let { statsArray, playerStats } = generatePlayerStats(playerIds, matches.slice(s1, s2), nameToIdMap, playerNames, s1);
         var playersContainer = document.createElement("div");
         playersContainer.id = "players-container";
         playersContainer.style.paddingLeft = "0";
@@ -3912,16 +3935,79 @@ function renderPlayersList(s1, s2, title="All Player Stats", container=document.
 
             //filters 
             const filterContainer = document.createElement("div");
+                filterContainer.style.display = "flex";
+                filterContainer.style.flexWrap = "wrap";
+            const primaryContainer = document.createElement("div");
 
             const filterH = document.createElement("div");
-            filterH.textContent = "Filters";
+            filterH.textContent = "Filters:";
             filterH.style.marginTop = "0";
             filterH.style.paddingBottom = "10px";
             filterH.style.paddingLeft = "10px";
             filterH.style.paddingRight = "10px";
-            filterH.style.maxWidth = "120px";
-            filterH.style.borderBottom = "1px solid #ccc"
-            filterContainer.appendChild(filterH)
+            // filterH.style.maxWidth = "120px";
+            //filterH.style.borderBottom = "1px solid #ccc"
+            playersContainer.appendChild(filterH)
+            const descContainer = document.createElement("div");
+            const filterD = document.createElement("div");
+            filterD.textContent = `Showing`;
+            if(!filterMap && !filterTourney && !filterMapKind && filterFac.every(x => {return x == false}) && !filterInf && !filterArc && !filterCav) {filterD.textContent += ` All Stats`} 
+            else {
+              if (filterMap) filterD.textContent += ` Map`;
+              if (filterTourney == 1) filterD.textContent += ` Tournament`;
+              if (filterTourney == 2) filterD.textContent += ` Pickup`;
+
+              const classNames = ["Infantry", "Cavalry", "Archer"];
+              const classFilters    = [filterInf,  filterCav,   filterArc];
+              
+              const included = classNames.filter((_, i) => classFilters[i]); 
+              const excluded = classNames.filter((_, i) => !classFilters[i]);  
+              if (included.length === 2) {
+                filterD.textContent += ` ${excluded[0]}`;
+              }
+
+              filterD.textContent += ` Stats`;
+
+              if (included.length === 1) {
+                filterD.textContent += ` excluding ${included[0]}`;
+              } 
+              if (filterMapKind == 1) filterD.textContent += ` on Open Maps`;
+              if (filterMapKind == 2) filterD.textContent += ` on Closed Maps`;
+              
+              const includedFac = factions.filter((_, i) => filterFac[i]); 
+              const excludedFac = factions.filter((_, i) => !filterFac[i]);  
+              if (includedFac.length === 1) {
+                filterD.textContent += ` excluding ${includedFac[0]}`;
+              } 
+              if (includedFac.length === 2) {
+                filterD.textContent += ` excluding ${includedFac[0]} and ${includedFac[1]}`;
+              } 
+              if (includedFac.length === 3) {
+                filterD.textContent += ` for 3 factions`;
+              }   
+              if (excludedFac.length === 1) {
+                filterD.textContent += ` for ${excludedFac[0]}`;
+              } 
+              if (excludedFac.length === 2) {
+                filterD.textContent += ` for ${excludedFac[0]} and ${excludedFac[1]}`;
+              } 
+            }
+            filterD.style.marginTop = "0px";
+            filterD.style.paddingBottom = "10px";
+            filterD.style.paddingLeft = "20px";
+            filterD.style.paddingRight = "10px";
+            descContainer.appendChild(filterD)
+            const filterS = document.createElement("div");
+            const sortDir = currentSortDirection == "desc" ? "Most" : "Least";
+            const sortDiv = currentSortDivisor == "none" ? "" : `per ${currentSortDivisor}`;
+            const sortCol = currentSortColumn.charAt(0).toUpperCase() + currentSortColumn.slice(1);
+            const roundFloor = filterMin == 0 ? "" : ` (Minimum ${filterMin} Rounds)`;
+            filterS.textContent = `Sorted by ${sortDir} ${sortCol} ${sortDiv}${roundFloor}`;
+            filterS.style.marginTop = "0px";
+            filterS.style.paddingBottom = "10px";
+            filterS.style.paddingLeft = "20px";
+            filterS.style.paddingRight = "10px";
+            descContainer.appendChild(filterS)
             
             const factionContainer = document.createElement("div");
             if(!window.history.state.faction){
@@ -3930,7 +4016,7 @@ function renderPlayersList(s1, s2, title="All Player Stats", container=document.
                 factionContainer.style.flexWrap = "wrap"; // Allow wrapping to stack icons
                 factionContainer.style.justifyContent = "center"; // Center the icons
                 factionContainer.style.gap = "10px"; // Add spacing between icons
-                factionContainer.style.padding = "10px"; // Optional padding
+                factionContainer.style.paddingTop = "10px"; // Optional padding
                 factionContainer.style.maxWidth = "120px"
                 factionContainer.style.borderTop = "1px solid #ccc"
                 factionContainer.style.borderBottom = "1px solid #ccc"
@@ -3942,8 +4028,8 @@ function renderPlayersList(s1, s2, title="All Player Stats", container=document.
                   // factionIcon.src = `assets/img/${facIcons[index]}.png`; // Set the image source dynamically
                   const factionIcon = getCachedImage(facIcons[index]);
                   factionIcon.style.cursor = "pointer";
-                  factionIcon.style.width = "30px"; // Adjust size as needed
-                  factionIcon.style.height = "30px"; // Adjust size as needed
+                  factionIcon.style.width = "33px"; // Adjust size as needed
+                  factionIcon.style.height = "33px"; // Adjust size as needed
                   factionIcon.style.objectFit = "contain"; // Ensure the icon fits well within its boundaries
                   factionIcon.alt = faction; // Set an alt attribute for accessibility
                   factionIcon.style.filter = `grayscale(${+filterFac[index]})`;
@@ -3953,7 +4039,7 @@ function renderPlayersList(s1, s2, title="All Player Stats", container=document.
                     filterFac[index] = !filterFac[index];
                     if(filterFac.every(x => {return x == true})) {filterFac.fill(false)}
                     // Regenerate player stats and re-render the table
-                    ({ statsArray, playerStats } = generatePlayerStats(playerIds, matches.slice(s1, s2), nameToIdMap, playerNames));
+                    ({ statsArray, playerStats } = generatePlayerStats(playerIds, matches.slice(s1, s2), nameToIdMap, playerNames, s1));
                     renderTable();
 
                     // Update icon appearance based on filter state (e.g., grayscale)
@@ -3965,6 +4051,112 @@ function renderPlayersList(s1, s2, title="All Player Stats", container=document.
                   factionContainer.appendChild(factionIcon);
                 });
               }
+              //Filters for: Tournaments/Pickups/All; Open/Closed Maps; Round minimum
+              // 🏆 ; 🖼️ ; Min:[  ]
+            const miscContainer = document.createElement("div");
+            miscContainer.style.display = "flex";
+            miscContainer.style.flexWrap = "wrap"; // Allow wrapping to stack icons
+            miscContainer.style.justifyContent = "center"; // Center the icons
+            miscContainer.style.gap = "10px"; // Add spacing between icons
+            miscContainer.style.padding = "10px"; // Optional padding
+            miscContainer.style.maxWidth = "120px"
+            miscContainer.style.borderTop = "1px solid #ccc"
+            miscContainer.style.borderBottom = "1px solid #ccc";
+            // miscContainer.style.borderRight = "1px solid #ccc";
+            if(!title.includes("PICKUP") && !title.includes("WRAP")){const trophy = document.createElement("img");
+                if(filterTourney == 0) {
+                  trophy.src = "assets/img/trophy.png";
+                  trophy.style.filter = "grayscale(1)";
+                } else if(filterTourney == 1) {
+                  trophy.style.filter = "grayscale(0)";
+                  trophy.src = "assets/img/trophy.png";
+                } else if(filterTourney == 2) {
+                  trophy.style.filter = "grayscale(0)";
+                  trophy.src = "assets/img/trophyno.png";
+                }
+              trophy.style.cursor = "pointer";
+                  //All
+              if(filterTourney == 0) trophy.style.filter = "grayscale(1)";
+              trophy.onclick = () => {
+                if(filterTourney == 0) {
+                  //tourney only
+                  filterTourney = 1;
+                  trophy.style.filter = "grayscale(0)";
+                } else if(filterTourney == 1) {
+                  //no tourney
+                  filterTourney = 2;
+                  trophy.src = "assets/img/trophyno.png";
+                } else if(filterTourney == 2) {
+                  //back to All
+                  filterTourney = 0;
+                  trophy.src = "assets/img/trophy.png";
+                  trophy.style.filter = "grayscale(1)";
+                }
+                ({ statsArray, playerStats  } = generatePlayerStats(playerIds, matches.slice(s1, s2), nameToIdMap, playerNames, s1));
+                renderTable();
+              }
+              miscContainer.appendChild(trophy);
+              }
+
+              if(!filterMap){const mapKind = document.createElement("img");
+                if(filterMapKind == 0) {
+                  mapKind.src = "assets/img/mapany.png"
+                  mapKind.style.filter = "grayscale(1)";
+                } else if(filterMapKind == 1) {
+                  mapKind.src = "assets/img/mapopen.png"
+                  mapKind.style.filter = "grayscale(0)";
+                } else if(filterMapKind == 2) {
+                  mapKind.src = "assets/img/mapclosed.png"
+                  mapKind.style.filter = "grayscale(0)";
+                }
+                if(filterMapKind == 0) mapKind.style.filter = "grayscale(1)";
+                mapKind.style.cursor = "pointer";
+                mapKind.onclick = () => {
+                  if(filterMapKind == 0) {
+                    filterMapKind = 1;
+                    mapKind.style.filter = "grayscale(0)";
+                    mapKind.src = "assets/img/mapopen.png"
+                  } else if(filterMapKind == 1) {
+                    filterMapKind = 2;
+                    mapKind.src = "assets/img/mapclosed.png"
+                  } else if(filterMapKind == 2) {
+                    filterMapKind = 0;
+                    mapKind.src = "assets/img/mapany.png"
+                    mapKind.style.filter = "grayscale(1)";
+                  }
+                  ({ statsArray, playerStats  } = generatePlayerStats(playerIds, matches.slice(s1, s2), nameToIdMap, playerNames, s1));
+                  renderTable();
+                }
+                miscContainer.appendChild(mapKind);
+              }
+              const roundMin = document.createElement("input");
+              roundMin.type = "text";
+              roundMin.style.color = "white";
+              roundMin.value = filterMin;
+              if (roundMin.value == 0) roundMin.value = null;
+              roundMin.placeholder = "Min";
+              roundMin.size = 2;
+              roundMin.style.outline = "none";
+              roundMin.style.border = filterMin == 0 ? "2px solid #ff00dd00" : "2px solid #0d0";
+              roundMin.style.backgroundColor = "rgba(128, 128, 128, 0.25)";
+              roundMin.addEventListener('input', function() {
+                console.log(roundMin.value, Number(roundMin.value))
+                if (!Number(roundMin.value)) roundMin.value = 0;
+                roundMin.value = Math.min(roundMin.value, 100000);  
+                if (roundMin.value == 0) roundMin.value = null;             
+                filterMin = roundMin.value;
+                setTimeout(redrawTable, 750)
+                function redrawTable(){
+                  ({ statsArray, playerStats  } = generatePlayerStats(playerIds, matches.slice(s1, s2), nameToIdMap, playerNames, s1));
+                  renderTable();
+                }
+              })
+              miscContainer.appendChild(roundMin);
+              
+
+              const classContainer = document.createElement("div");
+              // classContainer.style.borderRight = "1px solid #ccc";
+              classContainer.style.borderBottom = "1px solid #ccc";
                 // const infclass = document.createElement("img");
                 // infclass.src = "assets/img/class_inf.png";
                 const infclass = getCachedImage("class_inf");
@@ -3976,7 +4168,7 @@ function renderPlayersList(s1, s2, title="All Player Stats", container=document.
                     filterCav = false;
                     filterArc = false;
                   }
-                  ({ statsArray, playerStats  } = generatePlayerStats(playerIds, matches.slice(s1, s2), nameToIdMap, playerNames));
+                  ({ statsArray, playerStats  } = generatePlayerStats(playerIds, matches.slice(s1, s2), nameToIdMap, playerNames, s1));
                   renderTable();
                   //console.log("Inf filter:", filterInf)
                 }
@@ -3989,7 +4181,7 @@ function renderPlayersList(s1, s2, title="All Player Stats", container=document.
                 infclass.style.alignItems = "left;"
                 infclass.style.paddingLeft = "8px";
                 //infclass.style.borderBottom = "1px solid #ccc"
-                filterContainer.appendChild(infclass);
+                classContainer.appendChild(infclass);
 
                 // const cavclass = document.createElement("img");
                 // cavclass.src = "assets/img/class_cav.png";
@@ -4002,7 +4194,7 @@ function renderPlayersList(s1, s2, title="All Player Stats", container=document.
                     filterCav = false;
                     filterArc = false;
                   }
-                  ({ statsArray, playerStats  } = generatePlayerStats(playerIds, matches.slice(s1, s2), nameToIdMap, playerNames));
+                  ({ statsArray, playerStats  } = generatePlayerStats(playerIds, matches.slice(s1, s2), nameToIdMap, playerNames, s1));
                   renderTable();
                   //console.log("Cav filter:", filterCav)
                 }
@@ -4015,7 +4207,7 @@ function renderPlayersList(s1, s2, title="All Player Stats", container=document.
                 cavclass.style.alignItems = "left;"
                 cavclass.style.paddingLeft = "8px";
                 //cavclass.style.borderBottom = "1px solid #ccc"
-                filterContainer.appendChild(cavclass);
+                classContainer.appendChild(cavclass);
 
                 // const arcclass = document.createElement("img");
                 // arcclass.src = "assets/img/class_arc.png";
@@ -4028,7 +4220,7 @@ function renderPlayersList(s1, s2, title="All Player Stats", container=document.
                     filterCav = false;
                     filterArc = false;
                   }
-                  ({ statsArray, playerStats } = generatePlayerStats(playerIds, matches.slice(s1, s2), nameToIdMap, playerNames));
+                  ({ statsArray, playerStats } = generatePlayerStats(playerIds, matches.slice(s1, s2), nameToIdMap, playerNames, s1));
                   renderTable();
                   //console.log("Archer filter:", filterArc)
                 }
@@ -4041,9 +4233,13 @@ function renderPlayersList(s1, s2, title="All Player Stats", container=document.
                 arcclass.style.alignItems = "left;"
                 arcclass.style.paddingLeft = "8px";
                 //arcclass.style.borderBottom = "1px solid #ccc"
-                filterContainer.appendChild(arcclass);
+                classContainer.appendChild(arcclass);
 
+                primaryContainer.appendChild(miscContainer);
+                primaryContainer.appendChild(classContainer);
+                filterContainer.appendChild(primaryContainer);
                 filterContainer.appendChild(factionContainer);
+                filterContainer.appendChild(descContainer);
               playersContainer.appendChild(filterContainer);
 
             const table = document.createElement("table");
@@ -4062,6 +4258,8 @@ function renderPlayersList(s1, s2, title="All Player Stats", container=document.
                     player.dmg > 0 ||
                     player.tks > 0 ||
                     player.tked > 0)
+                    //round min
+                    && (!filterMin || player.rounds >= filterMin)
                 );
               //const columnIndex = columns.indexOf(currentSortDivisor.toLowerCase())
                 statsArray = statsArray.map(player => {
@@ -4085,6 +4283,8 @@ function renderPlayersList(s1, s2, title="All Player Stats", container=document.
                     (player.dmg < Infinity && player.dmg > 0) ||
                     player.tks > 0 ||
                     player.tked > 0)
+                    //round min
+                    && (!filterMin || player.rounds * player[currentSortDivisor.toLowerCase()] >= filterMin)
                 );
               }
             // Sort the stats array
@@ -4150,6 +4350,8 @@ function renderPlayersList(s1, s2, title="All Player Stats", container=document.
                       player.dmg > 0 ||
                       player.tks > 0 ||
                       player.tked > 0)
+                    //round min
+                    && (!filterMin || player.rounds >= filterMin)
                   );
                   if(currentSortDivisor !== column) {
                     currentSortDivisor = column;
@@ -4165,12 +4367,14 @@ function renderPlayersList(s1, s2, title="All Player Stats", container=document.
                       const columnIndex = columns.indexOf(column)
                       // Filter out players with all stats as 0
                       statsArray = statsArray.filter(player =>
-                          player.kills > 0 ||
+                          (player.kills > 0 ||
                           player.deaths > 0 ||
                           player.assists > 0 ||
                           player.dmg > 0 ||
                           player.tks > 0 ||
-                          player.tked > 0
+                          player.tked > 0)
+                          //round min
+                          && (!filterMin || player.rounds >= filterMin)
                       );
                       // Re-render the table
                       renderTable();
@@ -4222,6 +4426,8 @@ function renderPlayersList(s1, s2, title="All Player Stats", container=document.
                         player.dmg > 0 ||
                         player.tks > 0 ||
                         player.tked > 0)
+                        //round min
+                        && (!filterMin || player.rounds >= filterMin)
                     );
                     // Re-render the table
                     renderTable();
