@@ -4137,6 +4137,7 @@ function renderPlayersList(s1, s2, title="All Player Stats", container=document.
               roundMin.placeholder = "Min";
               roundMin.size = 2;
               roundMin.style.outline = "none";
+              roundMin.style.maxWidth = "28px";
               roundMin.style.border = filterMin == 0 ? "2px solid #ff00dd00" : "2px solid #0d0";
               roundMin.style.backgroundColor = "rgba(128, 128, 128, 0.25)";
               roundMin.addEventListener('input', function() {
