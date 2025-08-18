@@ -191,10 +191,12 @@ function renderFactionDetails(facStr) {
   renderTabBar(contentDiv, "factions");
   const tabContentContainer = document.createElement("div");
   tabContentContainer.id = "tab-content";
-  tabContentContainer.style.marginTop = "20px";
+  tabContentContainer.style.padding = "0px";
 
-  const infoContainer = document.createElement("h1")
+  const infoContainer = document.createElement("h2")
   infoContainer.textContent = `${facName}`;
+  infoContainer.style.margin = "0px";
+  infoContainer.style.marginTop = "35px";
 
   tabContentContainer.appendChild(infoContainer);
   
@@ -651,7 +653,7 @@ function renderPlayerDetails(playerID) {
             });
         });
 
-    const playersContainer = document.createElement("h1")
+    const playersContainer = document.createElement("h2")
     playersContainer.textContent = `${playerNames[playerIds.indexOf(playerID)][0]}`;
 
     tabContentContainer.appendChild(playersContainer);
@@ -2364,9 +2366,9 @@ function renderSubTabBar(contentDiv, activeTabId){
             // if (tabInfo.id === "bracket") {
             //   tab.classList.add("active");
             // }
-            document.querySelectorAll(".tabs .tab").forEach((t) => t.classList.remove("active"));
+            document.querySelectorAll(".tabs .tab").forEach((t) => t.classList.remove("sactive"));
             if (tabInfo.id === activeTabId) {
-              tab.classList.add("active");
+              tab.classList.add("sactive");
             }
           
 
@@ -2378,8 +2380,8 @@ function renderSubTabBar(contentDiv, activeTabId){
                 scrollPositions[activeTabId] = tabContentContainer.scrollTop; // Save the scroll position for the current tab
               }
               // Remove active class from all tabs.
-              document.querySelectorAll(".tabs .tab").forEach((t) => t.classList.remove("active"));
-              tab.classList.add("active");
+              document.querySelectorAll(".tabs .tab").forEach((t) => t.classList.remove("sactive"));
+              tab.classList.add("sactive");
               
               // Render content for the selected tab.
                 renderSubTabContent(tabInfo.id, tabContentContainer);
@@ -2824,6 +2826,7 @@ function renderFactionList() {
     // Create an outer div for the faction.
     const factionContainer = document.createElement("div");
     factionContainer.style.marginBottom = "15px";
+    factionContainer.style.marginTop = "15px";
     factionContainer.style.border = "1px solid #ccc";
     factionContainer.style.padding = "10px";
     factionContainer.className = "selectable";
@@ -3983,7 +3986,7 @@ function renderPlayersList(s1, s2, title="All Player Stats", container=document.
                 filterD.textContent += ` excluding ${includedFac[0]} and ${includedFac[1]}`;
               } 
               if (includedFac.length === 3) {
-                filterD.textContent += ` for 3 factions`;
+                filterD.textContent += ` for three factions`;
               }   
               if (excludedFac.length === 1) {
                 filterD.textContent += ` for ${excludedFac[0]}`;
