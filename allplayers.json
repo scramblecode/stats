@@ -242,9 +242,10 @@
         "1605769",
         "3860104",
         "4360982",
-        "4746909"
+        "4746909",
+        "1506795"
     ],
-    "number_of_players": 243,
+    "number_of_players": 244,
     "player_names": [
         [
             "SERVER"
@@ -765,7 +766,8 @@
             "TantalizingTortilla_KoA_John",
             "FritopieFriday_KoA_John",
             "5dollarFtLongCoupon_KoA_John",
-            "XtraLargePepperoni_KoA_John"
+            "XtraLargePepperoni_KoA_John",
+            "KoA_RustyJohn"
         ],
         [
             "[GF]Pichurin",
@@ -1669,6 +1671,9 @@
         ],
         [
             "Enki"
+        ],
+        [
+            "GK_Xenon"
         ]
     ]
 }
