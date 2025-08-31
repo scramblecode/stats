@@ -2355,6 +2355,8 @@ function renderSubTabBar(contentDiv, activeTabId){
   
       // Create the tab bar.
       const tabsContainer = document.createElement("div");
+      tabsContainer.style.padding = "0px";
+      tabsContainer.style.margin = "0px";
       tabsContainer.className = "subtabs-container";
       const tabBar = document.createElement("div");
       tabBar.className = "tabs";
@@ -4248,6 +4250,7 @@ function renderPlayersList(s1, s2, title="All Player Stats", container=document.
 
             const table = document.createElement("table");
             table.style.width = "100%";
+            table.style.height = "100%";
             table.style.borderCollapse = "collapse";
 
             const columns = ["Player Name", "Kills", "Deaths", "Assists", "Dmg", "TKs", "TDmg", "TKd", "Rounds", "Wins"];
