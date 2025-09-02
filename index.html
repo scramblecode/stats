@@ -3100,7 +3100,7 @@ const extraRotations = [1080, 960, 840];
         || (match.faction_2 === rFac1 && match.faction_1 === rFac2))) {
           prev++
         }
-      if(!cont && matches[idx+1].map == match.map 
+      if(!cont && matches[idx+1] && matches[idx+1].map == match.map 
       && matches[idx+1].faction_1 == match.faction_1 
       && matches[idx+1].faction_2 == match.faction_2) {cont = true} else cont = false;
     })
@@ -3126,7 +3126,7 @@ const extraRotations = [1080, 960, 840];
     
     // 1. Count total plays for this map.
     if (!sideswap) {mapCounts.set(map, (mapCounts.get(map) || 0) + 1)}
-    if(!sideswap && matches[idx+1].map == map 
+    if(!sideswap && matches[idx+1] && matches[idx+1].map == map 
     && matches[idx+1].faction_1 == faction_1 
     && matches[idx+1].faction_2 == faction_2) {sideswap = true} else sideswap = false;
     
