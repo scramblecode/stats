@@ -2277,11 +2277,12 @@ const pickupSeason4 = [710, 928, "JUNE"];
 
 const pickupSeason5 = [929, 1183, "JULY"];
 
+const pickupSeason6 = [1188, 1329, "AUGUST"];
 //ongoing season -- move to the fetch response to automate
-const currentSeason = [1188, 1189, "AUGUST"];
+const currentSeason = [1330, 1331, "SEPTEMBER"];
 
 //pickup "seasons" (monthly aggregate)
-const pickupSeasons = [pickupSeason1, pickupSeason2, pickupSeason3, pickupSeason4, pickupSeason5, currentSeason];
+const pickupSeasons = [pickupSeason1, pickupSeason2, pickupSeason3, pickupSeason4, pickupSeason5, pickupSeason6, currentSeason];
 
 // Define the tabs. By default "scrims" is active.
 const tabs = [
@@ -5049,7 +5050,7 @@ function renderPickupList() {
 
         summary.addEventListener("click", function () {
           renderLandingPage("players")
-          const pickupEnd = halfs[pickup[1]][1] + 1 == 44 ? halfs[pickup[1]][0] : halfs[pickup[1]][1] + 1;
+          const pickupEnd = halfs[pickup[1]][1] + 1 == 44 ? halfs[pickup[1]][0] + 1 : halfs[pickup[1]][1] + 1;
           renderPlayersList(halfs[pickup[0]][0], pickupEnd, `PICKUP PARTY #${selectedPickup + 1}`)
         });
     }
@@ -5094,7 +5095,7 @@ function renderPickupList() {
 
       summary.addEventListener("click", function () {
         renderLandingPage("players")
-        const pickupEnd = halfs[pickup[1]][1] + 1 == 44 ? halfs[pickup[1]][0] : halfs[pickup[1]][1] + 1;
+        const pickupEnd = halfs[pickup[1]][1] + 1 == 44 ? halfs[pickup[1]][0] + 1 : halfs[pickup[1]][1] + 1;
         //console.log("PICKUPEND", halfs[pickup[0]][0], halfs[pickup[1]][0])
         renderPlayersList(halfs[pickup[0]][0], pickupEnd, `PICKUP PARTY #${selectedPickup + 1}`)
       });
