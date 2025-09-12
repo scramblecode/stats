@@ -5836,6 +5836,11 @@ function updateURLToBracket(tournID) {
 
         // Process allmatches.json
         matches = allMatchesData.matches;
+        let numrounds = 0;
+        matches.forEach((x) => {
+          numrounds += x.rounds.length;
+        })
+        console.log("Total matches:", matches.length, "\n", "Total rounds:", numrounds)
         fillHalfsList();
         
         fillPickupsList(24);
