@@ -255,9 +255,10 @@
         "6674962",
         "6729510",
         "1705428",
-        "2339167"
+        "2339167",
+        "6598979"
     ],
-    "number_of_players": 256,
+    "number_of_players": 257,
     "player_names": [
         [
             "SERVER"
@@ -836,7 +837,8 @@
             "KoA_PotatoChucker_John",
             "KoA_HolyWheelKnight_John",
             "KoA_TinCanInf_John",
-            "KoA_StaleCashews_John"
+            "KoA_StaleCashews_John",
+            "KoA_Gheghis_Jahn"
         ],
         [
             "[GF]Pichurin",
@@ -1774,7 +1776,8 @@
             "Elessar"
         ],
         [
-            "buttplay"
+            "buttplay",
+            "Ekse"
         ],
         [
             "Jaime_Lannister"
@@ -1805,6 +1808,9 @@
         ],
         [
             "Tormod_of_the_Swamp"
+        ],
+        [
+            "Glycine"
         ]
     ]
 }
