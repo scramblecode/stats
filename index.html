@@ -2278,11 +2278,25 @@ const pickupSeason4 = [710, 928, "JUNE"];
 const pickupSeason5 = [929, 1183, "JULY"];
 
 const pickupSeason6 = [1188, 1329, "AUGUST"];
+
+const pickupSeason7 = [1330, 1529, "SEPTEMBER"];
+
 //ongoing season -- move to the fetch response to automate
-const currentSeason = [1330, 1331, "SEPTEMBER"];
+const currentSeason = [1530, 1529, "OCTOBER"];
 
 //pickup "seasons" (monthly aggregate)
-const pickupSeasons = [pickupSeason1, pickupSeason2, pickupSeason3, pickupSeason4, pickupSeason5, pickupSeason6, currentSeason];
+const pickupSeasons = [pickupSeason1, pickupSeason2, pickupSeason3, pickupSeason4, pickupSeason5, pickupSeason6, pickupSeason7, currentSeason];
+
+//3-month score resets ? by community request
+//first one includes the few March pickups
+const pickupReset1 = [pickupSeason1[0], pickupSeason4[1], "SEASON ONE"];
+
+//Jul-Aug-Sep
+const pickupReset2 = [pickupSeason5[0], pickupSeason7[1], "SEASON TWO"];
+//Oct-Nov-Dec
+const currentReset = [currentSeason[0], 1552, "SEASON THREE"];
+
+const statResets = [pickupReset1, pickupReset2, currentReset];
 
 // Define the tabs. By default "scrims" is active.
 const tabs = [
@@ -2506,7 +2520,7 @@ function renderSubTabContent(tabId, container) {
         filterInf = false;
         filterCav = false;
         filterArc = false;
-        renderPlayersList(0);
+        renderPlayersList(currentReset[0], matches.length, currentReset[2]);
       } else {
         //container.textContent = "Unknown tab.";
       }
@@ -3901,7 +3915,7 @@ let filterMapKind = 0;
 let filterTourney = 0;
 let filterMin = 0;
 
-function renderPlayersList(s1, s2, title="All Player Stats", container=document.getElementById("tab-content")) {
+function renderPlayersList(s1, s2, title="ALL TIME", container=document.getElementById("tab-content")) {
     //const container = document.getElementById("tab-content");
     container.innerHTML = "";  // Clear previous content
     console.log("playersList", s1)
@@ -3911,10 +3925,82 @@ function renderPlayersList(s1, s2, title="All Player Stats", container=document.
     // console.log(window.history.state.map)
     filterMap = window.history.state.map;
     if(title.includes("WRAP")) filterTourney = 2; //exclude tourney matches from wrap-ups
+    if(title.length > 0){
+      const statsTitleCont = document.createElement("div");
+      statsTitleCont.style.display = "flex";
+      statsTitleCont.style.alignItems = "center";
+      statsTitleCont.style.gap = "5px";
 
-    const statsTitle = document.createElement("h2");
-    statsTitle.textContent = title;
-    container.appendChild(statsTitle)
+      if(!title.includes("PICKUP")) {
+        const statsTitleChangeL = document.createElement("img");
+        statsTitleChangeL.src = 'assets/img/change_button.png';
+        statsTitleChangeL.style.transform = "scaleX(-1)";
+        statsTitleChangeL.style.cursor = "pointer";
+        statsTitleCont.appendChild(statsTitleChangeL);
+        statsTitleChangeL.onclick = () => {
+          
+          let index = statResets.findIndex(reset => reset[2] === title);
+          if (index !== -1) {
+            
+            if(index > 0){
+              index--
+              renderPlayersList(statResets[index][0], statResets[index][1], statResets[index][2]);
+            } else {
+              renderPlayersList(0)
+            }
+          } else {
+            index = pickupSeasons.findIndex(reset => title.includes(reset[2]));
+            if(index !== -1){
+              console.log("WRAP UP FOUND L");
+              index = index > 0 ? index - 1 : pickupSeasons.length-1;
+              const current = index == pickupSeasons.length-1 ? matches.length : pickupSeasons[index][1];
+              renderPlayersList(pickupSeasons[index][0], current, pickupSeasons[index][2] + " WRAP UP");
+            } else {
+              index = statResets.length-1;
+              renderPlayersList(statResets[index][0], statResets[index][1], statResets[index][2]);
+            }
+          }
+        }
+      }
+      const statsTitle = document.createElement("h2");
+      statsTitle.textContent = title;
+      statsTitleCont.appendChild(statsTitle);
+
+      if(!title.includes("PICKUP")) {
+        const statsTitleChangeR = document.createElement("img");
+        statsTitleChangeR.src = 'assets/img/change_button.png';
+        statsTitleChangeR.style.cursor = "pointer";
+        statsTitleCont.appendChild(statsTitleChangeR);
+        statsTitleChangeR.onclick = () => {
+          
+          let index = statResets.findIndex(reset => reset[2] === title);
+          if (index !== -1) {
+            if(index  < statResets.length-1) {
+              index++
+              renderPlayersList(statResets[index][0], statResets[index][1], statResets[index][2]);
+            } else {
+              renderPlayersList(0)
+            }
+          } else {
+            index = pickupSeasons.findIndex(reset => title.includes(reset[2]));
+            if(index !== -1){
+              console.log("WRAP UP FOUND R", index);
+              index = index < pickupSeasons.length-1 ? index + 1 : 0;
+              const current = index == pickupSeasons.length-1 ? matches.length : pickupSeasons[index][1];
+              renderPlayersList(pickupSeasons[index][0], current, pickupSeasons[index][2] + " WRAP UP");
+            } else {
+              index = 0;
+              renderPlayersList(statResets[index][0], statResets[index][1], statResets[index][2]);
+            }
+          }
+        }
+      }
+        
+
+      container.appendChild(statsTitleCont);
+    }
+    
+
         // Step 1: Map all player names to their unique IDs
         const nameToIdMap = new Map();
         playerIds.forEach((id, index) => {
