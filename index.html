@@ -2520,7 +2520,7 @@ function renderSubTabContent(tabId, container) {
         filterInf = false;
         filterCav = false;
         filterArc = false;
-        renderPlayersList(currentReset[0], matches.length, currentReset[2]);
+        renderPlayersList(currentReset[0], currentReset[1], currentReset[2]);
       } else {
         //container.textContent = "Unknown tab.";
       }
@@ -5922,6 +5922,7 @@ function updateURLToBracket(tournID) {
 
         // Process allmatches.json
         matches = allMatchesData.matches;
+        currentReset[1] = matches.length;
         let numrounds = 0;
         matches.forEach((x) => {
           numrounds += x.rounds.length;
