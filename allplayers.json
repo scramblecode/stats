@@ -260,9 +260,10 @@
         "5529958",
         "5921465",
         "5356272",
-        "664218"
+        "664218",
+        "2410684"
     ],
-    "number_of_players": 261,
+    "number_of_players": 262,
     "player_names": [
         [
             "SERVER"
@@ -494,7 +495,8 @@
             "James",
             "Pmeh",
             "Rusted_James",
-            "Archer_James"
+            "Archer_James",
+            "Jamal_Bunion"
         ],
         [
             "Hemp",
@@ -518,7 +520,8 @@
             "Rolo",
             "Timothy_Treadwell",
             "Archer_Hemp",
-            "Steve"
+            "Steve",
+            "weeweewoowoo"
         ],
         [
             "Chinngis_Qahan"
@@ -767,7 +770,8 @@
             "infdor",
             "arcdor",
             "goodeveningtoshoot",
-            "Delagor"
+            "Delagor",
+            "anyitistoolatetogamegotobed"
         ],
         [
             "wK_WilySly"
@@ -879,7 +883,8 @@
             "KoA_John_MysteryTaco",
             "KoA_John_Hmph",
             "KoA_John_SleepyTaco",
-            "KoA_John_RubbingMyLongbow"
+            "KoA_John_RubbingMyLongbow",
+            "KoA_John_RubbingMyGandalf"
         ],
         [
             "[GF]Pichurin",
@@ -1092,7 +1097,9 @@
             "Drinking_Zealots",
             "Drinking_Riff_Raff_Zealots",
             "Rogue_Zealots",
-            "Rusted_Zealots"
+            "Rusted_Zealots",
+            "Sober_Zealots",
+            "Sadly_Sober_Zealots"
         ],
         [
             "Xearian",
@@ -1889,6 +1896,9 @@
         ],
         [
             "Alyss-alt"
+        ],
+        [
+            "based_redpilled"
         ]
     ]
 }
