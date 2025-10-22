@@ -2348,6 +2348,10 @@ function renderSubTabContent(tabId, container) {
             ), container)
           }
         } else if (tabId === "players") {
+          filterFac.forEach((x, i) => filterFac[i] = false)
+          filterInf = false;
+          filterCav = false;
+          filterArc = false;
           filterTeams = [];
           filterDiv = 0;
           container.innerHTML = "";
@@ -2363,15 +2367,15 @@ function renderSubTabContent(tabId, container) {
                   team.toLowerCase().replaceAll(" ", "_").replaceAll("'", "") === window.history.state.team
             ));
             filterTeams = [teamID];
-            renderPlayersList(0, -1, ``, container);
+            renderPlayersList(0, matches.length, ``, container);
           } else {
-            renderPlayersList(0, -1, `ALL PLAYERS`, container);
+            renderPlayersList(0, matches.length, `ALL PLAYERS`, container);
           }
           
         }  else if (tabId === "versus") {
           container.innerHTML = "";
           
-          renderPlayersList(0, -1, `ALL PLAYERS`, container);
+          renderPlayersList(0, matches.length, `ALL PLAYERS`, container);
         }
 }
 
@@ -4010,7 +4014,7 @@ let filterMin = 0;
 let filterDiv = 0;
 let curDiv = ["ALL PLAYERS", "DIV A PLAYERS", "DIV B PLAYERS"];
 
-function renderPlayersList(s1=0, s2=-1, title="ALL PLAYERS", container=document.getElementById("tab-content")) {
+function renderPlayersList(s1=0, s2=matches.length, title="ALL PLAYERS", container=document.getElementById("tab-content")) {
     //const container = document.getElementById("tab-content");
     container.innerHTML = "";  // Clear previous content
     filterMin = 0;
@@ -4032,7 +4036,7 @@ function renderPlayersList(s1=0, s2=-1, title="ALL PLAYERS", container=document.
       statsTitleChangeL.onclick = () => {
         filterDiv--;
         if (filterDiv < 0) filterDiv = 2;
-        renderPlayersList(0, -1, curDiv[filterDiv], container);
+        renderPlayersList(0, matches.length, curDiv[filterDiv], container);
       }
       
       const statsTitle = document.createElement("h2");
@@ -4046,7 +4050,7 @@ function renderPlayersList(s1=0, s2=-1, title="ALL PLAYERS", container=document.
       statsTitleChangeR.onclick = () => {
         filterDiv++;
         if (filterDiv > 2) filterDiv = 0;
-        renderPlayersList(0, -1, curDiv[filterDiv], container);
+        renderPlayersList(0, matches.length, curDiv[filterDiv], container);
       }
         
 
