@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scramble Stats</title>
     <link rel="stylesheet" href="styles.css">
-    <link rel="icon" type="image/x-icon" href="assets/img/ico.ico">
     <!-- Include Open Sans from Google Fonts -->
+    <link rel="icon" type="image/x-icon" href="../assets/img/hico.ico">
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -15,20 +15,20 @@
     />
 </head>
 <body>
-    <!-- <h1 class="outside-text">Battle Stats</h1> -->
-    <div style="margin-top: 100px;"></div>
+    <h1 id="outside-text">NRL Stats</h1>
+    <!-- <div style="margin-top: 100px;"></div> -->
     <div id="content">
         <p>Loading match data...</p>
     </div>
 
     <script>
 
-const facIcons = ["flag_swadia","flag_vaegir","flag_khergit","flag_nord","flag_rhodok","flag_sarranid"]
-const factions = ["Kingdom of Swadia", "Kingdom of Vaegirs", "Khergit Khanate", "Kingdom of Nords", "Kingdom of Rhodoks", "Sarranid Sultanate"]
+const facIcons = ["flag_swadia","flag_vaegir","flag_nord","flag_rhodok","flag_sarranid"]
+const factions = ["Kingdom of Swadia", "Kingdom of Vaegirs", "Kingdom of Nords", "Kingdom of Rhodoks", "Sarranid Sultanate"]
 const infClasses = [
   "Swadian Infantry",
   "Vaegir Spearman",
-  "Khergit Infantry",
+  // "Khergit Infantry",
   "Nord Huscarl",
   "Rhodok Sergeant",
   "Sarranid Footman",
@@ -36,7 +36,7 @@ const infClasses = [
 const arcClasses = [
   "Swadian Crossbowman",
   "Vaegir Archer",
-  "Khergit Horse Archer",
+  // "Khergit Horse Archer",
   "Nord Archer",
   "Rhodok Crossbowman",
   "Sarranid Archer",
@@ -44,50 +44,44 @@ const arcClasses = [
 const cavClasses = [
   "Swadian Man at Arms",
   "Vaegir Horseman",
-  "Khergit Lancer",
+  // "Khergit Lancer",
   "Nord Scout",
   "Rhodok Horseman",
   "Sarranid Mamluke",
 ]
 
 const openMaps = [
-  "Ruins",
-  "Steppe Valley",
-  "Cheese Cove",
-  "Field by the River",
-  "Desert Town",
   "Castellum",
   "Frosthaven",
   "Reveran Village",
   "River Village",
-  "Creekside",
-  "Waterfall",
-  "Legacy Plains",
-  "Reveran Town",
-  "Frosty Battle"
+  "Waterfall"
 ];
 const closedMaps = [
-  "Khergit Village",
-  "Nord Town",
-  "Twin Fort",
+  "Beairteas",
   "Fort of Honour",
-  "Naval Outpost",
   "San'di'boush",
-  "Dreiecksdorf",
   "Verloren",
   "Legacy Town",
-  "Mountain Fortress",
-  "Winterburg",
-  "Beairteas",
-  "Aldea Dumar",
-  "Village",
-  "Cheesetown",
-  "Cheese Canal",
-  "Sollenden",
-  "Valhalla"
+  "Winterburg"
 ];
 
 const allMaps = [...openMaps, ...closedMaps];
+
+const divATeams = ["Free Palestine", "Vagos", "House Stark", "Captains", "Menace" ];
+const divBTeams = [
+  "Re Veles",  "Knights of House Swann", "Winner Winner Chicken Dinner",
+  "Moon is Likely Fake", "Zwierzyniec", "The Companions"
+  ];
+
+const allTeams = [
+  ...divATeams, ...divBTeams
+];
+
+const teamTags = ["FP", "Vagos", "Stark", "Captain", "Menace",
+  "ReV", "Swann", "WWCD", "MiLF", "Zwierzyniec", "THC", 
+];
+
 
 //sets headers as constants and change on small screen width
 const fullStats = ["Player", "Kills", "Deaths", "Assists", "DMG", "TKs", "TDMG"];
@@ -102,7 +96,7 @@ const imageSources = ["class_arc", "class_cav", "class_inf",
 function preloadImages() {
   imageSources.forEach(src => {
     const img = new Image();
-    img.src = `assets/img/${src}.png`;
+    img.src = `../assets/img/${src}.png`;
     imageCache[src] = img;
   });
 }
@@ -120,8 +114,60 @@ function getCachedImage(src) {
   }
   // if not preloaded, fallback to creating a new one (or trigger a preload)
   const newImg = new Image();
-  newImg.src = `assets/img/${src}`;
+  newImg.src = `../assets/img/${src}`;
   return newImg;
+}
+
+weaponIcons = [
+  "ico_axeone", "ico_axethrow", "ico_axetwo", "ico_blunt", "ico_bow", "ico_crossbow",
+  "ico_horseimpact", "ico_javelin", "ico_maul", "ico_morningstar", "ico_punch", "ico_spear", "ico_swordone", "ico_swordtwo"
+]
+
+weaponTypes = [
+  // "ico_axeone",
+  ["One Handed War Axe", "Iron War Axe", "One Handed Axe"],
+  // "ico_axethrow",
+  [],
+  // "ico_axetwo", 
+  ["Long War Axe", ],
+  // "ico_blunt", 
+  [],
+  // "ico_bow", 
+  ["Nomad Bow", "Short Bow", "Long Bow", "Strong Bow", "Khergit Bow", "War Bow"],
+  // "ico_crossbow",
+  ["Crossbow", "Heavy Crossbow", "Siege Crossbow"],
+  // "ico_horseimpact", 
+  [],
+  // "ico_javelin", 
+  ["Javelins"],
+  // "ico_maul", 
+  ["Great Hammer", "Sledgehammer"],
+  // "ico_morningstar", 
+  [],
+  // "ico_punch", 
+  [],
+  // "ico_spear", 
+  ["Heavy Lance","Bamboo Spear","Long Awlpike","War Spear","Awlpike","Light Lance", "Lance",],
+  // "ico_swordone", 
+  ["Sword", "Arming Sword", "Soldier's Cleaver", "Nordic Sword", "Nordic Short Sword", "Military Cleaver","Scimitar","Sarranid Sword",],
+  // "ico_swordtwo"
+  [],
+
+]
+
+
+
+function getIco(icon, weapon) {
+  if (icon.includes("ico_")) return icon;
+  if (icon.includes("hb_head")) return "ico_headshot";
+  if (icon.includes("hb_")) icon = weapon; 
+
+  const result = weaponTypes.findIndex(arr => arr.includes(icon));
+
+  if (result === -1) console.log('Error: No match for icon:', icon, weapon);
+  if (result === -1) return "ico_punch";
+  return weaponIcons[result];
+
 }
 
 if (window.innerWidth < window.innerHeight) {
@@ -179,6 +225,37 @@ window.addEventListener("resize", adjustTableLayout);
 //track mobile
 const isMobile = window.innerWidth <= 768;
 
+function renderTeamDetails(teamStr) {
+
+  const teamName = allTeams.find(team => 
+        team.toLowerCase().replaceAll(" ", "_").replaceAll("'", "") === teamStr
+    );
+
+  const contentDiv = document.getElementById("content");
+  contentDiv.innerHTML = "";
+  
+  renderTabBar(contentDiv, "teams");
+  const tabContentContainer = document.createElement("div");
+  tabContentContainer.id = "tab-content";
+  tabContentContainer.style.padding = "0px";
+    tabContentContainer.style.height = "100%";
+  tabContentContainer.style.overflowY = "hidden";
+
+  const infoContainer = document.getElementById("outside-text")
+  infoContainer.textContent = `${teamName}`;
+
+    const subContent = document.createElement("div");
+    subContent.id = "subcontent";
+    renderSubTabBar(subContent, "history");
+    subContent.style.padding = "10px";
+    subContent.style.marginTop = "35px";
+    subContent.style.height = "95%";
+    tabContentContainer.appendChild(subContent);
+  contentDiv.appendChild(tabContentContainer);
+    
+}
+
+
 function renderFactionDetails(facStr) {
 
   const facName = factions.find(fac => 
@@ -192,18 +269,22 @@ function renderFactionDetails(facStr) {
   const tabContentContainer = document.createElement("div");
   tabContentContainer.id = "tab-content";
   tabContentContainer.style.padding = "0px";
+    tabContentContainer.style.height = "100%";
+  tabContentContainer.style.overflowY = "hidden";
 
-  const infoContainer = document.createElement("h2")
+  const infoContainer = document.getElementById("outside-text")
   infoContainer.textContent = `${facName}`;
-  infoContainer.style.margin = "0px";
-  infoContainer.style.marginTop = "35px";
+  // infoContainer.style.margin = "0px";
+  // infoContainer.style.marginTop = "35px";
 
-  tabContentContainer.appendChild(infoContainer);
+  //tabContentContainer.appendChild(infoContainer);
   
     const subContent = document.createElement("div");
     subContent.id = "subcontent";
     renderSubTabBar(subContent, "history");
-    subContent.style.height = "85%";
+    subContent.style.padding = "10px";
+    subContent.style.marginTop = "35px";
+    subContent.style.height = "95%";
     tabContentContainer.appendChild(subContent);
   contentDiv.appendChild(tabContentContainer);
     
@@ -226,10 +307,10 @@ function renderMapDetails(mapStr) {
     
     const bgSrc = mapName.toLowerCase().replaceAll(" ", "_").replaceAll("'","");
     if (bgSrc == -1){
-      body.style.backgroundImage = `url('assets/img/mb2.png')`;
+      body.style.backgroundImage = `url('../assets/img/mb2.png')`;
 
     } else {
-      body.style.backgroundImage = `url('assets/img/bg_${bgSrc}.png')`;
+      body.style.backgroundImage = `url('../assets/img/bg_${bgSrc}.png')`;
 
     }
   renderTabBar(contentDiv, "maps");
@@ -237,12 +318,18 @@ function renderMapDetails(mapStr) {
   tabContentContainer.id = "tab-content";
   tabContentContainer.style.padding = "0px";
   tabContentContainer.style.margin = "0px";
-  tabContentContainer.style.marginTop = "10px";
+  tabContentContainer.style.marginTop = "0px";
+  tabContentContainer.style.overflowY = "hidden";
 
-    const infoContainer = document.createElement("h1")
+  const infoContainer = document.getElementById("outside-text")
+  infoContainer.textContent = `${mapName}`;
+
+    // const infoContainer = document.createElement("h2")
     infoContainer.textContent = `${mapName}`;
+    infoContainer.style.margin = "0px";
+    infoContainer.style.marginTop = "35px";
     
-    const currentMap = mapName; // or your logic to get the current map name
+    const currentMap = mapName; 
 
     // --- Aggregation variables for only the current map ---
     let totalPlays = 0;                             // Total matches played on this map.
@@ -540,93 +627,15 @@ const percentArcDmg = grandDmgTotal ? ((totalArcDmg / grandDmgTotal) * 100).toFi
 console.log("Infantry Dmg: " + percentInfDmg + "%");
 console.log("Cavalry Dmg: " + percentCavDmg + "%");
 console.log("Archer Dmg: " + percentArcDmg + "%");
-
-
-// Create the flex container that will hold all three boxes
-      var statsContainer = document.createElement("div");
-      statsContainer.style.display = "flex";
-      statsContainer.style.flexDirection = "row";
-      statsContainer.style.padding = "0px";
-      statsContainer.style.margin = "0px";
-
-      // ---------- Box 1: Total Plays ----------
-      var box1 = document.createElement("div");
-      box1.style.flex = "1";
-      box1.style.textAlign = "center";
-
-      var box1Header = document.createElement("p");
-      box1Header.style.margin = "0";
-      box1Header.style.padding = "0";
-      box1Header.textContent = "Matches Played:";
-      box1.appendChild(box1Header);
-
-      var totalPlaysP = document.createElement("p");
-      totalPlaysP.id = "totalPlays";
-      totalPlaysP.textContent = totalPlays + ' (' + totalRounds + ' Rounds)';  // Default value (can be updated with your logic)
-      box1.appendChild(totalPlaysP);
-
-      statsContainer.appendChild(box1);
-
-      // ---------- Box 2: Spawn Win Rates ----------
-      var box2 = document.createElement("div");
-      box2.style.flex = "1";
-      box2.style.textAlign = "center";
-
-      var box2Header = document.createElement("p");
-      box2Header.style.margin = "0";
-      box2Header.textContent = "Spawn Win Rates:";
-      box2.appendChild(box2Header);
-
-      var spawn1P = document.createElement("p");
-      spawn1P.style.padding = "0";
-      spawn1P.style.margin = "0";
-      // Use innerHTML so we can inject a span with an id for easy updating.
-      spawn1P.innerHTML = `  Top : <span id='spawn1Rate'>${spawn1Rate}</span>%`;
-      box2.appendChild(spawn1P);
-
-      var spawn2P = document.createElement("p");
-      spawn2P.style.padding = "0";
-      spawn2P.style.margin = "0";
-      spawn2P.innerHTML = `Bottom: <span id='spawn2Rate'>${spawn2Rate}</span>%`;
-      box2.appendChild(spawn2P);
-
-      statsContainer.appendChild(box2);
-
-      // ---------- Box 3: Faction Class Breakdown ----------
-      var box3 = document.createElement("div");
-      box3.style.flex = "1";
-      box3.style.textAlign = "center";
-
-      var box3Header = document.createElement("p");
-      box3Header.style.margin = "0";
-      box3Header.textContent = "Class Breakdown:";
-      box3.appendChild(box3Header);
-
-      var infP = document.createElement("p");
-      infP.style.padding = "0";
-      infP.style.margin = "0";
-      infP.innerHTML = `Inf: <span id='infPct'>${percentInf}</span>%`;
-      box3.appendChild(infP);
-
-      var cavP = document.createElement("p");
-      cavP.style.padding = "0";
-      cavP.style.margin = "0";
-      cavP.innerHTML = `Cav: <span id='cavPct'>${percentCav}</span>%`;
-      box3.appendChild(cavP);
-
-      var arcP = document.createElement("p");
-      arcP.style.padding = "0";
-      arcP.style.margin = "0";
-      arcP.innerHTML = `Arc: <span id='arcPct'>${percentArc}</span>%`;
-      box3.appendChild(arcP);
-
-      statsContainer.appendChild(box3);
-
       
-    tabContentContainer.appendChild(infoContainer);
-    tabContentContainer.appendChild(statsContainer);
+    // tabContentContainer.appendChild(infoContainer);
+//     tabContentContainer.appendChild(statsContainer);
     const subContent = document.createElement("div");
     subContent.id = "subcontent";
+    subContent.style.height = "95%";
+    subContent.style.padding = "10px";
+    subContent.style.marginTop = "35px";
+    subContent.style.marginBottom = "35px";
     renderSubTabBar(subContent, "history");
     tabContentContainer.appendChild(subContent);
     contentDiv.appendChild(tabContentContainer);
@@ -693,10 +702,10 @@ function renderPlayerDetails(playerID) {
               // const weapon = round.weapons && round.weapons[index + tkid];
               if (icon) {
                 // Increment the counter for this icon
-                if (iconCounts[icon]) {
-                  iconCounts[icon]++;
+                if (iconCounts[getIco(icon, round.weapons[index])]) {
+                  iconCounts[getIco(icon, round.weapons[index])]++;
                 } else {
-                  iconCounts[icon] = 1;
+                  iconCounts[getIco(icon, round.weapons[index])] = 1;
                 }
               }    
                 const weapon = filteredWeapons[index];
@@ -1102,7 +1111,7 @@ function getWinner(result){
             infContainer.style.marginLeft = "8px";
 
             // const infclass = document.createElement("img");
-            // infclass.src = "assets/img/class_inf.png";
+            // infclass.src = "../assets/img/class_inf.png";
             const infclass = getCachedImage("class_inf");
             infclass.alt = "inf";
             if (flip) infclass.style.transform = "scaleX(-1)";
@@ -1135,7 +1144,7 @@ function getWinner(result){
             cavContainer.style.marginLeft = "8px";
 
             // const cavclass = document.createElement("img");
-            // cavclass.src = "assets/img/class_cav.png";
+            // cavclass.src = "../assets/img/class_cav.png";
             const cavclass = getCachedImage("class_cav");
             cavclass.alt = "cav";
             if (flip) cavclass.style.transform = "scaleX(-1)";
@@ -1168,7 +1177,7 @@ function getWinner(result){
             arcContainer.style.marginLeft = "8px";
 
             // const arcclass = document.createElement("img");
-            // arcclass.src = "assets/img/class_arc.png";
+            // arcclass.src = "../assets/img/class_arc.png";
             const arcclass = getCachedImage("class_arc");
             arcclass.alt = "arc";
             if (flip) arcclass.style.transform = "scaleX(-1)";
@@ -1211,8 +1220,7 @@ function getWinner(result){
 
   // The original function to render full match details (aggregated over rounds).
   function renderMatchDetails(matchID, gf) {
-    let match = gf == 0 ? matches[matchID] : groupfights[matchID];
-    match = gf == 2 ? practicescrims[matchID] : match;
+    let match = matches[matchID];
     const contentDiv = document.getElementById("content");
     contentDiv.classList.remove("landing");
     contentDiv.classList.add("match-detail");
@@ -1226,10 +1234,10 @@ function getWinner(result){
     
     const bgSrc = match.map.toLowerCase().replaceAll(" ", "_").replaceAll("'","");
     if (bgSrc == -1){
-      body.style.backgroundImage = `url('assets/img/mb2.png')`;
+      body.style.backgroundImage = `url('../assets/img/mb2.png')`;
 
     } else {
-      body.style.backgroundImage = `url('assets/img/bg_${bgSrc}.png')`;
+      body.style.backgroundImage = `url('../assets/img/bg_${bgSrc}.png')`;
 
     }
 
@@ -1275,7 +1283,7 @@ function getWinner(result){
     const half1Faction1Div = document.createElement("h2");
     for(let i = 0; i < team0Score; i++){
       // const fac11Img = document.createElement("img");
-      // fac11Img.src = `assets/img/${flag11}.png`;
+      // fac11Img.src = `../assets/img/${flag11}.png`;
       const flag11 = facIcons[factions.indexOf(match.faction_1)];
       const fac11Img = getCachedImage(flag11);
       fac11Img.style.padding = "10px";
@@ -1288,7 +1296,7 @@ function getWinner(result){
     const half1Faction2Div = document.createElement("h2");
     for(let i = 0; i < team1Score; i++){
       // const fac12Img = document.createElement("img");
-      // fac12Img.src = `assets/img/${flag12}.png`;
+      // fac12Img.src = `../assets/img/${flag12}.png`;
       const flag12 = facIcons[factions.indexOf(match.faction_2)];
       const fac12Img = getCachedImage(flag12);
       fac12Img.style.padding = "10px";
@@ -1333,7 +1341,7 @@ function getWinner(result){
 
   // New function: renderSingleRound displays match info and stats for one round only.
   function renderSingleRound(matchID, roundIndex, gf) {
-    const match = gf == 0 ? matches[matchID] : groupfights[matchID];
+    const match = matches[matchID];
     const round = match.rounds[roundIndex];
     const contentDiv = document.getElementById("content");
     contentDiv.classList.remove("bracket");
@@ -1404,7 +1412,7 @@ function getWinner(result){
 
           // Add the icon
           const icon = document.createElement("img");
-          icon.src = `assets/img/${groups[1]}.png`; // Set the source of the icon
+          icon.src = `../assets/img/${groups[1]}.png`; // Set the source of the icon
           icon.alt = "Icon"; // Provide alt text for accessibility
           icon.style.objectFit = "contain"; // Ensure the icon scales well
           icon.style.margin = "0 5px";
@@ -1461,7 +1469,7 @@ function getWinner(result){
           textColor = killerTeam === 0 ? "#59261B" : "#34D313"; //59261B
         }
         tkmessageContent = `${round.teamkills[tkid]} has killed a teammate!`;
-        messageContent = `${round.teamkills[tkid]} ${round.tkicons[tkid]} ${round.deaths[id]}`;
+        messageContent = `${round.teamkills[tkid]} ${getIco(round.tkicons[tkid], round.tkweapons[tkid])} ${round.deaths[id]}`;
         tkid++;
       } else {
         const killerIndex = round.players.indexOf(round.kills[id - tkid]);
@@ -1469,7 +1477,7 @@ function getWinner(result){
           const killerTeam = round.teams[killerIndex]; // Get the killer's team (0 or 1)
           textColor = killerTeam === 0 ? "#34D313" : "#F34323"; //59261B
         }
-        messageContent = `${round.kills[id - tkid]} ${round.icons[id - tkid]} ${round.deaths[id]}`;
+        messageContent = `${round.kills[id - tkid]} ${getIco(round.icons[id - tkid], round.weapons[id - tkid])} ${round.deaths[id]}`;
       }
 
     // Show the message
@@ -1617,7 +1625,7 @@ if (roundIndex === 0) {
     const half1Faction1Div = document.createElement("h2");
     for(let i = 0; i < cumulativeTeam0 + currentChangeTeam0; i++){
       // const fac11Img = document.createElement("img");
-      // fac11Img.src = `assets/img/${flag11}.png`;
+      // fac11Img.src = `../assets/img/${flag11}.png`;
       const flag11 = facIcons[factions.indexOf(match.faction_1)];
       const fac11Img = getCachedImage(flag11);
       fac11Img.style.padding = "10px";
@@ -1630,7 +1638,7 @@ if (roundIndex === 0) {
     const half1Faction2Div = document.createElement("h2");
     for(let i = 0; i <  cumulativeTeam1 + currentChangeTeam1; i++){
       // const fac12Img = document.createElement("img");
-      // fac12Img.src = `assets/img/${flag12}.png`;
+      // fac12Img.src = `../assets/img/${flag12}.png`;
       
       const flag12 = facIcons[factions.indexOf(match.faction_2)];
       const fac12Img = getCachedImage(flag12);
@@ -1953,7 +1961,7 @@ function renderScrim(scrimSpec) {
   // backButton.style.marginBottom = "20px";
   // backButton.onclick = updateURLToLanding;
   // contentDiv.appendChild(backButton);
-  renderTabBar(contentDiv, "tournaments");
+  renderTabBar(contentDiv, "bracket");
   const tabContentContainer = document.createElement("div");
   tabContentContainer.id = "tab-content";
   tabContentContainer.style.marginTop = "20px";
@@ -1981,7 +1989,7 @@ half1Team0ScoreDiv.textContent = halfAgg1.team0Score;
 
 const half1Faction1Div = document.createElement("h2");
 // const fac11Img = document.createElement("img");
-// fac11Img.src = `assets/img/${flag11}.png`;
+// fac11Img.src = `../assets/img/${flag11}.png`;
 const flag11 = facIcons[factions.indexOf(half1Info.faction_1)];
 const fac11Img = getCachedImage(flag11);
 half1Faction1Div.appendChild(fac11Img);
@@ -1996,7 +2004,7 @@ half1MapDiv.textContent = half1Info.map;
 
 const half1Faction2Div = document.createElement("h2");
 // const fac12Img = document.createElement("img");
-// fac12Img.src = `assets/img/${flag12}.png`;
+// fac12Img.src = `../assets/img/${flag12}.png`;
 const flag12 = facIcons[factions.indexOf(half1Info.faction_2)];
 const fac12Img = getCachedImage(flag12);
 half1Faction2Div.appendChild(fac12Img);
@@ -2036,7 +2044,7 @@ half2Team0ScoreDiv.textContent = halfAgg2.team0Score;
 
 const half2Faction1Div = document.createElement("h2");
 // const fac21Img = document.createElement("img");
-// fac21Img.src = `assets/img/${flag21}.png`;
+// fac21Img.src = `../assets/img/${flag21}.png`;
 const flag21 = facIcons[factions.indexOf(half2Info.faction_1)];
 const fac21Img = getCachedImage(flag21);
 half2Faction1Div.appendChild(fac21Img);
@@ -2051,7 +2059,7 @@ half2MapDiv.textContent = half2Info.map;
 
 const half2Faction2Div = document.createElement("h2");
 // const fac22Img = document.createElement("img");
-// fac22Img.src = `assets/img/${flag22}.png`;
+// fac22Img.src = `../assets/img/${flag22}.png`;
 const flag22 = facIcons[factions.indexOf(half2Info.faction_2)];
   const fac22Img = getCachedImage(flag22);
 half2Faction2Div.appendChild(fac22Img);
@@ -2114,17 +2122,10 @@ tabContentContainer.appendChild(totalScoreDiv);
 }
 
 const halfs = [
-  //rob tournament
-  [0,1],[2,3],[4,5],[6,7],[8,9],
-  [10,11],[12,13],[14,15],[16,17],
-  [18,19],[20,21],[22,23],[24,25],
-  [26,27],[28,29],[30,43],[31,32],
-  [33,43],[34,35],[36,37],[38,39],
-  [40,41],[42,43],[43,43], //23
 ];
 //43 is an empty match with 0-0 score 
 function fillHalfsList() {
-  for (let i = 44; i < matches.length; i++) {
+  for (let i = 0; i < matches.length; i++) {
     let match1 = matches[i]; 
 
     if (
@@ -2138,181 +2139,85 @@ function fillHalfsList() {
 
       i++;
     } else {
-      halfs.push([i, 43]);
+      halfs.push([i, -1]);
     }
   }
 }
 
 
-let pickups = [];
+let pickups = [[0,7]];
 let selectedPickup;
 
-function fillPickupsList(startingIndex) {
-  let groupStart = startingIndex; // index in halfs array where the current group begins
 
-  // Helper to convert a time string to seconds.
-  const parseTime = timeStr => {
-    const parts = timeStr.split(":").map(Number);
-    return parts[0] * 3600 + parts[1] * 60 + parts[2];
-  };
-
-  for (let i = startingIndex + 1; i < halfs.length; i++) {
-    if (scrims.some(scrim => scrim[0] === i-1 || scrim[1] === i-1)) {
-      // console.log("SKIPPING:", i);
-      groupStart = i;
-      continue;
-    };
-    const prevMatchId = halfs[i - 1][0];
-    const currMatchId = halfs[i][0];
-    const prevSec = parseTime(matches[prevMatchId].start_time);
-    let currSec = parseTime(matches[currMatchId].start_time);
-    // Handle midnight rollover: if the current time appears “earlier,” add one day.
-    if (currSec < prevSec) currSec += 86400;
-
-    const diff = currSec - prevSec;
-    if (diff > 6 * 3600) {
-      // End the current group at the previous element.
-      pickups.push([groupStart, i - 1]);
-      groupStart = i; // start a new group at the current index.
-    }
-  }
-  // Add the final group.
-  if (!scrims.some(scrim => scrim[0] === groupStart || scrim[1] === groupStart)){
-    pickups.push([groupStart, halfs.length - 1]);
-  }
-  
-  return pickups;
-}
-
-const RobAIbracket = [
+const NRLbracket = [
       // ["Cheezeninja", "Marquis", "X", "X", -1],
-      ["Ebdanian", "Hemp", 9, 6, 0],
-      // ["Marquis", "Ebdanian", "X", "X", -1],
-      ["Roberta", "Cheezeninja", 9, 6, 1],
-      ["Ebdanian", "Roberta", 4, 12, 2],
-      ["Hemp", "Marquis", 12, 6, 3],
-      ["Roberta", "Hemp", 2, 12, 5],
-      ["Cheezeninja", "Ebdanian", 9, 8, 6],
-      ["Hemp", "Cheezeninja", 9, 1, 7],
-      ["Marquis", "Roberta", 4, 9, 4],
-      ["Ebdanian", "Hemp", 9, 3, 8],
-      ["Roberta", "Cheezeninja", 8, 8, 10],
-      ["Roberta", "Cheezeninja", 0, 3, 11],
-      ["Ebdanian", "Cheezeninja", 9, 7, 9],
+      ["Captain", "Vagos", 7, 9, 1],
+      ["Menace", "FP", 3, 12, 2],
+      ["WWCD", "MiLF", 12, 3, 3],
+      ["Swann", "Zwierzyniec", 12, 3, 0],
+      ["ReV", "THC", 12, 1, -1],
+      //week 2
+      ["FP", "Captain", "?", "?", -1],
+      ["Stark", "Vagos", "?", "?", -1],
+      ["WWCD", "Swann", "?", "?", -1],
+      ["Zwierzyniec", "THC", "?", "?", -1],
+      ["ReV", "MiLF", "?", "?", -1],
+      //week 3
+      ["Captain", "Stark", "?", "?", -1],
+      ["Vagos", "Menace", "?", "?", -1],
+      ["ReV", "WWCD", "?", "?", -1],
+      ["Swann", "THC", "?", "?", -1],
+      ["Zwierzyniec", "MiLF", "?", "?", -1],
+      //week 4
+      ["Menace", "Stark", "?", "?", -1],
+      ["Vagos", "FP", "?", "?", -1],
+      ["WWCD", "Zwierzyniec", "?", "?", -1],
+      ["ReV", "Swann", "?", "?", -1],
+      ["THC", "MiLF", "?", "?", -1],
+      //week 5
+      ["Captain", "Menace", "?", "?", -1],
+      ["Stark", "FP", "?", "?", -1],
+      ["THC", "WWCD", "?", "?", -1],
+      ["Zwierzyniec", "ReV", "?", "?", -1],
+      ["Swann", "MiLF", "?", "?", -1],
     ];
+const tournaments = [NRLbracket];
 
-    const Mayhembracket = [
-      // ["team1", "team2", 1, 0, 0],//score1, score2, scrim #
-      ["Chowski/Roberta", "Crusader/Vampy", "x", "x", -1],
-      ["Potesty/Exmarius", "Les/MattTheLord", 15, 3, 0],
-      ["Beansacks/John", "Pichu/Thiago", 15, 7, 8],
-      ["Nasa/CheeseNinja", "BrownMilk/Kurm", 1, 15, 9],
-      ["Zealots/Van", "Konrad/Loki", 15, 1, 4],
-      ["Sitvek/Kman", "Argo/Ingemar", "x", "0", -1],
-      ["BestNAGTA/Chunky", "Powder/Lykia", "0", "x", -1],
-      ["Trox/Wert", "Ducreux/Philip", 15, 4, 1],
-      //round 2 
-      ["Mav/Hemp", "Chowski/Roberta", "0", "x", -1],
-      ["Hey/Daemon", "Potesty/Exmarius", 5, 15, 3],
-      ["Byunos/Chicken", "Beansacks/John", 15, 6, 11],
-      ["Danate/Aporta", "BrownMilk/Kurm",11, 15, 10],
-      ["Alyss/Gibby", "Zealots/Van", 15, 0, 5],
-      ["Kairos/Shovenio", "Argo/Ingemar", "0", "x", -1],
-      ["Cow/PPK157", "BestNAGTA/Chunky", 15, 5, 2],
-      ["Marquis/Ebdanian", "Trox/Wert", 15, 13, 6],
-      //round 3 
-      ["Mav/Hemp", "Potesty/Exmarius", "0", "x", -1],
-      ["Byunos/Chicken", "BrownMilk/Kurm", 7, 15, 14],
-      ["Alyss/Gibby", "Kairos/Shovenio", 15, 3, 12],
-      ["Cow/PPK157", "Marquis/Ebdanian", 15, 11, 7],
-      //semifinal
-      ["Mav/Hemp", "BrownMilk/Kurm", 15, 7, 15],
-      ["Alyss/Gibby", "Cow/PPK157", 15, 10, 13],
-      //finals
-      ["Alyss/Gibby", "Mav/Hemp", 10, 15, 16],
-    ];
-
-const Fantasybracket = [
-      ["New Kings", "Blue Bloods", 8, 8, 12],
-      ["Tito's Knights", "Old", 11, 7, 13],
-      ["New Kings", "Tito's Knights", 9, 10, 14],
-      ["Blue Bloods", "Old", 12, 1, 15],
-      ["Tito's Knights", "Blue Bloods", 5, 10, 16],
-      ["Old", "New Kings", 10, 7, 17],
-      ["Blue Bloods", "New Kings", 12, 5, 18],
-      ["Old", "Tito's Knights", 10, 8, 19],
-      // ["New Kings", "Loser of 2", "?", "?", -1],
-      // ["Blue Bloods", "Winner of 2", "?", "?", -1],
-      ]
-    const tournaments = [RobAIbracket, Mayhembracket, Fantasybracket]
+const fixtures = [
+  ["Beairteas", "Kingdom of Swadia", "Kingdom of Rhodoks", "Castellum", "Sarranid Sultanate", "Kingdom of Nords"],
+  ["Fort of Honour", "Kingdom of Vaegirs", "Kingdom of Swadia", "Frosthaven", "Kingdom of Rhodoks", "Sarranid Sultanate"],
+  ["San'di'boush", "Kingdom of Nords", "Kingdom of Vaegirs", "Reveran Village", "Kingdom of Swadia", "Kingdom of Rhodoks"],
+  ["Verloren","Sarranid Sultanate",  "Kingdom of Swadia", "River Village", "Kingdom of Nords", "Kingdom of Vaegirs"],
+  ["Legacy Town", "Kingdom of Rhodoks", "Sarranid Sultanate", "Waterfall", "Kingdom of Nords", "Kingdom of Vaegirs"],
+]
 
 //half1, half2, bSwap
 const scrims = [
-  [0,1,0],[2,3,0],[4,5,1],
-  [6,7,0],[8,9,0],[10,11,0],
-  [12,13,1],[14,15,0],[16,17,0],
-  [18,19,0],[20,21,1],[22,-1,0],
-  //fantasy scrims begin 
-  [491, 492, 0], [493, 494, 0],
-  [514, 515, 0], [523, 524, 0],
-  [557, 558, 0], [567, 568, 1],
-  [585, 586, 0], [600, 601, 0]
+  [0,1,1],
+  [2,3,0],
+  [4,5,0],
+  [6,7,0],
+  
 ];
-
-//hardcoding in the tournament arrays start - end matches
-const robScramble = [0, 44];
-const fantasyStart = 12; // scrims ID of tourny start... eh
-
-//groupfight tourneys are excluded from global stats, so stored separately 
-
-
-//March - 24th to end only 
-const pickupSeason1 = [44, 73, "MARCH"];
-
-//April 2025
-const pickupSeason2 = [74, 348, "APRIL"];
-
-const pickupSeason3 = [349, 709, "MAY"];
-
-const pickupSeason4 = [710, 928, "JUNE"];
-
-const pickupSeason5 = [929, 1183, "JULY"];
-
-const pickupSeason6 = [1188, 1329, "AUGUST"];
-
-const pickupSeason7 = [1330, 1529, "SEPTEMBER"];
-
-//ongoing season -- move to the fetch response to automate
-const currentSeason = [1530, 1529, "OCTOBER"];
-
-//pickup "seasons" (monthly aggregate)
-const pickupSeasons = [pickupSeason1, pickupSeason2, pickupSeason3, pickupSeason4, pickupSeason5, pickupSeason6, pickupSeason7, currentSeason];
-
-//3-month score resets ? by community request
-//first one includes the few March pickups
-const pickupReset1 = [0, pickupSeason4[1], "SEASON ONE"];
-
-//Jul-Aug-Sep
-const pickupReset2 = [pickupSeason5[0], pickupSeason7[1], "SEASON TWO"];
-//Oct-Nov-Dec
-const currentReset = [currentSeason[0], 1552, "SEASON THREE"];
-
-const statResets = [pickupReset1, pickupReset2, currentReset];
 
 // Define the tabs. By default "scrims" is active.
 const tabs = [
   // { label: "DISCORD", id: "home" },
-  { label: "TOURNAMENTS", id: "tournaments" },
-  { label: "PICKUPS", id: "pickups" },
+  { label: "BRACKET", id: "bracket" },
+//   { label: "PICKUPS", id: "pickups" },
+  { label: "TEAMS", id: "teams" },
   { label: "PLAYERS", id: "players" },
   { label: "MAPS", id: "maps" },
   { label: "FACTIONS", id: "factions" },
-  // { label: "MATCHES", id: "matches" },
+  { label: "MATCHES", id: "matches" },
   // { label: "MISC", id: "halfs" },
 ];
 let scrollPositions = {};
 function renderTabBar(contentDiv, activeTabId){
   
+      const title = document.getElementById("outside-text");
+      title.innerHTML = `NRL Stats`;
+
       // Create the tab bar.
       const tabsContainer = document.createElement("div");
       tabsContainer.className = "tabs-container";
@@ -2431,7 +2336,20 @@ function renderSubTabContent(tabId, container) {
         if (tabId === "history") {
           if(window.history.state.map) renderHalfList(halfs.filter((idx) => matches[idx[0]].map.toLowerCase().replaceAll(" ", "_").replaceAll("'","") === window.history.state.map), container);
           if(window.history.state.faction) renderHalfList(halfs.filter((idx) => matches[idx[0]].faction_1.toLowerCase().replaceAll(" ", "_").replaceAll("'","") === window.history.state.faction || matches[idx[0]].faction_2.toLowerCase().replaceAll(" ", "_").replaceAll("'","") === window.history.state.faction), container);
+          
+          if (window.history.state.team) {
+            //team history
+            const teamID = allTeams.indexOf(allTeams.find(team => 
+                  team.toLowerCase().replaceAll(" ", "_").replaceAll("'", "") === window.history.state.team
+            ));
+            //half list: filter halves that are part of scrims that are part of bracket where teamA or teamB has same Tag...woof
+            renderHalfList(halfs.filter(
+              (idx) => matches[idx[0]].rounds[0].players.some(player => player.split("_")[0] == teamTags[teamID])
+            ), container)
+          }
         } else if (tabId === "players") {
+          filterTeams = [];
+          filterDiv = 0;
           container.innerHTML = "";
           if (window.history.state.faction) {
             factions.forEach((faction, index) => {
@@ -2439,11 +2357,21 @@ function renderSubTabContent(tabId, container) {
               if(window.history.state.faction == faction.toLowerCase().replaceAll(" ", "_")) filterFac[index] = false;
             });
           }
-          renderPlayersList(0, matches.length, ``, container);
+          if (window.history.state.team) {
+            //team roster
+            const teamID = allTeams.indexOf(allTeams.find(team => 
+                  team.toLowerCase().replaceAll(" ", "_").replaceAll("'", "") === window.history.state.team
+            ));
+            filterTeams = [teamID];
+            renderPlayersList(0, -1, ``, container);
+          } else {
+            renderPlayersList(0, -1, `ALL PLAYERS`, container);
+          }
+          
         }  else if (tabId === "versus") {
           container.innerHTML = "";
           
-          renderPlayersList(0, matches.length, ``, container);
+          renderPlayersList(0, -1, `ALL PLAYERS`, container);
         }
 }
 
@@ -2486,42 +2414,47 @@ function renderSubTabContent(tabId, container) {
       body.style.backgroundSize = "cover"; 
       
       if (tabId === "scrims") {
-        renderMatchList(practicescrims);
+        renderMatchList();
       } else if (tabId === "home") {
-        body.style.backgroundImage = "url('assets/img/mb1.png')";
+        body.style.backgroundImage = "url('../assets/img/mb1.png')";
         renderHomeScreen();
       } else if (tabId === "matches") {
-        body.style.backgroundImage = "url('assets/img/mb2.png')";
+        body.style.backgroundImage = "url('../assets/img/mb2.png')";
         //renderMatchList();
         // renderHalfList(halfs.slice(24));
         renderPickupList();
       } else if (tabId === "pickups") {
-        body.style.backgroundImage = "url('assets/img/mb2.png')";
+        body.style.backgroundImage = "url('../assets/img/mb2.png')";
         //renderMatchList();
         renderPickupList();
       } else if (tabId === "halfs") {
         renderMatchList();
-      } else if (tabId === "tournaments") {
-        body.style.backgroundImage = "url('assets/img/mb3.png')";
-        renderTournamentList();
+      } else if (tabId === "bracket") {
+        body.style.backgroundImage = "url('../assets/img/mb3.png')";
+        updateURLToBracket(0)
+    //   } else if (tabId === "tournaments") {
+    //     body.style.backgroundImage = "url('../assets/img/mb3.png')";
+    //     renderTournamentList();
       } else if (tabId === "maps") {
-        body.style.backgroundImage = "url('assets/img/mb3.png')";
+        body.style.backgroundImage = "url('../assets/img/mb3.png')";
         renderMapList();
       // } else if (tabId === "bracket") {
-      //   body.style.backgroundImage = "url('assets/img/mb3.png')";
+      //   body.style.backgroundImage = "url('../assets/img/mb3.png')";
       //   renderBracketList(RobAIbracket);
       } else if (tabId === "factions") {
-        body.style.backgroundImage = "url('assets/img/mb4.png')";
+        body.style.backgroundImage = "url('../assets/img/mb4.png')";
         renderFactionList();
       } else if (tabId === "teams") {
         renderTeamList();
       } else if (tabId === "players") {
-        body.style.backgroundImage = "url('assets/img/mb4.png')";
+        body.style.backgroundImage = "url('../assets/img/mb4.png')";
         filterFac.forEach((x, i) => filterFac[i] = false)
         filterInf = false;
         filterCav = false;
         filterArc = false;
-        renderPlayersList(currentReset[0], currentReset[1], currentReset[2]);
+        filterTeams = [];
+        filterDiv = 0;
+        renderPlayersList();
       } else {
         //container.textContent = "Unknown tab.";
       }
@@ -2540,27 +2473,26 @@ function renderHomeScreen() {
   tabContentContainer.style.marginTop = "20px";
 
   const welcomeTitle = document.createElement("h1");
-  welcomeTitle.textContent = "NA Warband Pickup Party";
+  welcomeTitle.textContent = "Native Revival League";
 
   const messageContent = document.createElement("div");
   messageContent.style.marginTop = "20px";
-  messageContent.textContent = `Welcome brave warrior,`;
+  messageContent.textContent = `With the unfortunate closure of Warlords, a cornerstone of the Native community, many of us felt a void in the competitive scene. To help reignite the passion for Native and bring players together once more, we are proud to introduce the Native Revival League (NRL) – a brand-new 8v8 tournament dedicated to celebrating and reviving the game we all love.`;
 
   const messageContent2 = document.createElement("div");
   messageContent2.style.marginTop = "20px";
-  messageContent2.textContent = `On this page you will find the stats and match history of the freshly undead Warband NA scene. There are both organised tournaments and casual pickup parties weekly.`;
+  messageContent2.textContent = `It has been a few years since we've last seen a major Native tournament, with WAUL marking the end of an era. Our goal with the NRL is simple: to recapture that spirit of competition and fun, while providing a fresh stage for both veteran teams and new challengers to leave their mark.`;
 
   const messageContent3 = document.createElement("div");
   messageContent3.style.marginTop = "20px";
-  messageContent3.textContent = `You can navigate using the Tabs at the top left, and interact by clicking on tiles, scoreboards, and names. You can also see a replay of the Killfeed when viewing individual Rounds.`;
-
+  messageContent3.textContent = `The tournament has begun.`;
   const messageContent4 = document.createElement("div");
   messageContent4.style.marginTop = "20px";
-  messageContent4.textContent = `This page is not about who is good or bad at the game, it is all in good fun to simply record the matches played and show some information that is not readily available in the game itself.`;
+  messageContent4.textContent = `To view the NRL stats, navigate using the Tabs at the top left, and interact by clicking on tiles, scoreboards, and names. You can also see a replay of the Killfeed when viewing individual Rounds.`;
 
   const messageContent5 = document.createElement("div");
   messageContent5.style.marginTop = "20px";
-  messageContent5.textContent = `Anyone is more than welcome to play, all you need to do is join the Discord server:`;
+  messageContent5.textContent = `NRL Discord server:`;
 
   
   const messageContent6 = document.createElement("div");
@@ -2573,12 +2505,12 @@ function renderHomeScreen() {
   linkDiv.style.marginBottom = "20px";
   linkDiv.style.marginTop = "50px";
   const link = document.createElement("a");
-  link.href = "https://discord.gg/HSvFsJjDGY"; // Set the link destination
+  link.href = "https://discord.gg/6P3Ftcn46S"; // Set the link destination
   link.target = "_blank"; // Open in a new tab (optional)
 
   const discordLink = document.createElement("img");
   discordLink.alt = "RatParty Discord"
-  discordLink.src = "assets/img/Discord-Logo-Blurple.png"
+  discordLink.src = "../assets/img/Discord-Logo-Blurple.png"
   discordLink.height = discordLink.naturalHeight * 0.1;
   discordLink.onload = () => {
     discordLink.height = discordLink.naturalHeight * 0.1;
@@ -2607,7 +2539,7 @@ function renderBracketList(bracket) {
 
   const body = document.body;
 
-  renderTabBar(contentDiv, "tournaments");
+  renderTabBar(contentDiv, "bracket");
   const tabContentContainer = document.createElement("div");
   tabContentContainer.id = "tab-content";
   tabContentContainer.style.marginTop = "20px";
@@ -2626,50 +2558,218 @@ container.style.flexWrap = "wrap";
 container.style.justifyContent = "center";
 container.style.flexDirection = "column"; // Render rounds separately
 
-// Reverse the bracket array so the latest match (Finals) comes first
-const reversedBracket = [...bracket].reverse();
-
 // Define structure using powers of 2 (for pyramid layout)
-const roundStructure = [];
+const roundStructure = [5,5,5,5,5];
 let matchesInRound = 1;
-while (matchesInRound <= reversedBracket.length) {
-    roundStructure.push(matchesInRound);
-    matchesInRound *= 2;
-}
+// while (matchesInRound <= reversedBracket.length) {
+//     roundStructure.push(matchesInRound);
+//     matchesInRound *= 2;
+// }
 
 // Index tracker for matches
 let matchIndex = 0;
 
 // Render matches according to structure
-roundStructure.forEach((matchesInThisRound) => {
+roundStructure.forEach((matchesInThisRound, loop) => {
+  
+    const title = document.createElement("h3");
+    title.style.display = "flex";
+    title.style.justifyContent = "center";
+    title.style.marginBottom = "20px";
+    title.textContent= `WEEK ${loop + 1}`;
+    container.appendChild(title);
+    const fixturesCont = document.createElement("div");
+    fixturesCont.style.display = "flex";
+    fixturesCont.style.justifyContent = "center";
+    fixturesCont.style.gap = "10px";
+    fixturesCont.style.flexWrap = "wrap"; // Allow wrapping
+
+    const fixture1Cont = document.createElement("div");
+    const fixture1Img = document.createElement("img");
+      fixture1Cont.style.position = "relative"; // Enables positioning of text relative to the image
+      fixture1Cont.style.display = "inline-block"; // Ensures proper layout
+    fixture1Cont.className = "selectable";
+
+    fixture1Cont.addEventListener("click", () => {
+      updateURLToMap(thmb1Src);
+    });
+
+    const thmb1Src = fixtures[loop][0].toLowerCase().replaceAll(" ", "_").replaceAll("'","");
+    fixture1Img.src = `../assets/img/tbn_${thmb1Src}.png`;
+    fixture1Img.loading = "lazy";
+    fixture1Img.alt = "";
+    fixture1Img.style.cursor = "pointer";
+    fixture1Cont.appendChild(fixture1Img);
+
+
+    // Map name text overlay
+    const map1Name = document.createElement("span");
+    map1Name.style.position = "absolute";
+    map1Name.style.top = "10px"; // Position near the top of the image
+    map1Name.style.left = "50%"; // Center horizontally
+    map1Name.style.transform = "translateX(-50%)"; // Align text to the center
+    map1Name.style.color = "white"; // Set text color for visibility
+    map1Name.style.fontWeight = "bold";
+    map1Name.style.fontSize = "32px"; // Adjust font size as needed
+    map1Name.style.textShadow = "2px 2px 4px rgba(0, 0, 0, 0.7)"; // Add text shadow for readability
+    map1Name.style.whiteSpace = "nowrap"; 
+    map1Name.textContent = fixtures[loop][0];
+    fixture1Cont.appendChild(map1Name);
+
+    // Score with flag icons overlay
+    const score1Container = document.createElement("div");
+    score1Container.style.position = "absolute"; // Overlay on top of the image
+    score1Container.style.top = "75%"; // C
+    score1Container.style.left = "50%"; // Center horizontally
+    score1Container.style.transform = "translate(-50%, -50%)"; // Offset for perfect centering
+    score1Container.style.display = "flex";
+    score1Container.style.alignItems = "center";
+    score1Container.style.justifyContent = "center";
+    score1Container.style.gap = "10px"; // Space between elements
+
+    // Flag 1 (Team 0)
+    // const fac1Img = document.createElement("img");
+    // fac1Img.src = `../assets/img/${flag1}.png`;
+    const flag1 = facIcons[factions.indexOf(fixtures[loop][1])];
+    const fac1Img = getCachedImage(flag1);
+    fac1Img.height = fac1Img.naturalHeight * 0.35;
+    fac1Img.onload = () => {
+      fac1Img.height = fac1Img.naturalHeight * 0.35;
+    }
+    score1Container.appendChild(fac1Img);
+
+    // Score Text
+    const scoreDiv = document.createElement("span");
+    scoreDiv.style.fontSize = "24px"; // Adjust font size as needed
+    scoreDiv.style.fontWeight = "bold";
+    scoreDiv.style.color = "white"; // Ensure it stands out on the image
+    scoreDiv.style.textShadow = "2px 2px 4px rgba(0, 0, 0, 0.7)"; // Add shadow for readability
+    scoreDiv.textContent = ` VS `;
+    score1Container.appendChild(scoreDiv);
+
+    // Flag 2 (Team 1)
+    // const fac2Img = document.createElement("img");
+    // fac2Img.src = `../assets/img/${flag2}.png`;
+    const flag2 = facIcons[factions.indexOf(fixtures[loop][2])];
+    const fac2Img = getCachedImage(flag2);
+    fac2Img.height = fac2Img.naturalHeight * 0.35;
+    fac2Img.onload = () => {
+      fac2Img.height = fac2Img.naturalHeight * 0.35;
+    }
+    score1Container.appendChild(fac2Img);
+
+    fixture1Cont.appendChild(score1Container);
+
+    const fixture2Cont = document.createElement("div");
+    const fixture2Img = document.createElement("img");
+    fixture2Cont.style.position = "relative"; // Enables positioning of text relative to the image
+    fixture2Cont.style.display = "inline-block"; // Ensures proper layout
+    fixture2Cont.className = "selectable";
+    fixture2Cont.addEventListener("click", () => {
+      updateURLToMap(thmb2Src);
+    });
+
+    const thmb2Src = fixtures[loop][3].toLowerCase().replaceAll(" ", "_").replaceAll("'","");
+    fixture2Img.src = `../assets/img/tbn_${thmb2Src}.png`;
+    fixture2Img.loading = "lazy";
+    fixture2Img.alt = "";
+    fixture2Img.style.cursor = "pointer";
+    fixture2Cont.appendChild(fixture2Img);
+
+
+
+      // Map name text overlay
+      const map2Name = document.createElement("span");
+      map2Name.style.position = "absolute";
+      map2Name.style.top = "10px"; // Position near the top of the image
+      map2Name.style.left = "50%"; // Center horizontally
+      map2Name.style.transform = "translateX(-50%)"; // Align text to the center
+      map2Name.style.color = "white"; // Set text color for visibility
+      map2Name.style.fontWeight = "bold";
+      map2Name.style.fontSize = "32px"; // Adjust font size as needed
+      map2Name.style.textShadow = "2px 2px 4px rgba(0, 0, 0, 0.7)"; // Add text shadow for readability
+      map2Name.style.whiteSpace = "nowrap"; 
+      map2Name.textContent = fixtures[loop][3];
+      fixture2Cont.appendChild(map2Name);
+
+      // Score with flag icons overlay
+      const score2Container = document.createElement("div");
+      score2Container.style.position = "absolute"; // Overlay on top of the image
+      score2Container.style.top = "75%"; // C
+      score2Container.style.left = "50%"; // Center horizontally
+      score2Container.style.transform = "translate(-50%, -50%)"; // Offset for perfect centering
+      score2Container.style.display = "flex";
+      score2Container.style.alignItems = "center";
+      score2Container.style.justifyContent = "center";
+      score2Container.style.gap = "10px"; // Space between elements
+
+      // Flag 1 (Team 0)
+      // const fac1Img = document.createElement("img");
+      // fac1Img.src = `../assets/img/${flag1}.png`;
+      const flag12 = facIcons[factions.indexOf(fixtures[loop][4])];
+      const fac12Img = getCachedImage(flag1);
+      fac12Img.height = fac12Img.naturalHeight * 0.35;
+      fac12Img.onload = () => {
+        fac12Img.height = fac12Img.naturalHeight * 0.35;
+      }
+      score2Container.appendChild(fac12Img);
+
+      // Score Text
+      const score2Div = document.createElement("span");
+      score2Div.style.fontSize = "24px"; // Adjust font size as needed
+      score2Div.style.fontWeight = "bold";
+      score2Div.style.color = "white"; // Ensure it stands out on the image
+      score2Div.style.textShadow = "2px 2px 4px rgba(0, 0, 0, 0.7)"; // Add shadow for readability
+      score2Div.textContent = ` VS `;
+      score2Container.appendChild(score2Div);
+
+      // Flag 2 (Team 1)
+      // const fac2Img = document.createElement("img");
+      // fac2Img.src = `../assets/img/${flag2}.png`;
+      const flag22 = facIcons[factions.indexOf(fixtures[loop][5])];
+      const fac22Img = getCachedImage(flag2);
+      fac22Img.height = fac22Img.naturalHeight * 0.35;
+      fac22Img.onload = () => {
+        fac22Img.height = fac22Img.naturalHeight * 0.35;
+      }
+      score2Container.appendChild(fac22Img);
+
+      fixture2Cont.appendChild(score2Container);
+
+
+    fixturesCont.appendChild(fixture1Cont);
+    fixturesCont.appendChild(fixture2Cont);
+    container.appendChild(fixturesCont);
     // Create a round container
     const roundContainer = document.createElement("div");
     roundContainer.className = "round-container";
     roundContainer.style.display = "flex";
     roundContainer.style.justifyContent = "center";
     roundContainer.style.gap = "5px"; // Equal spacing between boxes
-    roundContainer.style.marginBottom = isMobile ? "10px" : "20px"; // Space between rounds
+    roundContainer.style.marginBottom = "10px"; // Space between rounds
 
     if (isMobile) {
         roundContainer.style.flexWrap = "wrap"; // Allow wrapping
-        roundContainer.style.flexDirection = "column"; // Stack matches
+        //roundContainer.style.flexDirection = "column"; // Stack matches
     }
 
     // Render the matches for this round
-    for (let i = 0; i < matchesInThisRound && matchIndex < reversedBracket.length; i++) {
-        const [team1, team2, team1Score, team2Score, scrimID] = reversedBracket[matchIndex];
+    for (let i = 0; i < matchesInThisRound && matchIndex < bracket.length; i++) {
+        const [team1, team2, team1Score, team2Score, scrimID] = bracket[matchIndex];
         matchIndex++;
 
         const box = document.createElement("div");
-        box.className = "bracket-box";
+        box.id = "bracket-box";
 
         // Fixed box size for consistency
-        box.style.width = isMobile ? "100%" : "190px";
+        box.style.width = isMobile ? "75%" : "190px";
         box.style.height = "100px"; // Fixed height
+        box.style.maxWidth = "250px"; // Fixed height
         box.style.border = "1px solid #aaa";
 
         const isPlayed = scrimID >= 0;
         if (isPlayed) {
+            box.className = "selectable";
             box.style.border = "3px solid #aaa"; 
             box.style.color = "#fff";
             box.style.cursor = "pointer";
@@ -2724,6 +2824,7 @@ roundStructure.forEach((matchesInThisRound) => {
 tabContentContainer.appendChild(container);
 contentDiv.appendChild(tabContentContainer);
 }
+
 function renderFactionList() {
   const container = document.getElementById("tab-content");
   container.innerHTML = ""; // Clear previous content
@@ -2868,7 +2969,7 @@ function renderFactionList() {
 
     const facIconCont = document.createElement("div");
     // const facIcon = document.createElement("img");
-    // facIcon.src = `assets/img/${facIcons[idx]}.png`;
+    // facIcon.src = `../assets/img/${facIcons[idx]}.png`;
     const facIcon = getCachedImage(facIcons[idx]);
     facIcon.alt = "icon";
     facIconCont.appendChild(facIcon);
@@ -3029,7 +3130,7 @@ function renderFactionList() {
       // Append opponent faction image
       //setFactionImage(opponent, oppCont, opIdx);
       // const facIcon = document.createElement("img");
-      // facIcon.src = `assets/img/${facIcons[opIdx]}.png`;
+      // facIcon.src = `../assets/img/${facIcons[opIdx]}.png`;
       const facIcon = getCachedImage(facIcons[opIdx])
       facIcon.height = facIcon.naturalHeight * 0.6;
       facIcon.onload = () => {
@@ -3076,55 +3177,6 @@ function renderMapList() {
 
 
   //console.log("RANDOM FIXTURE", allMaps[Math.floor(Math.random() * allMaps.length)], factions[Math.floor(Math.random() * factions.length)], factions[Math.floor(Math.random() * factions.length)]);
-
-  const genFixture = document.createElement("div");
-  
-  const dice = document.createElement("img");
-  dice.src = "assets/img/random.png";
-  dice.classList = "dice";
-  dice.id = "dice";
-  dice.alt = "dice";
-  dice.style.cursor = "pointer";
-
-let currentRotation = 0;
-const extraRotations = [1080, 960, 840];
-
-  const randomTitle = document.createElement("div");
-  randomTitle.innerHTML = "Click to generate fixture"
-
-  dice.onclick = () => {
-    const extra = extraRotations[Math.floor(Math.random() * extraRotations.length)];
-    
-    // Update the current rotation; add to the previous value.
-    currentRotation += extra;
-    
-    // Update the transform so that the dice rotates from its current position.
-    dice.style.transform = `rotate(${currentRotation}deg)`;
-
-    const rMap = allMaps[Math.floor(Math.random() * allMaps.length)];
-    const rFac1 = factions[Math.floor(Math.random() * factions.length)];
-    let rFac2 = factions[Math.floor(Math.random() * factions.length)];
-    //it doesn't get any lazier than this 
-    if(rFac1 === rFac2) rFac2 = factions[Math.floor(Math.random() * factions.length)];
-    if(rFac1 === rFac2) rFac2 = factions[Math.floor(Math.random() * factions.length)];
-    let prev = 0;
-    let cont = false;
-    matches.forEach((match, idx) => {
-      if(!cont && match.map === rMap && 
-      ((match.faction_1 === rFac1 && match.faction_2 === rFac2) 
-        || (match.faction_2 === rFac1 && match.faction_1 === rFac2))) {
-          prev++
-        }
-      if(!cont && matches[idx+1] && matches[idx+1].map == match.map 
-      && matches[idx+1].faction_1 == match.faction_1 
-      && matches[idx+1].faction_2 == match.faction_2) {cont = true} else cont = false;
-    })
-    const plural = prev == 1 ? '' : 's';
-    randomTitle.innerHTML = rMap + ' - ' + rFac1 + ' - ' + rFac2 + ` (played ${prev} time${plural})`
-  }
-  genFixture.appendChild(dice)
-  genFixture.appendChild(randomTitle)
-  container.appendChild(genFixture)
 
   // Aggregation data structures
   const mapCounts = new Map();              // map => total number of matches on that map
@@ -3251,7 +3303,7 @@ const extraRotations = [1080, 960, 840];
 
     // Create an image element for the thumbnail.
     const bannerImg = document.createElement("img");
-    bannerImg.src = `assets/img/tbn_${mapName.toLowerCase().replaceAll(" ", "_").replaceAll("'", "")}.png`;
+    bannerImg.src = `../assets/img/tbn_${mapName.toLowerCase().replaceAll(" ", "_").replaceAll("'", "")}.png`;
     bannerImg.loading = "lazy";
     bannerImg.style.display = "block";
     bannerImg.style.margin = "0 auto"; // center the image within the banner
@@ -3290,8 +3342,9 @@ const extraRotations = [1080, 960, 840];
     // Map title: centered at the top of the overlay.
     const plural = mapCounts.get(mapName) == 1 ? '' : 's';
     const numPlayed = document.createElement("div");
+    const times = mapCounts.get(mapName) ? mapCounts.get(mapName) : 0;
     numPlayed.className = "banner-title";
-    numPlayed.textContent = `Played ${mapCounts.get(mapName)} time${plural}`;
+    numPlayed.textContent = `Played ${times} time${plural}`;
     numPlayed.style.color = "white";
     numPlayed.style.fontSize = "14px";
     numPlayed.style.fontWeight = "bold";
@@ -3327,7 +3380,7 @@ const extraRotations = [1080, 960, 840];
       // Faction flag image.
       // const flagImg = document.createElement("img");
       // // Use the provided path and arrays: facIcons (for filename) and factions (for index)
-      // flagImg.src = `assets/img/${facIcons[factions.indexOf(faction)]}.png`;
+      // flagImg.src = `../assets/img/${facIcons[factions.indexOf(faction)]}.png`;
       const flagImg = getCachedImage(facIcons[factions.indexOf(faction)]);
       flagImg.style.display = "block";
       // Once the flag loads, resize it to 25% of its natural size.
@@ -3410,9 +3463,9 @@ const extraRotations = [1080, 960, 840];
       //   return iconDiv;
       // }
       
-      // const infIcon = createClassIcon("assets/img/class_inf.png", classCounts.inf);
-      // const arcIcon = createClassIcon("assets/img/class_arc.png", classCounts.arc);
-      // const cavIcon = createClassIcon("assets/img/class_cav.png", classCounts.cav);
+      // const infIcon = createClassIcon("../assets/img/class_inf.png", classCounts.inf);
+      // const arcIcon = createClassIcon("../assets/img/class_arc.png", classCounts.arc);
+      // const cavIcon = createClassIcon("../assets/img/class_cav.png", classCounts.cav);
       // classContainer.appendChild(infIcon);
       // classContainer.appendChild(cavIcon);
       // classContainer.appendChild(arcIcon);
@@ -3471,7 +3524,7 @@ function renderTournamentList() {
   // Add onClick to the current tournament
   currentTournamentDiv.onclick = () => {
     updateURLToBracket(2);
-    body.style.backgroundImage = "url('assets/img/mb3.png')";
+    body.style.backgroundImage = "url('../assets/img/mb3.png')";
   };
 
   currentTournamentDiv.appendChild(currentTitle);
@@ -3499,7 +3552,7 @@ function renderTournamentList() {
     // Add onClick to each previous tournament
     listItem.onclick = () => {
       updateURLToBracket(previousTournaments.length - (idx + 1));
-      body.style.backgroundImage = "url('assets/img/mb3.png')";
+      body.style.backgroundImage = "url('../assets/img/mb3.png')";
     };
 
     previousList.appendChild(listItem);
@@ -3510,88 +3563,135 @@ function renderTournamentList() {
   container.appendChild(previousTournamentsDiv);
 }
 
-
-    function renderTeamList() {
+function renderTeamList() {
     const container = document.getElementById("tab-content");
     container.innerHTML = "";
-    
-    fetch('teams.json')
-      .then(response => {
-        if (!response.ok) {
-          throw new Error("Failed to load teams.json");
-        }
-        return response.json();
-      })
-      .then(data => {
-        teams = data.teams;
-      // Check if there is team data
-      if (!teams || teams.length === 0) {
-          container.textContent = "No team data available.";
-          return;
-      }
-      
-      // Create a flex container for the teams.
-      const teamsFlex = document.createElement("div");
-      teamsFlex.style.display = "flex";
-      teamsFlex.style.justifyContent = "space-between";
-      teamsFlex.style.alignItems = "flex-start"; // Align items at the top so the boxes are even
-      teamsFlex.style.flexWrap = "wrap"; // In case screen width is limited
-      teamsFlex.style.gap = "10px"; // Optional gap between boxes
-      
-      // For each team create a flex box.
-      teams.forEach(team => {
-          const teamBox = document.createElement("div");
-          teamBox.style.flex = "1";
-          teamBox.style.minWidth = "150px"; // Ensure boxes don't get too narrow.
-          teamBox.style.margin = "5px";
-          teamBox.style.padding = "10px";
-          teamBox.style.border = "1px solid #ccc";
-          teamBox.style.borderRadius = "5px";
-          teamBox.style.boxSizing = "border-box";
-          teamBox.style.display = "flex";
-          teamBox.style.flexDirection = "column";
-          teamBox.style.alignItems = "stretch";
-          
-          // Captain name (displayed at the top - left aligned)
-          const captain = document.createElement("div");
-          captain.textContent = "Captain: " + team.captain;
-          captain.style.fontWeight = "bold";
-          captain.style.textAlign = "left";
-          teamBox.appendChild(captain);
-          
-          // Win/Lose/Draw record (displayed with a little vertical spacing)
-          const record = document.createElement("div");
-          record.textContent = "Record: " + team.record;
-          record.style.marginTop = "5px";
-          record.style.textAlign = "left";
-          teamBox.appendChild(record);
-          
-          // Team members list (vertical list)
-          const membersList = document.createElement("ul");
-          membersList.style.listStyleType = "disc";
-          membersList.style.paddingLeft = "20px";
-          membersList.style.marginTop = "10px";
-          team.players.forEach(member => {
-              const li = document.createElement("div");
-              li.textContent = member;
-              membersList.appendChild(li);
-          });
-          teamBox.appendChild(membersList);
-          
-          teamsFlex.appendChild(teamBox);
-      });
-      
-      container.appendChild(teamsFlex);
-        //renderLandingPage();
-        //handleURLChange();
-        //window.addEventListener('popstate', handleURLChange);
-      })
-      .catch(error => {
-        console.error("Error loading match data:", error);
-        document.getElementById('content').innerHTML = `<p style="color: red;">Failed to load match data. Please try again later.</p>`;
-      });
 
+    // Make the container a vertical stack
+    container.style.display = "flex";
+    container.style.flexDirection = "column";
+    container.style.gap = "30px";
+    container.style.padding = "20px";
+
+    // Helper function to calculate total score for a teamTag
+    function getTeamTotalScore(teamTag) {
+    let totalScore = 0;
+    let roundsLostPoints = 0;
+    let wins = 0;
+    let losses = 0;
+    let draws = 0;
+
+    NRLbracket.forEach(match => {
+        const [team1, team2, score1, score2] = match;
+
+        if (team1 === teamTag || team2 === teamTag) {
+            const isTeam1 = team1 === teamTag;
+            const myScore = isTeam1 ? score1 : score2;
+            const opponentScore = isTeam1 ? score2 : score1;
+
+            totalScore += myScore;
+            roundsLostPoints += opponentScore;
+
+            if (myScore > opponentScore) {
+                wins++;
+            } else if (myScore < opponentScore) {
+                losses++;
+            } else {
+                draws++;
+            }
+        }
+    });
+
+    return {
+        totalScore,
+        roundsLostPoints,
+        wins,
+        losses,
+        draws
+    };
 }
+
+    // Helper function to render a division
+    function renderDivision(titleText, teamsArray) {
+        // Create title element
+        const title = document.createElement("h2");
+        title.innerText = titleText;
+        title.style.textAlign = "center";
+        title.style.color = "white";
+
+        // Create team grid using flex
+        const teamContainer = document.createElement("div");
+        teamContainer.style.display = "flex";
+        teamContainer.style.flexWrap = "wrap";
+        teamContainer.style.gap = "10px";
+        teamContainer.style.justifyContent = "center";
+
+        teamsArray.forEach((teamName) => {
+            const teamIndex = allTeams.indexOf(teamName);
+            const teamTag = teamTags[teamIndex] || "N/A";
+            const stats = getTeamTotalScore(teamTag);
+        const teamInfo = document.createElement("div");
+        teamInfo.style.cursor = "pointer";
+        teamInfo.className = "selectable";
+        teamInfo.addEventListener("click", () => {
+          //console.log("Banner clicked:", mapName);
+          updateURLToTeam(teamName);
+        });
+
+        // Set outer styles
+        teamInfo.style.border = "2px solid white";
+        teamInfo.style.flex = "1 1 150px";
+        teamInfo.style.minWidth = "150px";
+        teamInfo.style.maxWidth = "250px";
+        teamInfo.style.boxSizing = "border-box";
+        teamInfo.style.padding = "20px";
+        teamInfo.style.textAlign = "center";
+        //teamInfo.style.backgroundColor = "rgba(50,50,50,0.5)";
+        teamInfo.style.color = "white";
+        teamInfo.style.display = "flex";
+        teamInfo.style.flexDirection = "column";
+        teamInfo.style.justifyContent = "space-between";
+        teamInfo.style.gap = "10px";
+        
+        teamInfo.id = "bracket-box";
+
+        // Create and style the team name
+        const teamNameEl = document.createElement("div");
+        teamNameEl.innerText = teamName;
+        teamNameEl.style.fontWeight = "bold";
+        teamNameEl.style.fontSize = "18px";
+        teamNameEl.style.textAlign = "center";
+
+        // Create the stat rows
+        const row1 = document.createElement("div");
+        row1.style.display = "flex";
+        row1.style.justifyContent = "space-between";
+        row1.innerHTML = `<span>${stats.wins} Win</span><span>${stats.losses} Loss</span>`;
+
+        // const row2 = document.createElement("div");
+        // row2.style.display = "flex";
+        // row2.style.justifyContent = "space-between";
+        // row2.innerHTML = `<span>RW: ${stats.totalScore}</span><span>RL: ${stats.roundsLostPoints}</span>`;
+
+
+        // Append all parts
+        teamInfo.appendChild(teamNameEl);
+        teamInfo.appendChild(row1);
+        //teamInfo.appendChild(row2);
+
+        teamContainer.appendChild(teamInfo);
+        });
+
+        // Append title and team container to main container
+        container.appendChild(title);
+        container.appendChild(teamContainer);
+    }
+
+    // Render both divisions
+    renderDivision("Div A", divATeams);
+    renderDivision("Div B", divBTeams);
+}
+
 
 function timeToSeconds(time) {
   const [hours, minutes, seconds] = time.split(":").map(Number);
@@ -3614,23 +3714,10 @@ let filterArc = false;
 let filterCav = false;
 let filterInf = false;
 
-const filterFac = [false,false,false,false,false,false]
+const filterFac = [false,false,false,false,false,false];
 
-/**
- * Generate aggregated stats for players from match data while applying class filters.
- *
- * @param {number[]} playerIds - Array of player IDs.
- * @param {object} matches - Match data, where matches.matches is an array of match objects.
- * @param {Map} nameToIdMap - A Map from lower-case player names to their IDs.
- * @param {Array} playerNames - An array or object that maps player IDs to [name, ...] (used for display).
- * @param {boolean} filterInf - If true, skip players whose class matches any string in infClasses.
- * @param {boolean} filterCav - If true, skip players whose class matches any string in cavClasses.
- * @param {boolean} filterArc - If true, skip players whose class matches any string in arcClasses.
- * @param {string[]} infClasses - Array of class substrings for infantry.
- * @param {string[]} cavClasses - Array of class substrings for cav.
- * @param {string[]} arcClasses - Array of class substrings for archers.
- * @returns {object[]} A filtered array of aggregated player stats.
- */
+let filterTeams = [];
+
  function generatePlayerStats(
   playerIds,
   matches,
@@ -3720,7 +3807,7 @@ const filterFac = [false,false,false,false,false,false]
       if(filterMap && filterMap !== match.map.toLowerCase().replaceAll(" ", "_").replaceAll("'","")) return; //skip map filter 
       if(filterMapKind == 2 && openMaps.includes(match.map)) return;
       if(filterMapKind == 1 && closedMaps.includes(match.map)) return;
-      console.log(s1)
+      
       if(filterTourney == 1
         && !scrims.some(([halfA, halfB]) => halfs[halfA].includes(matchID + s1) || halfs[halfB]?.includes(matchID + s1))
       ) {return;}
@@ -3733,6 +3820,9 @@ const filterFac = [false,false,false,false,false,false]
       // Build an array of players we want to include for this round.
       const filteredPlayers = [];
       players.forEach((name, index) => {
+        const playerId = nameToIdMap.get(name.toLowerCase());
+        
+        //filter tourny teams: by team/by division
         const playerClass = classes[index]; // class for this player in the round
         const playerFac = teams[index] === 0 ? match.faction_1 : match.faction_2;
         // Exit early if any filter is enabled and the player's class matches.
@@ -3747,13 +3837,15 @@ const filterFac = [false,false,false,false,false,false]
           (filterFac[3] &&  playerFac === factions[3]) ||
           (filterFac[4] &&  playerFac === factions[4]) ||
           (filterFac[5] &&  playerFac === factions[5]) 
+          ||
+          //filterTeams is an array containing the team IDs to SHOW
+          (filterTeams.length > 0 && !filterTeams.some(teamid => nrlteams[teamid].includes(playerId)))
         ) {
           return; // Skip this player.
         }
         // Otherwise, include this player's name in the filtered list.
         filteredPlayers.push(name);
         
-        const playerId = nameToIdMap.get(name.toLowerCase());
         if (playerId) {
           // Count rounds played.
           playerStats[playerId].rounds += 1;
@@ -3915,90 +4007,59 @@ let filterMap;
 let filterMapKind = 0;
 let filterTourney = 0;
 let filterMin = 0;
+let filterDiv = 0;
+let curDiv = ["ALL PLAYERS", "DIV A PLAYERS", "DIV B PLAYERS"];
 
-function renderPlayersList(s1, s2, title="ALL TIME", container=document.getElementById("tab-content")) {
+function renderPlayersList(s1=0, s2=-1, title="ALL PLAYERS", container=document.getElementById("tab-content")) {
     //const container = document.getElementById("tab-content");
     container.innerHTML = "";  // Clear previous content
-    console.log("playersList", s1)
     filterMin = 0;
     filterMapKind = 0;
     filterTourney = 0;
     // console.log(window.history.state.map)
     filterMap = window.history.state.map;
-    if(title.includes("WRAP")) filterTourney = 2; //exclude tourney matches from wrap-ups
     if(title.length > 0){
       const statsTitleCont = document.createElement("div");
       statsTitleCont.style.display = "flex";
       statsTitleCont.style.alignItems = "center";
       statsTitleCont.style.gap = "5px";
 
-      if(!title.includes("PICKUP")) {
-        const statsTitleChangeL = document.createElement("img");
-        statsTitleChangeL.src = 'assets/img/change_button.png';
-        statsTitleChangeL.style.transform = "scaleX(-1)";
-        statsTitleChangeL.style.cursor = "pointer";
-        statsTitleCont.appendChild(statsTitleChangeL);
-        statsTitleChangeL.onclick = () => {
-          
-          let index = statResets.findIndex(reset => reset[2] === title);
-          if (index !== -1) {
-            
-            if(index > 0){
-              index--
-              renderPlayersList(statResets[index][0], statResets[index][1], statResets[index][2]);
-            } else {
-              renderPlayersList(0)
-            }
-          } else {
-            index = pickupSeasons.findIndex(reset => title.includes(reset[2]));
-            if(index !== -1){
-              console.log("WRAP UP FOUND L");
-              index = index > 0 ? index - 1 : pickupSeasons.length-1;
-              const current = index == pickupSeasons.length-1 ? matches.length : pickupSeasons[index][1];
-              renderPlayersList(pickupSeasons[index][0], current, pickupSeasons[index][2] + " WRAP UP");
-            } else {
-              index = statResets.length-1;
-              renderPlayersList(statResets[index][0], statResets[index][1], statResets[index][2]);
-            }
-          }
-        }
+      const statsTitleChangeL = document.createElement("img");
+      statsTitleChangeL.src = '../assets/img/change_button.png';
+      statsTitleChangeL.style.transform = "scaleX(-1)";
+      statsTitleChangeL.style.cursor = "pointer";
+      statsTitleCont.appendChild(statsTitleChangeL);
+      statsTitleChangeL.onclick = () => {
+        filterDiv--;
+        if (filterDiv < 0) filterDiv = 2;
+        renderPlayersList(0, -1, curDiv[filterDiv], container);
       }
+      
       const statsTitle = document.createElement("h2");
       statsTitle.textContent = title;
       statsTitleCont.appendChild(statsTitle);
 
-      if(!title.includes("PICKUP")) {
-        const statsTitleChangeR = document.createElement("img");
-        statsTitleChangeR.src = 'assets/img/change_button.png';
-        statsTitleChangeR.style.cursor = "pointer";
-        statsTitleCont.appendChild(statsTitleChangeR);
-        statsTitleChangeR.onclick = () => {
-          
-          let index = statResets.findIndex(reset => reset[2] === title);
-          if (index !== -1) {
-            if(index  < statResets.length-1) {
-              index++
-              renderPlayersList(statResets[index][0], statResets[index][1], statResets[index][2]);
-            } else {
-              renderPlayersList(0)
-            }
-          } else {
-            index = pickupSeasons.findIndex(reset => title.includes(reset[2]));
-            if(index !== -1){
-              console.log("WRAP UP FOUND R", index);
-              index = index < pickupSeasons.length-1 ? index + 1 : 0;
-              const current = index == pickupSeasons.length-1 ? matches.length : pickupSeasons[index][1];
-              renderPlayersList(pickupSeasons[index][0], current, pickupSeasons[index][2] + " WRAP UP");
-            } else {
-              index = 0;
-              renderPlayersList(statResets[index][0], statResets[index][1], statResets[index][2]);
-            }
-          }
-        }
+      const statsTitleChangeR = document.createElement("img");
+      statsTitleChangeR.src = '../assets/img/change_button.png';
+      statsTitleChangeR.style.cursor = "pointer";
+      statsTitleCont.appendChild(statsTitleChangeR);
+      statsTitleChangeR.onclick = () => {
+        filterDiv++;
+        if (filterDiv > 2) filterDiv = 0;
+        renderPlayersList(0, -1, curDiv[filterDiv], container);
       }
         
 
       container.appendChild(statsTitleCont);
+    }
+    
+    if(!window.history.state.team) {
+        
+      if(filterDiv > 0){
+        filterTeams = filterDiv == 1? [0, 1, 2, 3, 4] : [5, 6, 7, 8, 9];
+      } else {
+        filterTeams = [];
+      }
     }
     
 
@@ -4118,7 +4179,7 @@ function renderPlayersList(s1, s2, title="ALL TIME", container=document.getEleme
                 factions.forEach((faction, index) => {
                   // Create an icon for each faction
                   // const factionIcon = document.createElement("img");
-                  // factionIcon.src = `assets/img/${facIcons[index]}.png`; // Set the image source dynamically
+                  // factionIcon.src = `../assets/img/${facIcons[index]}.png`; // Set the image source dynamically
                   const factionIcon = getCachedImage(facIcons[index]);
                   factionIcon.style.cursor = "pointer";
                   factionIcon.style.width = "33px"; // Adjust size as needed
@@ -4156,50 +4217,15 @@ function renderPlayersList(s1, s2, title="ALL TIME", container=document.getEleme
             miscContainer.style.borderTop = "1px solid #ccc"
             miscContainer.style.borderBottom = "1px solid #ccc";
             // miscContainer.style.borderRight = "1px solid #ccc";
-            if(!title.includes("PICKUP") && !title.includes("WRAP")){const trophy = document.createElement("img");
-                if(filterTourney == 0) {
-                  trophy.src = "assets/img/trophy.png";
-                  trophy.style.filter = "grayscale(1)";
-                } else if(filterTourney == 1) {
-                  trophy.style.filter = "grayscale(0)";
-                  trophy.src = "assets/img/trophy.png";
-                } else if(filterTourney == 2) {
-                  trophy.style.filter = "grayscale(0)";
-                  trophy.src = "assets/img/trophyno.png";
-                }
-              trophy.style.cursor = "pointer";
-                  //All
-              if(filterTourney == 0) trophy.style.filter = "grayscale(1)";
-              trophy.onclick = () => {
-                if(filterTourney == 0) {
-                  //tourney only
-                  filterTourney = 1;
-                  trophy.style.filter = "grayscale(0)";
-                } else if(filterTourney == 1) {
-                  //no tourney
-                  filterTourney = 2;
-                  trophy.src = "assets/img/trophyno.png";
-                } else if(filterTourney == 2) {
-                  //back to All
-                  filterTourney = 0;
-                  trophy.src = "assets/img/trophy.png";
-                  trophy.style.filter = "grayscale(1)";
-                }
-                ({ statsArray, playerStats  } = generatePlayerStats(playerIds, matches.slice(s1, s2), nameToIdMap, playerNames, s1));
-                renderTable();
-              }
-              miscContainer.appendChild(trophy);
-              }
-
               if(!filterMap){const mapKind = document.createElement("img");
                 if(filterMapKind == 0) {
-                  mapKind.src = "assets/img/mapany.png"
+                  mapKind.src = "../assets/img/mapany.png"
                   mapKind.style.filter = "grayscale(1)";
                 } else if(filterMapKind == 1) {
-                  mapKind.src = "assets/img/mapopen.png"
+                  mapKind.src = "../assets/img/mapopen.png"
                   mapKind.style.filter = "grayscale(0)";
                 } else if(filterMapKind == 2) {
-                  mapKind.src = "assets/img/mapclosed.png"
+                  mapKind.src = "../assets/img/mapclosed.png"
                   mapKind.style.filter = "grayscale(0)";
                 }
                 if(filterMapKind == 0) mapKind.style.filter = "grayscale(1)";
@@ -4208,13 +4234,13 @@ function renderPlayersList(s1, s2, title="ALL TIME", container=document.getEleme
                   if(filterMapKind == 0) {
                     filterMapKind = 1;
                     mapKind.style.filter = "grayscale(0)";
-                    mapKind.src = "assets/img/mapopen.png"
+                    mapKind.src = "../assets/img/mapopen.png"
                   } else if(filterMapKind == 1) {
                     filterMapKind = 2;
-                    mapKind.src = "assets/img/mapclosed.png"
+                    mapKind.src = "../assets/img/mapclosed.png"
                   } else if(filterMapKind == 2) {
                     filterMapKind = 0;
-                    mapKind.src = "assets/img/mapany.png"
+                    mapKind.src = "../assets/img/mapany.png"
                     mapKind.style.filter = "grayscale(1)";
                   }
                   ({ statsArray, playerStats  } = generatePlayerStats(playerIds, matches.slice(s1, s2), nameToIdMap, playerNames, s1));
@@ -4252,7 +4278,7 @@ function renderPlayersList(s1, s2, title="ALL TIME", container=document.getEleme
               // classContainer.style.borderRight = "1px solid #ccc";
               classContainer.style.borderBottom = "1px solid #ccc";
                 // const infclass = document.createElement("img");
-                // infclass.src = "assets/img/class_inf.png";
+                // infclass.src = "../assets/img/class_inf.png";
                 const infclass = getCachedImage("class_inf");
                 infclass.style.cursor = "pointer";
                 infclass.onclick = () => {
@@ -4278,7 +4304,7 @@ function renderPlayersList(s1, s2, title="ALL TIME", container=document.getEleme
                 classContainer.appendChild(infclass);
 
                 // const cavclass = document.createElement("img");
-                // cavclass.src = "assets/img/class_cav.png";
+                // cavclass.src = "../assets/img/class_cav.png";
                 const cavclass = getCachedImage("class_cav");
                 cavclass.style.cursor = "pointer";
                 cavclass.onclick = () => {
@@ -4304,7 +4330,7 @@ function renderPlayersList(s1, s2, title="ALL TIME", container=document.getEleme
                 classContainer.appendChild(cavclass);
 
                 // const arcclass = document.createElement("img");
-                // arcclass.src = "assets/img/class_arc.png";
+                // arcclass.src = "../assets/img/class_arc.png";
                 const arcclass = getCachedImage("class_arc");
                 arcclass.style.cursor = "pointer";
                 arcclass.onclick = () => {
@@ -4337,6 +4363,7 @@ function renderPlayersList(s1, s2, title="ALL TIME", container=document.getEleme
               playersContainer.appendChild(filterContainer);
 
             const table = document.createElement("table");
+            table.style.display = "block";
             table.style.width = "100%";
             table.style.height = "100%";
             table.style.borderCollapse = "collapse";
@@ -4396,8 +4423,12 @@ function renderPlayersList(s1, s2, title="ALL TIME", container=document.getEleme
 
             // Create table header
             const headerRow = document.createElement("tr");
+            // headerRow.style.display = "block";
+            headerRow.style.width = "100%";
             columns.forEach(column => {
                 const th = document.createElement("th");
+                th.style.width = "100%";
+                th.style.minWidth = "100px";
                 th.style.position = "sticky";
                 th.style.top = "0";
                 th.textContent = column;
@@ -4405,9 +4436,16 @@ function renderPlayersList(s1, s2, title="ALL TIME", container=document.getEleme
                 th.style.padding = "8px";
                 th.style.textAlign = "left";
                 // Add click event for sorting
+              if (column === "Player Name"){
+                th.style.overflow = "auto";
+                th.style.position = "sticky";
+                //th.style.width = "max-content";
+                th.style.left = "0";
+              };
               if (column !== "Player Name"){
                 let ignore = false;
                 th.style.cursor = "pointer";
+                th.style.zIndex = "2";
                 // Add a span for the clickable division symbol
                 const divisionSpan = document.createElement("span");
                 divisionSpan.textContent = " ÷"; 
@@ -4529,7 +4567,8 @@ function renderPlayersList(s1, s2, title="ALL TIME", container=document.getEleme
                 };
                 ignore = false;
               }
-              } 
+              
+              }
 
         
                 headerRow.appendChild(th);
@@ -4572,6 +4611,8 @@ function renderPlayersList(s1, s2, title="ALL TIME", container=document.getEleme
             // Populate table rows
             statsArray.forEach((player, index) => {
                 const row = document.createElement("tr");
+                row.style.maxHeight = "25px";
+                row.style.width = "100%";
                 [
                     player.name,
                     //player.class,
@@ -4586,15 +4627,28 @@ function renderPlayersList(s1, s2, title="ALL TIME", container=document.getEleme
                     player.wins
                 ].forEach((value, valueIndex) => {
                     const td = document.createElement("td");
+                    td.style.maxHeight = "25px";
+                    td.style.position = "relative";
+                    td.style.zIndex = "1";
                     if (value === player.name){
                       const numSpan = document.createElement("span");
                       numSpan.textContent = `${index + 1}. `;
-                      
+                        
+                      td.style.overflow = "auto";
+                      td.style.position = "sticky";
+                      td.style.width = "max-content";
+                      td.style.left = "0";
+                      td.style.zIndex = "0";
                       td.appendChild(numSpan);
                       const nameSpan = document.createElement("span");
                       nameSpan.textContent = value;
+                      nameSpan.style.overflow = "auto";
                       nameSpan.style.cursor = "pointer";
                       nameSpan.className = "selectable";
+                      nameSpan.style.overflowX = "auto";
+                      nameSpan.style.position = "sticky";
+                      nameSpan.style.width = "max-content";
+                      nameSpan.style.left = "0";
                       nameSpan.onclick = () => {
                         // console.log("Player..!", playerIds.indexOf(index))
                         updateURLToPlayer(nameToIdMap.get(value.toLowerCase()))
@@ -4615,7 +4669,7 @@ function renderPlayersList(s1, s2, title="ALL TIME", container=document.getEleme
                         infContainer.style.marginLeft = "5px";
 
                         // const infclass = document.createElement("img");
-                        // infclass.src = "assets/img/class_inf.png";
+                        // infclass.src = "../assets/img/class_inf.png";
                         const infclass = getCachedImage("class_inf");
                         infclass.alt = "inf";
                         infclass.height = infclass.naturalHeight * 0.5;
@@ -4646,7 +4700,7 @@ function renderPlayersList(s1, s2, title="ALL TIME", container=document.getEleme
                         cavContainer.style.marginLeft = "5px";
 
                         // const cavclass = document.createElement("img");
-                        // cavclass.src = "assets/img/class_cav.png";
+                        // cavclass.src = "../assets/img/class_cav.png";
                         const cavclass = getCachedImage("class_cav");
                         cavclass.alt = "cav";
                         cavclass.height = cavclass.naturalHeight * 0.5;
@@ -4677,7 +4731,7 @@ function renderPlayersList(s1, s2, title="ALL TIME", container=document.getEleme
                         arcContainer.style.marginLeft = "5px";
 
                         // const arcclass = document.createElement("img");
-                        // arcclass.src = "assets/img/class_arc.png";
+                        // arcclass.src = "../assets/img/class_arc.png";
 
                         const arcclass = getCachedImage("class_arc");
                         arcclass.alt = "arc";
@@ -4852,7 +4906,7 @@ function renderMatchList(matches, dir) {
       team0Image.style.flexWrap = "wrap";
       for(let i = 0; i < team0Score; i++){
         // const fac1Img = document.createElement("img");
-        // fac1Img.src = `assets/img/${flag1}.png`;
+        // fac1Img.src = `../assets/img/${flag1}.png`;
         const flag1 = facIcons[factions.indexOf(match.faction_1)];
         const fac1Img = getCachedImage(flag1);
         fac1Img.height = fac1Img.naturalHeight * 0.5;
@@ -4904,7 +4958,7 @@ function renderMatchList(matches, dir) {
       team1Image.style.flexWrap = "wrap";
       for(let i = 0; i < team1Score; i++){
         // const fac2Img = document.createElement("img");
-        // fac2Img.src = `assets/img/${flag2}.png`;
+        // fac2Img.src = `../assets/img/${flag2}.png`;
         const flag2 = facIcons[factions.indexOf(match.faction_2)];
         const fac2Img = getCachedImage(flag2);
         fac2Img.height = fac2Img.naturalHeight * 0.5;
@@ -4955,7 +5009,7 @@ function renderMatchList(matches, dir) {
       const mapThumbn = document.createElement("img");
       const thmbSrc = match.map.toLowerCase().replaceAll(" ", "_").replaceAll("'","");
 
-      mapThumbn.src = `assets/img/tbn_${thmbSrc}.png`
+      mapThumbn.src = `../assets/img/tbn_${thmbSrc}.png`
       mapThumbn.loading = "lazy";
       mapThumbn.alt = "";
       
@@ -4990,7 +5044,7 @@ function renderMatchList(matches, dir) {
 
       // Flag 1 (Team 0)
       // const fac1Img = document.createElement("img");
-      // fac1Img.src = `assets/img/${flag1}.png`;
+      // fac1Img.src = `../assets/img/${flag1}.png`;
       const flag1 = facIcons[factions.indexOf(match.faction_1)];
       const fac1Img = getCachedImage(flag1);
       fac1Img.height = fac1Img.naturalHeight * 0.35;
@@ -5010,7 +5064,7 @@ function renderMatchList(matches, dir) {
 
       // Flag 2 (Team 1)
       // const fac2Img = document.createElement("img");
-      // fac2Img.src = `assets/img/${flag2}.png`;
+      // fac2Img.src = `../assets/img/${flag2}.png`;
       const flag2 = facIcons[factions.indexOf(match.faction_2)];
       const fac2Img = getCachedImage(flag2);
       fac2Img.height = fac2Img.naturalHeight * 0.35;
@@ -5065,19 +5119,6 @@ function renderPickupList() {
   const container = document.getElementById("tab-content");
   container.innerHTML = ""; // Clear existing content
 
-  const currentSeason = pickupSeasons[pickupSeasons.length - 1];
-  const wrapUp = document.createElement("h1");
-  wrapUp.className = "selectable";
-  wrapUp.textContent = `${currentSeason[2]} (CURRENT)`;
-  wrapUp.style.cursor = "pointer";
-  wrapUp.style.margin = "0px";
-  wrapUp.style.padding = "20px 5px";
-  wrapUp.style.borderBottom = "1px solid #ccc";
-  wrapUp.addEventListener("click", () => {
-    renderLandingPage("players");
-    renderPlayersList(currentSeason[0], matches.length, `${currentSeason[2]} WRAP UP`);
-  });
-  container.appendChild(wrapUp);
 
   // Render all pickup tiles.
   // Assume that pickups has been compiled in forward (chronological) order.
@@ -5085,29 +5126,12 @@ function renderPickupList() {
   for (let i = pickups.length - 1; i >= 0; i--) {
     const pickup = pickups[i]; // pickup is [firstMatch, lastMatch] (lastMatch is inclusive)
     const tile = document.createElement("h1");
-    tile.textContent = `PICKUP PARTY #${i + 1}`;
+    tile.textContent = `Week #${i + 1}`;
     tile.className = "selectable";
     tile.style.cursor = "pointer";
     tile.style.margin = "0px";
     tile.style.padding = "20px 5px";
     tile.style.borderBottom = "1px solid #ccc";
-  //past seasons 
-  for(let j=0; j<pickupSeasons.length-1; j++) { 
-    if (halfs[pickup[1]][1] === pickupSeasons[j][1]) 
-    { 
-      const snwrapUp = document.createElement("h1"); 
-      snwrapUp.textContent = `${pickupSeasons[j][2]} WRAP UP`; 
-      snwrapUp.style.cursor = "pointer"; 
-      snwrapUp.style.margin = "0px"; 
-      snwrapUp.style.padding = "20px 5px"; 
-      snwrapUp.className = "selectable";
-      snwrapUp.style.borderBottom = "1px solid #ccc"; 
-      snwrapUp.addEventListener("click", () => { 
-        renderLandingPage("players"); 
-        renderPlayersList(pickupSeasons[j][0], pickupSeasons[j][1]+1, `${pickupSeasons[j][2]} WRAP UP`) }); 
-        container.appendChild(snwrapUp); 
-      } 
-    }
       container.appendChild(tile);
 
     if (selectedPickup == i) {
@@ -5137,8 +5161,8 @@ function renderPickupList() {
 
         summary.addEventListener("click", function () {
           renderLandingPage("players")
-          const pickupEnd = halfs[pickup[1]][1] + 1 == 44 ? halfs[pickup[1]][0] + 1 : halfs[pickup[1]][1] + 1;
-          renderPlayersList(halfs[pickup[0]][0], pickupEnd, `PICKUP PARTY #${selectedPickup + 1}`)
+          const pickupEnd = halfs[pickup[1]][1] + 1 == -1 ? halfs[pickup[1]][0] + 1 : halfs[pickup[1]][1] + 1;
+          renderPlayersList(halfs[pickup[0]][0], pickupEnd, `Week #${selectedPickup + 1}`)
         });
     }
     // Attach click listener to the tile.
@@ -5182,9 +5206,9 @@ function renderPickupList() {
 
       summary.addEventListener("click", function () {
         renderLandingPage("players")
-        const pickupEnd = halfs[pickup[1]][1] + 1 == 44 ? halfs[pickup[1]][0] + 1 : halfs[pickup[1]][1] + 1;
+        const pickupEnd = halfs[pickup[1]][1] + 1 == -1 ? halfs[pickup[1]][0] + 1 : halfs[pickup[1]][1] + 1;
         //console.log("PICKUPEND", halfs[pickup[0]][0], halfs[pickup[1]][0])
-        renderPlayersList(halfs[pickup[0]][0], pickupEnd, `PICKUP PARTY #${selectedPickup + 1}`)
+        renderPlayersList(halfs[pickup[0]][0], pickupEnd, `Week #${selectedPickup + 1}`)
       });
       // Animate the halfList container (simple fade-in).
       halfListContainer.animate(
@@ -5290,8 +5314,8 @@ function renderHalfList(halves, container) {
         const flagImg = i > parseInt(match0.score.split("-")[0]-1) ? facIcons[factions.indexOf(match0.faction_2)] : facIcons[factions.indexOf(match0.faction_1)];
         
       const fac1Img = getCachedImage(flagImg);
-        // fac1Img.src = `assets/img/${flag1}.png`;
-        // if (i > parseInt(match0.score.split("-")[0]-1)) fac1Img.src = `assets/img/${flag2}.png`;
+        // fac1Img.src = `../assets/img/${flag1}.png`;
+        // if (i > parseInt(match0.score.split("-")[0]-1)) fac1Img.src = `../assets/img/${flag2}.png`;
         fac1Img.height = fac1Img.naturalHeight * 0.5;
         fac1Img.onload = () => {
           fac1Img.height = fac1Img.naturalHeight * 0.5;
@@ -5325,7 +5349,7 @@ function renderHalfList(halves, container) {
         // Check if this player is the MVP
         if (i === match0.rounds[match0.rounds.length - 1].players.indexOf(topPlayers.team0.name)) {
           const team0mvp = document.createElement("img");
-          team0mvp.src = "assets/img/mvp.png";
+          team0mvp.src = "../assets/img/mvp.png";
           team0mvp.style.position = "absolute"; 
           team0mvp.style.top = "-18px"; 
           team0mvp.style.left = "60%"; // inf is a little forward
@@ -5366,9 +5390,9 @@ function renderHalfList(halves, container) {
       // const facImg = document.createElement("img");
       const flagImg = i > parseInt(match0.score.split(" - ")[1])-1 ? facIcons[factions.indexOf(match0.faction_1)] : facIcons[factions.indexOf(match0.faction_2)];
       // const flag2 = ;
-      // facImg.src = `assets/img/${flagImg}.png`;
+      // facImg.src = `../assets/img/${flagImg}.png`;
       const facImg = getCachedImage(flagImg);
-      // if (i > parseInt(match0.score.split(" - ")[1])-1) facImg.src = `assets/img/${flag2}.png`;
+      // if (i > parseInt(match0.score.split(" - ")[1])-1) facImg.src = `../assets/img/${flag2}.png`;
       facImg.height = facImg.naturalHeight * 0.5;
       facImg.onload = () => {
         facImg.height = facImg.naturalHeight * 0.5;
@@ -5402,7 +5426,7 @@ function renderHalfList(halves, container) {
         // Check if this player is the MVP
         if (i === match0.rounds[match0.rounds.length - 1].players.indexOf(topPlayers.team1.name)) {
           const team1mvp = document.createElement("img");
-          team1mvp.src = "assets/img/mvp.png";
+          team1mvp.src = "../assets/img/mvp.png";
           team1mvp.style.position = "absolute"; 
           team1mvp.style.top = "-18px"; 
           team1mvp.style.left = "40%"; // inf is a little forward
@@ -5443,7 +5467,7 @@ function renderHalfList(halves, container) {
       mapThumbn.style.objectFit = "cover";
       mapThumbn.style.objectPosition = "center";
       mapThumbn.loading = "lazy";
-      mapThumbn.src = `assets/img/tbn_${thmbSrc}.png`
+      mapThumbn.src = `../assets/img/tbn_${thmbSrc}.png`
       mapThumbn.alt = "";
       
       // mapThumbn.style.width = "400px"; // Adjust width as needed
@@ -5477,7 +5501,7 @@ function renderHalfList(halves, container) {
 
       // Flag 1 (Team 0)
       // const fac1Img = document.createElement("img");
-      // fac1Img.src = `assets/img/${flag1}.png`;
+      // fac1Img.src = `../assets/img/${flag1}.png`;
       const flag1 = facIcons[factions.indexOf(match0.faction_1)];
       const fac1Img = getCachedImage(flag1);
       fac1Img.height = fac1Img.naturalHeight * 0.35;
@@ -5497,7 +5521,7 @@ function renderHalfList(halves, container) {
 
       // Flag 2 (Team 1)
       // const fac2Img = document.createElement("img");
-      // fac2Img.src = `assets/img/${flag2}.png`;
+      // fac2Img.src = `../assets/img/${flag2}.png`;
       const flag2 = facIcons[factions.indexOf(match0.faction_2)];
       const fac2Img = getCachedImage(flag2);
       fac2Img.height = fac2Img.naturalHeight * 0.35;
@@ -5546,7 +5570,7 @@ function setClassImage(usedclass, targetElement, flip, s) {
 
   if (type) {
     const classImage = document.createElement("img");
-    classImage.src = `assets/img/class_${type}.png`;
+    classImage.src = `../assets/img/class_${type}.png`;
     classImage.height = classImage.naturalHeight * s;
     classImage.onload = () => {
       classImage.height = classImage.naturalHeight * s;
@@ -5593,6 +5617,13 @@ function handleURLChange() {
   }
 
 
+// Handle "team" parameter
+const teamStr = params.get("team");
+if (teamStr !== null) {
+    renderTeamDetails(teamStr);
+    return;
+}
+
 // Handle "faction" parameter
 const factionStr = params.get("faction");
 if (factionStr !== null) {
@@ -5622,7 +5653,7 @@ const bracketStr = params.get("bracket");
 if (bracketStr !== null) {
   const body = document.body;
   const bracketId = parseInt(bracketStr, 10);
-  if (bracketId == 1)body.style.backgroundImage = "url('assets/img/mb5.png')";
+  if (bracketId == 1)body.style.backgroundImage = "url('../assets/img/mb5.png')";
   if (!isNaN(bracketId) && tournaments[bracketId]) {
     renderBracketList(tournaments[bracketId]);
     return;
@@ -5671,21 +5702,6 @@ if (scrimStr !== null) {
       return;
     }
   }
-  const gfStr = params.get("gf");
-  if (gfStr !== null) {
-    const gfId = parseInt(gfStr, 10);
-    if (!isNaN(gfId) && groupfights[gfId]) {
-      if (roundStr !== null) {
-        const roundId = parseInt(roundStr, 10);
-        if (!isNaN(roundId) && groupfights[gfId].rounds[roundId] !== undefined) {
-          renderSingleRound(gfId, roundId, 1); // Render the specific round
-          return;
-        }
-      }
-      renderMatchDetails(gfId, 1); // Render the match details
-      return;
-    }
-  }
 
   // Default to rendering the "bracket" tab if no parameters are found
   renderLandingPage("home");
@@ -5724,6 +5740,22 @@ function updateURLToBracket(tournID) {
     renderPlayerDetails(playerID);
   }
 
+  // Update the URL to show team stats
+  function updateURLToTeam(team) {
+    const link = team.toLowerCase().replaceAll(" ", "_").replaceAll("'","");
+    const url = new URL(window.location.href);
+    // Remove scrim and half parameters if present.
+    url.searchParams.delete("scrim");
+    url.searchParams.delete("half");
+    url.searchParams.set("team", link);
+    
+    const baseUrl = window.location.origin + window.location.pathname;
+      //if (!window.history.state || window.history.state.player !== playerID) {
+        window.history.pushState({ team: link }, "", `${baseUrl}?team=${link}`);
+    //}
+    renderTeamDetails(link);
+  }
+
   // Update the URL to show a match view (with optional round view).
   function updateURLToFaction(faction) {
     const link = faction.toLowerCase().replaceAll(" ", "_").replaceAll("'","");
@@ -5751,6 +5783,7 @@ function updateURLToBracket(tournID) {
     url.searchParams.set("map", link);
     
     const baseUrl = window.location.origin + window.location.pathname;
+    console.log(baseUrl)
       //if (!window.history.state || window.history.state.player !== playerID) {
         window.history.pushState({ map: link }, "", `${baseUrl}?map=${link}`);
     //}
@@ -5874,44 +5907,24 @@ function updateURLToBracket(tournID) {
 
   // Fetch matches data and initialize
   let matches = []; // Global storage for matches data
-  let groupfights = []; // Global storage for matches data
-  let practicescrims = []; // Global storage for matches data
-  let teams = [];
+  let nrlteams = [];
   let playerIds = [];
   let playerNames = [];
   Promise.all([
-    fetch('allplayers.json').then(response => {
+    fetch('nrlIDs.json').then(response => {
         if (!response.ok) {
-            throw new Error("Failed to load allplayers.json");
+            throw new Error("Failed to load nrlIDs.json");
         }
         return response.json();
     }),
-    fetch('allmatches.json').then(response => {
+    fetch('nrlmatches.json').then(response => {
         if (!response.ok) {
-            throw new Error("Failed to load allmatches.json");
+            throw new Error("Failed to load nrlmatches.json");
         }
         return response.json();
     }),
-    fetch('groupfights.json').then(response => {
-    //     if (!response.ok) {
-    //         throw new Error("Failed to load groupfights.json");
-    //     }
-    //     return response.json();
-    // }),
-    // fetch('practice.json').then(response => {
-        if (!response.ok) {
-            throw new Error("Failed to load groupfights.json");
-        }
-        return response.json();
-    }),
-    fetch('practice.json').then(response => {
-        if (!response.ok) {
-            throw new Error("Failed to load groupfights.json");
-        }
-        return response.json();
-    })
 ])
-    .then(([allPlayersData, allMatchesData, groupFightsData, practiceScrimsData]) => {
+    .then(([allPlayersData, allMatchesData]) => {
         // Process allPlayers.json
         playerIds = allPlayersData.player_ids;
         playerNames = allPlayersData.player_names;
@@ -5921,23 +5934,48 @@ function updateURLToBracket(tournID) {
             return;
         }
 
+        //set team rosters
+        //foreach player ID 
+        //loop thru all names 
+        //exact match the clan tags before _
+        //set divA and divB rosters
+        for(let x=0; x<teamTags.length; x++){
+          nrlteams.push([]);
+        }
+        
+        playerIds.forEach((id, idx) => {
+          let cont = true;
+          playerNames[idx].forEach((name) => {
+            if (!cont) return; //chzybreak
+            const tag = name.split("_");
+            const tagMatch = teamTags.findIndex(arr => arr.toLowerCase().includes(tag[0].toLowerCase()));
+            if (tagMatch >= 0) {
+              
+              nrlteams[tagMatch].push(id);
+              cont = false;
+            }
+          })
+        })
+
         // Process allmatches.json
         matches = allMatchesData.matches;
-        currentReset[1] = matches.length;
         let numrounds = 0;
         matches.forEach((x) => {
           numrounds += x.rounds.length;
+          // console.log("Debug: Print all unused weapons");
+          // x.rounds.forEach((r) => {
+          //   r.icons.forEach((i, id) => {
+          //     getIco(i, r.weapons[id]);
+          //   });
+          //   r.tkicons.forEach((i, id) => {
+          //     getIco(i, r.tkweapons[id]);
+          //   });
+          // });
         })
         console.log("Total matches:", matches.length, "\n", "Total rounds:", numrounds)
         fillHalfsList();
         
-        fillPickupsList(24);
-        selectedPickup = pickups.length-1;
-
-        // Process groupfights.json
-        groupfights = groupFightsData.matches;
-
-        practicescrims = practiceScrimsData.matches;
+        selectedPickup = 0;
 
         // Call handleURLChange after all data is processed
         handleURLChange();
@@ -6051,10 +6089,10 @@ function calculateTotalStats(match) {
     
     const bgSrc = matches[halfIndices[0]].map.toLowerCase().replaceAll(" ", "_").replaceAll("'","");
     if (bgSrc == -1){
-      body.style.backgroundImage = `url('assets/img/mb2.png')`;
+      body.style.backgroundImage = `url('../assets/img/mb2.png')`;
 
     } else {
-      body.style.backgroundImage = `url('assets/img/bg_${bgSrc}.png')`;
+      body.style.backgroundImage = `url('../assets/img/bg_${bgSrc}.png')`;
 
     }
 
@@ -6162,7 +6200,7 @@ function calculateTotalStats(match) {
 
     const half1Faction1Div = document.createElement("h2");
     // const fac11Img = document.createElement("img");
-    // fac11Img.src = `assets/img/${flag11}.png`;
+    // fac11Img.src = `../assets/img/${flag11}.png`;
     const flag11 = facIcons[factions.indexOf(match1Info.faction_1)];
     const fac11Img = getCachedImage(flag11);
     fac11Img.style.margin = "0px";
@@ -6178,7 +6216,7 @@ function calculateTotalStats(match) {
 
     const half1Faction2Div = document.createElement("h2");
     // const fac12Img = document.createElement("img");
-    // fac12Img.src = `assets/img/${flag12}.png`;
+    // fac12Img.src = `../assets/img/${flag12}.png`;
     const flag12 = facIcons[factions.indexOf(match1Info.faction_2)];
     const fac12Img = getCachedImage(flag12);
     fac12Img.style.margin = "0px";
@@ -6219,7 +6257,7 @@ half2Team0ScoreDiv.textContent = m2team0Score;
 
 const half2Faction1Div = document.createElement("h2");
 // const fac21Img = document.createElement("img");
-// fac21Img.src = `assets/img/${flag21}.png`;
+// fac21Img.src = `../assets/img/${flag21}.png`;
 const flag21 = facIcons[factions.indexOf(match2Info.faction_2)];
 const fac21Img = getCachedImage(flag21);
 fac21Img.style.margin = "0px";
@@ -6235,7 +6273,7 @@ half2MapDiv.textContent = match2Info.map + " Set 2";
 
 const half2Faction2Div = document.createElement("h2");
 // const fac22Img = document.createElement("img");
-// fac22Img.src = `assets/img/${flag22}.png`;
+// fac22Img.src = `../assets/img/${flag22}.png`;
 const flag22 = facIcons[factions.indexOf(match2Info.faction_1)];
 const fac22Img = getCachedImage(flag22);
 fac22Img.style.margin = "0px";
