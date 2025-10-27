@@ -2145,7 +2145,7 @@ function fillHalfsList() {
 }
 
 
-let pickups = [[0,7]];
+let pickups = [[0,7],[8,15]];
 let selectedPickup;
 
 
@@ -2157,11 +2157,11 @@ const NRLbracket = [
       ["Swann", "Zwierzyniec", 12, 3, 0],
       ["ReV", "THC", 12, 1, -1],
       //week 2
-      ["FP", "Captain", "?", "?", -1],
-      ["Stark", "Vagos", "?", "?", -1],
-      ["WWCD", "Swann", "?", "?", -1],
+      ["FP", "Captain", 12, 3, 7],
+      ["Stark", "Vagos", 0, 12, 5],
+      ["WWCD", "Swann", 7, 9, 4],
       ["Zwierzyniec", "THC", "?", "?", -1],
-      ["ReV", "MiLF", "?", "?", -1],
+      ["ReV", "MiLF", 12, 4, 6],
       //week 3
       ["Captain", "Stark", "?", "?", -1],
       ["Vagos", "Menace", "?", "?", -1],
@@ -2187,8 +2187,8 @@ const fixtures = [
   ["Beairteas", "Kingdom of Swadia", "Kingdom of Rhodoks", "Castellum", "Sarranid Sultanate", "Kingdom of Nords"],
   ["Fort of Honour", "Kingdom of Vaegirs", "Kingdom of Swadia", "Frosthaven", "Kingdom of Rhodoks", "Sarranid Sultanate"],
   ["San'di'boush", "Kingdom of Nords", "Kingdom of Vaegirs", "Reveran Village", "Kingdom of Swadia", "Kingdom of Rhodoks"],
-  ["Verloren","Sarranid Sultanate",  "Kingdom of Swadia", "River Village", "Kingdom of Nords", "Kingdom of Vaegirs"],
-  ["Legacy Town", "Kingdom of Rhodoks", "Sarranid Sultanate", "Waterfall", "Kingdom of Nords", "Kingdom of Vaegirs"],
+  ["Verloren", "Kingdom of Nords", "Kingdom of Swadia", "River Village", "Sarranid Sultanate", "Kingdom of Vaegirs"],
+  ["Legacy Town", "Kingdom of Nords", "Sarranid Sultanate", "Waterfall", "Kingdom of Rhodoks", "Kingdom of Vaegirs"],
 ]
 
 //half1, half2, bSwap
@@ -2197,7 +2197,12 @@ const scrims = [
   [2,3,0],
   [4,5,0],
   [6,7,0],
-  
+  //week 2 
+  [8,9,0],
+  [10,11,1],
+  [12,13,0],
+  [14,15,0],
+  [16,17,0],
 ];
 
 // Define the tabs. By default "scrims" is active.
@@ -4022,35 +4027,39 @@ function renderPlayersList(s1=0, s2=matches.length, title="ALL PLAYERS", contain
     filterTourney = 0;
     // console.log(window.history.state.map)
     filterMap = window.history.state.map;
-    if(title.length > 0){
+    if(title.length > 0 ){
       const statsTitleCont = document.createElement("div");
       statsTitleCont.style.display = "flex";
       statsTitleCont.style.alignItems = "center";
       statsTitleCont.style.gap = "5px";
-
-      const statsTitleChangeL = document.createElement("img");
-      statsTitleChangeL.src = '../assets/img/change_button.png';
-      statsTitleChangeL.style.transform = "scaleX(-1)";
-      statsTitleChangeL.style.cursor = "pointer";
-      statsTitleCont.appendChild(statsTitleChangeL);
-      statsTitleChangeL.onclick = () => {
-        filterDiv--;
-        if (filterDiv < 0) filterDiv = 2;
-        renderPlayersList(0, matches.length, curDiv[filterDiv], container);
+      if(!title.includes("Week")){
+        const statsTitleChangeL = document.createElement("img");
+        statsTitleChangeL.src = '../assets/img/change_button.png';
+        statsTitleChangeL.style.transform = "scaleX(-1)";
+        statsTitleChangeL.style.cursor = "pointer";
+        statsTitleCont.appendChild(statsTitleChangeL);
+        statsTitleChangeL.onclick = () => {
+          filterDiv--;
+          if (filterDiv < 0) filterDiv = 2;
+          renderPlayersList(0, matches.length, curDiv[filterDiv], container);
+        }
+        
       }
-      
+        
       const statsTitle = document.createElement("h2");
       statsTitle.textContent = title;
       statsTitleCont.appendChild(statsTitle);
 
-      const statsTitleChangeR = document.createElement("img");
-      statsTitleChangeR.src = '../assets/img/change_button.png';
-      statsTitleChangeR.style.cursor = "pointer";
-      statsTitleCont.appendChild(statsTitleChangeR);
-      statsTitleChangeR.onclick = () => {
-        filterDiv++;
-        if (filterDiv > 2) filterDiv = 0;
-        renderPlayersList(0, matches.length, curDiv[filterDiv], container);
+      if(!title.includes("Week")){
+        const statsTitleChangeR = document.createElement("img");
+        statsTitleChangeR.src = '../assets/img/change_button.png';
+        statsTitleChangeR.style.cursor = "pointer";
+        statsTitleCont.appendChild(statsTitleChangeR);
+        statsTitleChangeR.onclick = () => {
+          filterDiv++;
+          if (filterDiv > 2) filterDiv = 0;
+          renderPlayersList(0, matches.length, curDiv[filterDiv], container);
+        }
       }
         
 
@@ -5979,7 +5988,7 @@ function updateURLToBracket(tournID) {
         console.log("Total matches:", matches.length, "\n", "Total rounds:", numrounds)
         fillHalfsList();
         
-        selectedPickup = 0;
+        selectedPickup = pickups.length - 1;
 
         // Call handleURLChange after all data is processed
         handleURLChange();
