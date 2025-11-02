@@ -152,9 +152,13 @@
         "5279700",
         "4416319",
         "1182817",
-        "3847220"
+        "3847220",
+        "1410769",
+        "3972867",
+        "5261386",
+        "4140520"
     ],
-    "number_of_players": 153,
+    "number_of_players": 157,
     "player_names": [
         [
             "Zwierzyniec_Szeki",
@@ -339,7 +343,8 @@
             "Vagos_GetRight",
             "[Vagos]Weskerr",
             "[Vagos]MelkoR",
-            "OIDA_Weskerr"
+            "OIDA_Weskerr",
+            "GottenGiRenn"
         ],
         [
             "Captain_Thorr"
@@ -524,10 +529,12 @@
         ],
         [
             "WWCD_Tristan",
-            "Tristan"
+            "Tristan",
+            "big_T"
         ],
         [
-            "wwcd_ducreux"
+            "wwcd_ducreux",
+            "WWCD_ducreux"
         ],
         [
             "WWCD_vahsi",
@@ -552,7 +559,8 @@
             "ReV_Nicolas"
         ],
         [
-            "ReV_joga_bonito"
+            "ReV_joga_bonito",
+            "ReV_wujek_kujek"
         ],
         [
             "Swann_Ri0T"
@@ -573,7 +581,8 @@
             "Noiracsa"
         ],
         [
-            "swann_kedrick"
+            "swann_kedrick",
+            "swann_cedrick"
         ],
         [
             "love"
@@ -721,6 +730,19 @@
         ],
         [
             "Swann_Clogs"
+        ],
+        [
+            "THC_krex"
+        ],
+        [
+            "R3ad"
+        ],
+        [
+            "wWcD_bROWNmILK"
+        ],
+        [
+            "Rev_Kimono",
+            "ReV_Kimono"
         ]
     ]
 }
