@@ -125,7 +125,7 @@ weaponIcons = [
 
 weaponTypes = [
   // "ico_axeone",
-  ["One Handed War Axe", "Iron War Axe", "One Handed Axe"],
+  ["One Handed War Axe", "Iron War Axe", "One Handed Axe", "One Handed Battle Axe"],
   // "ico_axethrow",
   [],
   // "ico_axetwo", 
@@ -147,7 +147,7 @@ weaponTypes = [
   // "ico_punch", 
   [],
   // "ico_spear", 
-  ["Heavy Lance","Bamboo Spear","Long Awlpike","War Spear","Awlpike","Light Lance", "Lance",],
+  ["Heavy Lance","Bamboo Spear","Long Awlpike","War Spear","Awlpike","Light Lance", "Lance", "Pike"],
   // "ico_swordone", 
   ["Sword", "Arming Sword", "Soldier's Cleaver", "Nordic Sword", "Nordic Short Sword", "Military Cleaver","Scimitar","Sarranid Sword",],
   // "ico_swordtwo"
@@ -1219,7 +1219,7 @@ function getWinner(result){
   }
 
   // The original function to render full match details (aggregated over rounds).
-  function renderMatchDetails(matchID, gf) {
+  function renderMatchDetails(matchID) {
     let match = matches[matchID];
     const contentDiv = document.getElementById("content");
     contentDiv.classList.remove("landing");
@@ -1315,8 +1315,7 @@ function getWinner(result){
     half1Row.className = "selectable";
     half1Row.style.cursor = "pointer";
     half1Row.onclick = () => {
-      if (gf == 1) updateURLToGFMatch(matchID, 0);
-      else updateURLToMatch(matchID, 0);
+      updateURLToMatch(matchID, 0);
     };
 
     half1Row.appendChild(half1Faction1Div);
@@ -1340,7 +1339,7 @@ function getWinner(result){
   }
 
   // New function: renderSingleRound displays match info and stats for one round only.
-  function renderSingleRound(matchID, roundIndex, gf) {
+  function renderSingleRound(matchID, roundIndex) {
     const match = matches[matchID];
     const round = match.rounds[roundIndex];
     const contentDiv = document.getElementById("content");
@@ -1615,11 +1614,9 @@ if (roundIndex === 0) {
     half1Row.style.cursor = "pointer";
     half1Row.onclick = () => {
       if (roundIndex + 1 < match.rounds.length) {
-        if (gf) updateURLToGFMatch(matchID, roundIndex + 1);
-        else updateURLToMatch(matchID, roundIndex + 1);// Render the next round
+        updateURLToMatch(matchID, roundIndex + 1);// Render the next round
       } else {
-        if (gf) updateURLToGFMatch(matchID);
-        else updateURLToMatch(matchID); // Return to match details if it's the last round
+        updateURLToMatch(matchID); // Return to match details if it's the last round
       }
     }
     const half1Faction1Div = document.createElement("h2");
@@ -2145,7 +2142,7 @@ function fillHalfsList() {
 }
 
 
-let pickups = [[0,7],[8,17],[18,19]];
+let pickups = [[0,7],[8,17],[18,23]];
 let selectedPickup;
 
 
@@ -2163,11 +2160,11 @@ const NRLbracket = [
       ["Zwierzyniec", "THC", 9, 6, 8],
       ["ReV", "MiLF", 12, 4, 6],
       //week 3
-      ["Captain", "Stark", "?", "?", -1],
+      ["Captain", "Stark", 7, 9, 11],
       ["Vagos", "Menace", 10, 3, 9],
       ["ReV", "WWCD", "?", "?", -1],
       ["Swann", "THC", "?", "?", -1],
-      ["Zwierzyniec", "MiLF", "?", "?", -1],
+      ["Zwierzyniec", "MiLF", 7, 8, 10],
       //week 4
       ["Menace", "Stark", "?", "?", -1],
       ["Vagos", "FP", "?", "?", -1],
@@ -2205,6 +2202,8 @@ const scrims = [
   [16,17,0],
   //week 3
   [18,19,1],
+  [20,21,0],
+  [22,23,1],
 ];
 
 // Define the tabs. By default "scrims" is active.
@@ -2787,10 +2786,7 @@ roundStructure.forEach((matchesInThisRound, loop) => {
         }
 
         box.addEventListener("click", () => {
-            const params = new URLSearchParams(window.location.search);
-            const bracketStr = params.get("bracket");
-            if (bracketStr == 1 && scrimID >= 0) updateURLToGFMatch(scrimID);
-            else if (scrimID >= 0) updateURLToScrim(scrimID);
+          if (scrimID >= 0) updateURLToScrim(scrimID);
         });
 
         // Team 1 row
@@ -5804,32 +5800,8 @@ function updateURLToBracket(tournID) {
     renderMapDetails(link);
   }
 
-  // Update the URL to show a match view (with optional round view).
-  function updateURLToGFMatch(matchId, roundId) {
-    const url = new URL(window.location.href);
-    // Remove scrim and half parameters if present.
-    url.searchParams.delete("scrim");
-    url.searchParams.delete("half");
-    url.searchParams.delete("match");
-    url.searchParams.set("gf", matchId);
-    if (roundId !== undefined) {
-      url.searchParams.set("round", roundId);
-    } else {
-      url.searchParams.delete("round");
-    } 
-    
-    const baseUrl = window.location.origin + window.location.pathname;
-
-    if (roundId !== undefined) {
-      renderSingleRound(matchId, roundId, 1);
-      //window.history.pushState({ match: matchId }, "", `${baseUrl}?match=${matchId}&round=${roundId}`);
-    } else {
-      renderMatchDetails(matchId, 1);
-      if (!window.history.state || window.history.state.match !== matchId) {
-        window.history.pushState({ gf: matchId }, "", `${baseUrl}?gf=${matchId}`);
-      }
-    }
-  }
+  
+  
   // Update the URL to show a match view (with optional round view).
   function updateURLToMatch(matchId, roundId) {
     const url = new URL(window.location.href);
@@ -5849,11 +5821,8 @@ function updateURLToBracket(tournID) {
       renderSingleRound(matchId, roundId, 0);
       //window.history.pushState({ match: matchId }, "", `${baseUrl}?match=${matchId}&round=${roundId}`);
     } else {
-        if(window.history.state.tab === "scrims") {
-          renderMatchDetails(matchId, 2);
-        } else {
-          renderMatchDetails(matchId, 0);
-        }
+        renderMatchDetails(matchId, 0);
+    
       if (!window.history.state || window.history.state.match !== matchId) {
         window.history.pushState({ match: matchId }, "", `${baseUrl}?match=${matchId}`);
       }
@@ -5869,7 +5838,7 @@ function updateURLToBracket(tournID) {
     url.searchParams.delete("round");
     url.searchParams.set("half", halfId);
     
-    if(halfs[halfId][1] === -1 || halfs[halfId][1] === 43) {
+    if(halfs[halfId][1] === -1) {
 
       //history.replaceState(null, document.title, window.location.href);
       updateURLToMatch(halfs[halfId][0]);
