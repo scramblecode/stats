@@ -2282,11 +2282,12 @@ const pickupSeason6 = [1188, 1329, "AUGUST"];
 
 const pickupSeason7 = [1330, 1529, "SEPTEMBER"];
 
+const pickupSeason8 = [1530, 1692, "OCTOBER"];
 //ongoing season -- move to the fetch response to automate
-const currentSeason = [1530, 1529, "OCTOBER"];
+const currentSeason = [1693, 1692, "NOVEMBER"];
 
 //pickup "seasons" (monthly aggregate)
-const pickupSeasons = [pickupSeason1, pickupSeason2, pickupSeason3, pickupSeason4, pickupSeason5, pickupSeason6, pickupSeason7, currentSeason];
+const pickupSeasons = [pickupSeason1, pickupSeason2, pickupSeason3, pickupSeason4, pickupSeason5, pickupSeason6, pickupSeason7, pickupSeason8, currentSeason];
 
 //3-month score resets ? by community request
 //first one includes the few March pickups
@@ -2295,7 +2296,7 @@ const pickupReset1 = [0, pickupSeason4[1], "SEASON ONE"];
 //Jul-Aug-Sep
 const pickupReset2 = [pickupSeason5[0], pickupSeason7[1], "SEASON TWO"];
 //Oct-Nov-Dec
-const currentReset = [currentSeason[0], 1552, "SEASON THREE"];
+const currentReset = [pickupSeason8[0], 1552, "SEASON THREE"];
 
 const statResets = [pickupReset1, pickupReset2, currentReset];
 
