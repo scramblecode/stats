@@ -2177,6 +2177,11 @@ const NRLbracket = [
       ["THC", "WWCD", 4, 12, 22],
       ["Zwierzyniec", "ReV", 4, 12, 23],
       ["Swann", "MiLF", 10, 4, 20],
+      //semis
+      ["Vagos", "Stark", 12, 3, 24],
+      ["ReV", "WWCD", 6, 8, 25],
+      ["MiLF", "Swann", 6, 9, 26],
+      ["Captain", "FP", 10, 4, 27],
     ];
 const tournaments = [NRLbracket];
 
@@ -2186,7 +2191,12 @@ const fixtures = [
   ["San'di'boush", "Kingdom of Nords", "Kingdom of Vaegirs", "Reveran Village", "Kingdom of Swadia", "Kingdom of Rhodoks"],
   ["Verloren", "Kingdom of Nords", "Kingdom of Swadia", "River Village", "Sarranid Sultanate", "Kingdom of Vaegirs"],
   ["Legacy Town", "Kingdom of Nords", "Sarranid Sultanate", "Waterfall", "Kingdom of Rhodoks", "Kingdom of Vaegirs"],
-]
+  //semis
+  ["Legacy Town", "Kingdom of Nords", "Kingdom of Rhodoks", "San'di'boush", "Kingdom of Swadia", "Kingdom of Vaegirs"],
+  ["Reveran Village", "Kingdom of Nords", "Kingdom of Rhodoks", "Legacy Town", "Kingdom of Swadia", "Kingdom of Vaegirs"],
+  ["Castellum", "Kingdom of Nords", "Kingdom of Rhodoks", "Fort of Honour", "Kingdom of Swadia", "Kingdom of Vaegirs"],
+  ["Legacy Town", "Kingdom of Nords", "Kingdom of Rhodoks", "Frosthaven", "Kingdom of Swadia", "Kingdom of Vaegirs"],
+ ]
 
 //half1, half2, bSwap
 const scrims = [
@@ -2218,6 +2228,11 @@ const scrims = [
   [42,43,0],
   [44,45,1],
   [46,47,0],
+  //semis
+  [48,49,0],
+  [50,51,1],
+  [52,53,0],
+  [54,55,1],
 ];
 
 // Define the tabs. By default "scrims" is active.
@@ -2583,7 +2598,7 @@ container.style.justifyContent = "center";
 container.style.flexDirection = "column"; // Render rounds separately
 
 // Define structure using powers of 2 (for pyramid layout)
-const roundStructure = [5,5,5,5,5];
+const roundStructure = [5,5,5,5,5,1,1,1,1];
 let matchesInRound = 1;
 // while (matchesInRound <= reversedBracket.length) {
 //     roundStructure.push(matchesInRound);
@@ -2601,7 +2616,9 @@ roundStructure.forEach((matchesInThisRound, loop) => {
     title.style.justifyContent = "center";
     title.style.marginBottom = "20px";
     title.textContent= `WEEK ${loop + 1}`;
-    container.appendChild(title);
+    //todo: finals
+    if (loop == 5) title.textContent= `SEMI FINALS`;
+    if (loop < 5 || loop == 5)container.appendChild(title);
     const fixturesCont = document.createElement("div");
     fixturesCont.style.display = "flex";
     fixturesCont.style.justifyContent = "center";
