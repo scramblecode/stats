@@ -2142,7 +2142,7 @@ function fillHalfsList() {
 }
 
  
-let pickups = [[0,7],[8,17],[18,27],[28,37],[38,47]];
+let pickups = [[0,7],[8,17],[18,27],[28,37],[38,47],[48,55],[56,59]];
 let selectedPickup;
 
 
@@ -2182,6 +2182,9 @@ const NRLbracket = [
       ["ReV", "WWCD", 6, 8, 25],
       ["MiLF", "Swann", 6, 9, 26],
       ["Captain", "FP", 10, 4, 27],
+      //finals
+      ["Swann", "WWCD", 1, 9, 28],
+      ["Captain", "Vagos", 3, 9, 29],
     ];
 const tournaments = [NRLbracket];
 
@@ -2196,6 +2199,9 @@ const fixtures = [
   ["Reveran Village", "Kingdom of Nords", "Kingdom of Rhodoks", "Legacy Town", "Kingdom of Swadia", "Kingdom of Vaegirs"],
   ["Castellum", "Kingdom of Nords", "Kingdom of Rhodoks", "Fort of Honour", "Kingdom of Swadia", "Kingdom of Vaegirs"],
   ["Legacy Town", "Kingdom of Nords", "Kingdom of Rhodoks", "Frosthaven", "Kingdom of Swadia", "Kingdom of Vaegirs"],
+  //finals
+  ["Verloren", "Kingdom of Swadia", "Kingdom of Rhodoks", "River Village", "Kingdom of Vaegirs", "Sarranid Sultanate"],
+  ["Beairteas", "Kingdom of Swadia", "Kingdom of Rhodoks", "Legacy Town", "Kingdom of Vaegirs", "Sarranid Sultanate"],
  ]
 
 //half1, half2, bSwap
@@ -2233,6 +2239,9 @@ const scrims = [
   [50,51,1],
   [52,53,0],
   [54,55,1],
+  //finals
+  [56,57,1],
+  [58,59,0],
 ];
 
 // Define the tabs. By default "scrims" is active.
@@ -2598,7 +2607,7 @@ container.style.justifyContent = "center";
 container.style.flexDirection = "column"; // Render rounds separately
 
 // Define structure using powers of 2 (for pyramid layout)
-const roundStructure = [5,5,5,5,5,1,1,1,1];
+const roundStructure = [5,5,5,5,5,1,1,1,1,1,1];
 let matchesInRound = 1;
 // while (matchesInRound <= reversedBracket.length) {
 //     roundStructure.push(matchesInRound);
@@ -2616,9 +2625,9 @@ roundStructure.forEach((matchesInThisRound, loop) => {
     title.style.justifyContent = "center";
     title.style.marginBottom = "20px";
     title.textContent= `WEEK ${loop + 1}`;
-    //todo: finals
     if (loop == 5) title.textContent= `SEMI FINALS`;
-    if (loop < 5 || loop == 5)container.appendChild(title);
+    if (loop == 9) title.textContent= `FINALS`;
+    if (loop < 5 || loop == 5 || loop == 9)container.appendChild(title);
     const fixturesCont = document.createElement("div");
     fixturesCont.style.display = "flex";
     fixturesCont.style.justifyContent = "center";
@@ -5167,7 +5176,9 @@ function renderPickupList() {
   for (let i = pickups.length - 1; i >= 0; i--) {
     const pickup = pickups[i]; // pickup is [firstMatch, lastMatch] (lastMatch is inclusive)
     const tile = document.createElement("h1");
-    tile.textContent = `Week #${i + 1}`;
+    tile.textContent = `WEEK #${i + 1}`;
+    if(i==5) tile.textContent = `SEMI-FINALS`;
+    if(i==6) tile.textContent = `FINALS`;
     tile.className = "selectable";
     tile.style.cursor = "pointer";
     tile.style.margin = "0px";
@@ -5259,7 +5270,7 @@ function renderPickupList() {
     });
   }
 }
-
+const nullMatch = {map: "", score: "0 - 0", rounds: []}
 //
 function renderHalfList(halves, container) {
   //const container = document.getElementById("tab-content");
@@ -5279,7 +5290,7 @@ function renderHalfList(halves, container) {
 
     // Extract matches for the half
     const match0 = matches[half[0]]; // First match in the half
-    const match1 = matches[half[1]]; // Second match in the half
+    const match1 = half[1] == -1 ? nullMatch : matches[half[1]]; // Second match in the half
 
     // Create a container for the half
     const halfDiv = document.createElement("div");
