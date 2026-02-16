@@ -5873,9 +5873,9 @@ function updateURLToBracket(tournID) {
   let playerIds = [];
   let playerNames = [];
   Promise.all([
-    fetch('nrlIDs.json').then(response => {
+    fetch('nrlids.json').then(response => {
         if (!response.ok) {
-            throw new Error("Failed to load nrlIDs.json");
+            throw new Error("Failed to load nrlids.json");
         }
         return response.json();
     }),
