@@ -5122,334 +5122,224 @@
             "map": "Frosthaven",
             "faction_1": "Kingdom of Rhodoks",
             "faction_2": "Sarranid Sultanate",
-            "start_time": "23:04:02",
+            "start_time": "23:08:38",
             "score": "0 - 3 (0 draws)",
-            "end_time": "23:07:12",
+            "end_time": "23:17:09",
             "rounds": [
                 {
                     "flag_time": [
-                        "23:04:51"
+                        "23:09:21"
                     ],
-                    "teamkilled": [
-                        "Zwierz_philip",
-                        "UniTeD_Apollon"
-                    ],
-                    "deaths": [
-                        "Zwierz_philip",
-                        "Zwierz_zakzak",
-                        "UniTeD_Apollon",
-                        "Zwierz_Papsad"
-                    ],
-                    "start_time": "23:04:02",
-                    "tkweapons": [
-                        "Sledgehammer",
-                        "Nomad Bow"
-                    ],
-                    "death_times": [
-                        "23:04:23",
-                        "23:05:05",
-                        "23:05:10",
-                        "23:05:10"
-                    ],
-                    "dmg": [
-                        0,
-                        0,
-                        0,
-                        18,
-                        0,
-                        15,
-                        0,
-                        96,
-                        0
-                    ],
-                    "result": "Team 1 win.",
-                    "kills": [
-                        "united_capital",
-                        "united_capital"
-                    ],
-                    "teamkills": [
-                        "Zwierz_zakzak",
-                        "United_Ottoman"
-                    ],
-                    "icons": [
-                        "Lance",
-                        "Lance"
-                    ],
-                    "tdmg": [
-                        0,
-                        0,
-                        0,
-                        54,
-                        0,
-                        0,
-                        58,
-                        0,
-                        0
-                    ],
-                    "teams": [
-                        0,
-                        1,
-                        1,
-                        0,
-                        0,
-                        1,
-                        1,
-                        1,
-                        1
-                    ],
-                    "weapons": [
-                        "Sledgehammer",
-                        "Lance",
-                        "Nomad Bow",
-                        "Lance"
-                    ],
-                    "players": [
-                        "Zwierz_Papsad",
-                        "United_Lykia",
-                        "UniTeD_Apollon",
-                        "Zwierz_zakzak",
-                        "Zwierz_philip",
-                        "United_Powder",
-                        "United_Ottoman",
-                        "united_capital",
-                        "United_Vahshy"
-                    ],
-                    "classes": [
-                        "Rhodok Horseman",
-                        "Sarranid Mamluke",
-                        "Sarranid Archer",
-                        "Rhodok Crossbowman",
-                        "Rhodok Crossbowman",
-                        "Sarranid Mamluke",
-                        "Sarranid Archer",
-                        "Sarranid Mamluke",
-                        "Sarranid Mamluke"
-                    ],
-                    "tkicons": [
-                        "Sledgehammer",
-                        "Barbed Arrows,hb_thorax"
-                    ],
-                    "end_time": "23:05:10",
-                    "assists": [
-                        0,
-                        0,
-                        0,
-                        0,
-                        0,
-                        0,
-                        0,
-                        0,
-                        0
-                    ]
-                },
-                {
-                    "flag_time": [
-                        "23:05:59"
-                    ],
-                    "teamkilled": [
-                        "Zwierz_zakzak",
-                        "UniTeD_Apollon"
-                    ],
+                    "teamkilled": [],
                     "deaths": [
                         "Zwierz_zakzak",
-                        "Zwierz_philip",
-                        "Zwierz_Szeki",
-                        "United_Lykia",
-                        "UniTeD_Apollon",
-                        "Zwierz_Halu",
-                        "Zwierz_Papsad"
-                    ],
-                    "start_time": "23:05:18",
-                    "tkweapons": [
-                        "Heavy Crossbow",
-                        "Nomad Bow"
-                    ],
-                    "death_times": [
-                        "23:05:24",
-                        "23:05:49",
-                        "23:05:50",
-                        "23:05:53",
-                        "23:06:09",
-                        "23:06:11",
-                        "23:06:22"
-                    ],
-                    "dmg": [
-                        0,
-                        56,
-                        0,
-                        98,
-                        11,
-                        57,
-                        0,
-                        0,
-                        26,
-                        0,
-                        0
-                    ],
-                    "result": "Team 1 win.",
-                    "kills": [
-                        "United_Powder",
-                        "United_Lykia",
-                        "Zwierz_Papsad",
-                        "United_Vahshy",
-                        "United_Ottoman"
-                    ],
-                    "teamkills": [
-                        "Zwierz_philip",
-                        "United_Ottoman"
-                    ],
-                    "icons": [
-                        "ico_couchedlance",
-                        "Lance",
-                        "Light Lance",
-                        "Lance",
-                        "Barbed Arrows,hb_head"
-                    ],
-                    "tdmg": [
-                        44,
-                        0,
-                        88,
-                        0,
-                        77,
-                        0,
-                        0,
-                        0,
-                        0,
-                        0,
-                        0
-                    ],
-                    "teams": [
-                        1,
-                        0,
-                        0,
-                        1,
-                        1,
-                        1,
-                        0,
-                        0,
-                        1,
-                        1,
-                        0
-                    ],
-                    "weapons": [
-                        "Heavy Crossbow",
-                        "Lance",
-                        "Lance",
-                        "Light Lance",
-                        "Nomad Bow",
-                        "Lance",
-                        "Nomad Bow"
-                    ],
-                    "players": [
-                        "UniTeD_Apollon",
-                        "Zwierz_Papsad",
-                        "Zwierz_philip",
-                        "United_Powder",
-                        "United_Ottoman",
-                        "United_Vahshy",
-                        "Zwierz_Szeki",
-                        "Zwierz_zakzak",
-                        "United_Lykia",
                         "united_capital",
+                        "Zwierz_Szeki",
+                        "United_Ottoman",
+                        "Zwierz_Papsad",
+                        "Zwierz_philip",
+                        "ZWIERZ_Mati",
                         "Zwierz_Halu"
                     ],
+                    "start_time": "23:08:38",
+                    "tkweapons": [],
+                    "death_times": [
+                        "23:10:12",
+                        "23:10:26",
+                        "23:10:27",
+                        "23:10:39",
+                        "23:10:39",
+                        "23:10:44",
+                        "23:10:45",
+                        "23:10:52"
+                    ],
+                    "dmg": [
+                        68,
+                        82,
+                        142,
+                        90,
+                        55,
+                        23,
+                        33,
+                        0,
+                        0,
+                        20,
+                        0,
+                        0
+                    ],
+                    "result": "Team 1 win.",
+                    "kills": [
+                        "United_Powder",
+                        "Zwierz_Papsad",
+                        "United_Powder",
+                        "Zwierz_Papsad",
+                        "United_Lykia",
+                        "United_Vahshy",
+                        "United_Lykia",
+                        "UniTeD_Apollon"
+                    ],
+                    "teamkills": [],
+                    "icons": [
+                        "ico_couchedlance",
+                        "Light Lance",
+                        "ico_couchedlance",
+                        "Light Lance",
+                        "Lance",
+                        "Lance",
+                        "Lance",
+                        "Barbed Arrows,hb_thigh_r"
+                    ],
+                    "tdmg": [
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0
+                    ],
+                    "teams": [
+                        0,
+                        1,
+                        1,
+                        0,
+                        1,
+                        1,
+                        1,
+                        0,
+                        1,
+                        0,
+                        0,
+                        0
+                    ],
+                    "weapons": [
+                        "Lance",
+                        "Light Lance",
+                        "Lance",
+                        "Light Lance",
+                        "Lance",
+                        "Lance",
+                        "Lance",
+                        "Nomad Bow"
+                    ],
+                    "players": [
+                        "Zwierz_Halu",
+                        "UniTeD_Apollon",
+                        "United_Powder",
+                        "Zwierz_Papsad",
+                        "United_Lykia",
+                        "United_Ottoman",
+                        "United_Vahshy",
+                        "Zwierz_Szeki",
+                        "united_capital",
+                        "ZWIERZ_Mati",
+                        "Zwierz_zakzak",
+                        "Zwierz_philip"
+                    ],
                     "classes": [
-                        "Sarranid Archer",
-                        "Rhodok Horseman",
                         "Rhodok Crossbowman",
+                        "Sarranid Archer",
+                        "Sarranid Mamluke",
+                        "Rhodok Horseman",
                         "Sarranid Mamluke",
                         "Sarranid Archer",
                         "Sarranid Mamluke",
                         "Rhodok Sergeant",
-                        "Rhodok Crossbowman",
-                        "Sarranid Mamluke",
                         "Sarranid Footman",
-                        "Rhodok Crossbowman"
+                        "Rhodok Horseman",
+                        "Rhodok Crossbowman",
+                        "Rhodok Horseman"
                     ],
-                    "tkicons": [
-                        "Bolts,hb_head",
-                        "Barbed Arrows,hb_spine"
-                    ],
-                    "end_time": "23:06:22",
+                    "tkicons": [],
+                    "end_time": "23:10:52",
                     "assists": [
                         0,
+                        1,
+                        1,
                         0,
                         0,
                         1,
                         0,
+                        0,
+                        0,
                         1,
-                        0,
-                        0,
-                        0,
                         0,
                         0
                     ]
                 },
                 {
-                    "flag_time": [],
-                    "teamkilled": [
-                        "Zwierz_zakzak",
-                        "Zwierz_Szeki"
+                    "flag_time": [
+                        "23:11:40"
                     ],
+                    "teamkilled": [],
                     "deaths": [
-                        "Zwierz_zakzak",
                         "Zwierz_Szeki",
                         "Zwierz_philip",
-                        "United_Lykia",
+                        "Zwierz_zakzak",
+                        "UniTeD_Apollon",
                         "Zwierz_Papsad",
-                        "Zwierz_Halu"
+                        "Zwierz_Halu",
+                        "ZWIERZ_Mati"
                     ],
-                    "start_time": "23:06:31",
-                    "tkweapons": [
-                        "Heavy Crossbow",
-                        "Heavy Crossbow"
-                    ],
+                    "start_time": "23:11:00",
+                    "tkweapons": [],
                     "death_times": [
-                        "23:06:38",
-                        "23:06:43",
-                        "23:06:53",
-                        "23:06:53",
-                        "23:06:57",
-                        "23:07:05"
+                        "23:13:14",
+                        "23:13:15",
+                        "23:13:23",
+                        "23:13:38",
+                        "23:13:39",
+                        "23:13:48",
+                        "23:13:56"
                     ],
                     "dmg": [
-                        34,
-                        0,
-                        0,
-                        22,
-                        102,
-                        0,
-                        64,
+                        59,
+                        53,
                         0,
                         0,
                         0,
-                        0
+                        33,
+                        0,
+                        49,
+                        39,
+                        0,
+                        180,
+                        55
                     ],
                     "result": "Team 1 win.",
                     "kills": [
+                        "united_capital",
                         "United_Powder",
-                        "Zwierz_Halu",
-                        "United_Vahshy",
-                        "United_Vahshy"
+                        "United_Powder",
+                        "Zwierz_Papsad",
+                        "United_Lykia",
+                        "united_capital",
+                        "United_Powder"
                     ],
-                    "teamkills": [
-                        "Zwierz_philip",
-                        "Zwierz_philip"
-                    ],
+                    "teamkills": [],
                     "icons": [
+                        "Scimitar",
                         "ico_couchedlance",
-                        "Bolts,hb_head",
+                        "ico_couchedlance",
+                        "Sword",
                         "Lance",
+                        "Scimitar",
                         "Lance"
                     ],
                     "tdmg": [
                         0,
-                        49,
+                        4,
+                        16,
                         0,
-                        114,
                         0,
-                        8,
                         0,
+                        0,
+                        23,
                         0,
                         0,
                         0,
@@ -5458,35 +5348,161 @@
                     "teams": [
                         0,
                         1,
-                        0,
-                        0,
-                        1,
-                        1,
                         1,
                         0,
                         0,
+                        0,
+                        0,
+                        1,
+                        0,
+                        1,
                         1,
                         1
                     ],
                     "weapons": [
-                        "Heavy Crossbow",
-                        "Heavy Crossbow",
+                        "Scimitar",
                         "Lance",
-                        "Siege Crossbow",
                         "Lance",
+                        "Sword",
+                        "Lance",
+                        "Scimitar",
                         "Lance"
                     ],
                     "players": [
                         "Zwierz_Halu",
                         "UniTeD_Apollon",
-                        "Zwierz_Papsad",
-                        "Zwierz_philip",
-                        "United_Powder",
                         "United_Ottoman",
-                        "United_Vahshy",
                         "Zwierz_Szeki",
                         "Zwierz_zakzak",
+                        "ZWIERZ_Mati",
+                        "Zwierz_philip",
                         "united_capital",
+                        "Zwierz_Papsad",
+                        "United_Vahshy",
+                        "United_Powder",
+                        "United_Lykia"
+                    ],
+                    "classes": [
+                        "Rhodok Crossbowman",
+                        "Sarranid Archer",
+                        "Sarranid Archer",
+                        "Rhodok Sergeant",
+                        "Rhodok Crossbowman",
+                        "Rhodok Horseman",
+                        "Rhodok Horseman",
+                        "Sarranid Footman",
+                        "Rhodok Horseman",
+                        "Sarranid Mamluke",
+                        "Sarranid Mamluke",
+                        "Sarranid Mamluke"
+                    ],
+                    "tkicons": [],
+                    "end_time": "23:13:56",
+                    "assists": [
+                        1,
+                        1,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        1,
+                        1
+                    ]
+                },
+                {
+                    "flag_time": [
+                        "23:14:44"
+                    ],
+                    "teamkilled": [],
+                    "deaths": [
+                        "Zwierz_Szeki",
+                        "ZWIERZ_Mati",
+                        "Zwierz_philip",
+                        "Zwierz_Papsad",
+                        "United_Powder",
+                        "united_capital",
+                        "Zwierz_Halu",
+                        "United_Lykia",
+                        "Zwierz_zakzak"
+                    ],
+                    "start_time": "23:14:04",
+                    "tkweapons": [],
+                    "death_times": [
+                        "23:15:43",
+                        "23:15:46",
+                        "23:15:48",
+                        "23:16:02",
+                        "23:16:04",
+                        "23:16:22",
+                        "23:16:49",
+                        "23:16:51",
+                        "23:17:09"
+                    ],
+                    "result": "Team 2 win by flag higher.",
+                    "kills": [
+                        "United_Lykia",
+                        "United_Powder",
+                        "United_Vahshy",
+                        "united_capital",
+                        "Zwierz_Halu",
+                        "Zwierz_Halu",
+                        "United_Ottoman",
+                        "Zwierz_zakzak",
+                        "United_Ottoman"
+                    ],
+                    "teamkills": [],
+                    "icons": [
+                        "Lance",
+                        "ico_couchedlance",
+                        "Scimitar",
+                        "Bamboo Spear",
+                        "Bolts,hb_calf_r",
+                        "Bolts,hb_spine",
+                        "War Spear",
+                        "Light Lance",
+                        "War Spear"
+                    ],
+                    "teams": [
+                        0,
+                        1,
+                        0,
+                        0,
+                        0,
+                        1,
+                        0,
+                        1,
+                        1,
+                        0,
+                        1,
+                        1
+                    ],
+                    "weapons": [
+                        "Lance",
+                        "Lance",
+                        "Scimitar",
+                        "Bamboo Spear",
+                        "Siege Crossbow",
+                        "Siege Crossbow",
+                        "War Spear",
+                        "Light Lance",
+                        "War Spear"
+                    ],
+                    "players": [
+                        "Zwierz_Halu",
+                        "UniTeD_Apollon",
+                        "Zwierz_Szeki",
+                        "Zwierz_zakzak",
+                        "Zwierz_philip",
+                        "United_Ottoman",
+                        "ZWIERZ_Mati",
+                        "United_Vahshy",
+                        "united_capital",
+                        "Zwierz_Papsad",
+                        "United_Powder",
                         "United_Lykia"
                     ],
                     "classes": [
@@ -5494,32 +5510,17 @@
                         "Sarranid Archer",
                         "Rhodok Horseman",
                         "Rhodok Crossbowman",
-                        "Sarranid Mamluke",
+                        "Rhodok Horseman",
                         "Sarranid Archer",
+                        "Rhodok Horseman",
                         "Sarranid Mamluke",
-                        "Rhodok Sergeant",
-                        "Rhodok Crossbowman",
                         "Sarranid Footman",
+                        "Rhodok Sergeant",
+                        "Sarranid Mamluke",
                         "Sarranid Mamluke"
                     ],
-                    "tkicons": [
-                        "Bolts,hb_head",
-                        "Bolts,hb_head"
-                    ],
-                    "end_time": "23:07:05",
-                    "assists": [
-                        0,
-                        0,
-                        0,
-                        1,
-                        1,
-                        0,
-                        0,
-                        0,
-                        0,
-                        0,
-                        0
-                    ]
+                    "tkicons": [],
+                    "end_time": "23:17:03"
                 }
             ]
         },
