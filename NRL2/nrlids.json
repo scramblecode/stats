@@ -98,13 +98,21 @@
         "1048036",
         "2888220",
         "4882638",
-        "3998760"
+        "3998760",
+        "3365230",
+        "1355273",
+        "2715833",
+        "1982963",
+        "3473850",
+        "3847220",
+        "1118515"
     ],
-    "number_of_players": 99,
+    "number_of_players": 106,
     "player_names": [
         [
             "United_Powder",
-            "michael_kaiser"
+            "michael_kaiser",
+            "kira"
         ],
         [
             "Kaltahar_felix"
@@ -204,7 +212,8 @@
         ],
         [
             "ReV_Loonginus",
-            "ReV_multiclassgod"
+            "ReV_multiclassgod",
+            "ReV_cuntkiller"
         ],
         [
             "THC_Moontoor"
@@ -217,7 +226,8 @@
             "rev_vyther"
         ],
         [
-            "ReV_PRO100wnik"
+            "ReV_PRO100wnik",
+            "ReV_niggerkiller"
         ],
         [
             "THC_KamAtaHan"
@@ -227,7 +237,8 @@
             "ReV_Johnny"
         ],
         [
-            "_kibic_ReV_"
+            "_kibic_ReV_",
+            "ReV_admin"
         ],
         [
             "THC_Slogger",
@@ -263,7 +274,8 @@
             "Zwierz_Halu"
         ],
         [
-            "united_capital"
+            "united_capital",
+            "capital"
         ],
         [
             "UniTeD_Apollon",
@@ -335,7 +347,8 @@
             "JealousCableGuy"
         ],
         [
-            "philip"
+            "philip",
+            "Swann_philip"
         ],
         [
             "testo_taylan"
@@ -448,6 +461,27 @@
         ],
         [
             "Gwalcimir_z_Poznania"
+        ],
+        [
+            "[Swann]Iran_Drone_Pilot"
+        ],
+        [
+            "swann_hail_israel"
+        ],
+        [
+            "swann_toblerone"
+        ],
+        [
+            "swann_yakub"
+        ],
+        [
+            "cwel_slowmen"
+        ],
+        [
+            "SWANN_Blitzkrieg"
+        ],
+        [
+            "Swann_klassy"
         ]
     ]
 }
