@@ -105,9 +105,12 @@
         "1982963",
         "3473850",
         "3847220",
-        "1118515"
+        "1118515",
+        "4837044",
+        "1410769",
+        "5652744"
     ],
-    "number_of_players": 106,
+    "number_of_players": 109,
     "player_names": [
         [
             "United_Powder",
@@ -208,7 +211,8 @@
         ],
         [
             "THC_yung_plague",
-            "uzgun"
+            "uzgun",
+            "thc_yung_plague"
         ],
         [
             "ReV_Loonginus",
@@ -226,8 +230,7 @@
             "rev_vyther"
         ],
         [
-            "ReV_PRO100wnik",
-            "ReV_niggerkiller"
+            "ReV_PRO100wnik"
         ],
         [
             "THC_KamAtaHan"
@@ -417,7 +420,8 @@
             "wwcd_props"
         ],
         [
-            "WWCD_Alyss"
+            "WWCD_Alyss",
+            "Swann_Alyss"
         ],
         [
             "WWCD_Bonnie"
@@ -451,7 +455,8 @@
             "NWA_Grynn"
         ],
         [
-            "WWCD_Talliestr0nkest"
+            "WWCD_Talliestr0nkest",
+            "Swann_Talliestr0nkest"
         ],
         [
             "NWA_Drake"
@@ -466,13 +471,15 @@
             "[Swann]Iran_Drone_Pilot"
         ],
         [
-            "swann_hail_israel"
+            "swann_hail_israel",
+            "swann_real"
         ],
         [
             "swann_toblerone"
         ],
         [
-            "swann_yakub"
+            "swann_yakub",
+            "swann_yakub_the_realest"
         ],
         [
             "cwel_slowmen"
@@ -482,6 +489,16 @@
         ],
         [
             "Swann_klassy"
+        ],
+        [
+            "swann_h1tl3rs_r4p3tr14n",
+            "swann_h1tl3rs_r4p3tr41n"
+        ],
+        [
+            "THC_krex"
+        ],
+        [
+            "philip"
         ]
     ]
 }
